@@ -7,13 +7,15 @@ interface DocumentPreviewProps {
   selectedBlocks: TextBlock[];
   documentType: string;
   onExport: (format: string) => void;
+  isExporting?: boolean;
 }
 
 export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   projectInfo,
   selectedBlocks,
   documentType,
-  onExport
+  onExport,
+  isExporting = false
 }) => {
   const formatContent = (content: string) => {
     return content.replace(/\n/g, '<br/>');
@@ -91,33 +93,48 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             <div className="p-6 space-y-4">
               <button
                 onClick={() => onExport('docx')}
-                className="w-full group relative overflow-hidden px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                disabled={isExporting}
+                className={`w-full group relative overflow-hidden px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="flex items-center justify-center gap-3">
-                  <FileText className="w-5 h-5" />
-                  <span className="font-medium">Export to Word</span>
+                  {isExporting ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <FileText className="w-5 h-5" />
+                  )}
+                  <span className="font-medium">{isExporting ? 'Exporting...' : 'Export to Word'}</span>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
               </button>
               
               <button
                 onClick={() => onExport('pdf')}
-                className="w-full group relative overflow-hidden px-6 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                disabled={isExporting}
+                className={`w-full group relative overflow-hidden px-6 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="flex items-center justify-center gap-3">
-                  <FileText className="w-5 h-5" />
-                  <span className="font-medium">Export to PDF</span>
+                  {isExporting ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <FileText className="w-5 h-5" />
+                  )}
+                  <span className="font-medium">{isExporting ? 'Exporting...' : 'Export to PDF'}</span>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
               </button>
               
               <button
                 onClick={() => onExport('gdocs')}
-                className="w-full group relative overflow-hidden px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                disabled={isExporting}
+                className={`w-full group relative overflow-hidden px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="flex items-center justify-center gap-3">
-                  <FileText className="w-5 h-5" />
-                  <span className="font-medium">Google Docs</span>
+                  {isExporting ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <FileText className="w-5 h-5" />
+                  )}
+                  <span className="font-medium">{isExporting ? 'Exporting...' : 'Google Docs'}</span>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
               </button>

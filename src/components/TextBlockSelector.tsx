@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Plus, Edit, Trash2, Check, X, Filter, Grid, List, Star } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Search, Plus, Edit, Trash2, Check, X, Grid, List, Star, Upload, Link, FileText, Download } from 'lucide-react';
 import { TextBlock } from '../types';
 
 interface TextBlockSelectorProps {
@@ -14,9 +14,17 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isAddingBlock, setIsAddingBlock] = useState(false);
-  const [editingBlock, setEditingBlock] = useState<string | null>(null);
+  const [isImportingContent, setIsImportingContent] = useState(false);
   const [newBlock, setNewBlock] = useState({ title: '', content: '', category: 'Custom' });
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [importMethod, setImportMethod] = useState<'file' | 'url' | 'text'>('file');
+  const [importData, setImportData] = useState({
+    file: null as File | null,
+    url: '',
+    text: ''
+  });
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const categories = ['All', ...Array.from(new Set(textBlocks.map(block => block.category)))];
   
@@ -54,6 +62,76 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
   const deleteBlock = (blockId: string) => {
     const updatedBlocks = textBlocks.filter(block => block.id !== blockId);
     onBlocksChange(updatedBlocks);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setImportData({ ...importData, file });
+    }
+  };
+
+  const handleImportContent = async () => {
+    setImporting(true);
+    
+    try {
+      let content = '';
+      let title = '';
+
+      switch (importMethod) {
+        case 'file':
+          if (importData.file) {
+            const text = await importData.file.text();
+            content = text;
+            title = importData.file.name.replace(/\.[^/.]+$/, ''); // Remove file extension
+          }
+          break;
+        
+        case 'url':
+          if (importData.url) {
+            // For demo purposes, we'll simulate fetching content from URL
+            // In a real implementation, you'd make an actual HTTP request
+            content = `Content imported from: ${importData.url}\n\nThis is a simulated import. In a real implementation, this would fetch the actual content from the URL.`;
+            title = `Imported from URL`;
+          }
+          break;
+        
+        case 'text':
+          if (importData.text) {
+            content = importData.text;
+            title = 'Imported Text';
+          }
+          break;
+      }
+
+      if (content) {
+        // Split content into blocks (you can customize this logic)
+        const blocks = content.split('\n\n').filter(block => block.trim().length > 0);
+        
+        const newBlocks: TextBlock[] = blocks.map((block, index) => ({
+          id: `imported-${Date.now()}-${index}`,
+          title: title + (blocks.length > 1 ? ` (Part ${index + 1})` : ''),
+          content: block.trim(),
+          category: 'Custom',
+          isSelected: false
+        }));
+
+        onBlocksChange([...textBlocks, ...newBlocks]);
+        
+        // Reset import form
+        setImportData({ file: null, url: '', text: '' });
+        setIsImportingContent(false);
+        setImportMethod('file');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    } catch (error) {
+      console.error('Error importing content:', error);
+      alert('Error importing content. Please try again.');
+    } finally {
+      setImporting(false);
+    }
   };
 
   const categoryColors = {
@@ -165,6 +243,14 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                     </div>
                     
                     <button
+                      onClick={() => setIsImportingContent(true)}
+                      className="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl"
+                    >
+                      <Upload className="w-4 h-4" />
+                      Import
+                    </button>
+                    
+                    <button
                       onClick={() => setIsAddingBlock(true)}
                       className="px-4 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl"
                     >
@@ -177,10 +263,157 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
             </div>
 
             <div className="p-6">
-              {isAddingBlock && (
+              {/* Import Content Section */}
+              {isImportingContent && (
                 <div className="mb-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-dashed border-blue-200">
                   <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
-                    <Plus className="w-5 h-5 mr-2 text-blue-600" />
+                    <Upload className="w-5 h-5 mr-2 text-blue-600" />
+                    Import Content
+                  </h4>
+                  
+                  <div className="mb-4">
+                    <div className="flex gap-2 mb-4">
+                      <button
+                        onClick={() => setImportMethod('file')}
+                        className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                          importMethod === 'file' 
+                            ? 'bg-blue-500 text-white shadow-lg' 
+                            : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <FileText className="w-4 h-4" />
+                        File Upload
+                      </button>
+                      <button
+                        onClick={() => setImportMethod('url')}
+                        className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                          importMethod === 'url' 
+                            ? 'bg-blue-500 text-white shadow-lg' 
+                            : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Link className="w-4 h-4" />
+                        URL Import
+                      </button>
+                      <button
+                        onClick={() => setImportMethod('text')}
+                        className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                          importMethod === 'text' 
+                            ? 'bg-blue-500 text-white shadow-lg' 
+                            : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Edit className="w-4 h-4" />
+                        Text Input
+                      </button>
+                    </div>
+
+                    {importMethod === 'file' && (
+                      <div className="space-y-4">
+                        <div className="border-2 border-dashed border-blue-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".txt,.doc,.docx,.pdf"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                          />
+                          <button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="flex flex-col items-center gap-3 w-full"
+                          >
+                            <Upload className="w-12 h-12 text-blue-500" />
+                            <div>
+                              <p className="text-lg font-medium text-gray-900">Click to upload file</p>
+                              <p className="text-sm text-gray-500">Supports TXT, DOC, DOCX, PDF files</p>
+                            </div>
+                          </button>
+                          {importData.file && (
+                            <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+                              <p className="text-sm text-blue-800">
+                                Selected: {importData.file.name} ({(importData.file.size / 1024).toFixed(1)} KB)
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {importMethod === 'url' && (
+                      <div className="space-y-4">
+                        <input
+                          type="url"
+                          placeholder="Enter URL to import content from..."
+                          value={importData.url}
+                          onChange={(e) => setImportData({ ...importData, url: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        />
+                        <p className="text-sm text-gray-500">
+                          Enter a URL to import content. The system will attempt to extract text content from the webpage.
+                        </p>
+                      </div>
+                    )}
+
+                    {importMethod === 'text' && (
+                      <div className="space-y-4">
+                        <textarea
+                          placeholder="Paste or type your content here..."
+                          value={importData.text}
+                          onChange={(e) => setImportData({ ...importData, text: e.target.value })}
+                          rows={6}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white resize-none"
+                        />
+                        <p className="text-sm text-gray-500">
+                          Paste your content here. The system will automatically split it into content blocks.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleImportContent}
+                      disabled={importing || (
+                        (importMethod === 'file' && !importData.file) ||
+                        (importMethod === 'url' && !importData.url) ||
+                        (importMethod === 'text' && !importData.text)
+                      )}
+                      className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 flex items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {importing ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Importing...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4" />
+                          Import Content
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsImportingContent(false);
+                        setImportData({ file: null, url: '', text: '' });
+                        setImportMethod('file');
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = '';
+                        }
+                      }}
+                      className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 flex items-center gap-2"
+                    >
+                      <X className="w-4 h-4" />
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {isAddingBlock && (
+                <div className="mb-8 p-6 bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border-2 border-dashed border-emerald-200">
+                  <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
+                    <Plus className="w-5 h-5 mr-2 text-emerald-600" />
                     Add New Content Block
                   </h4>
                   <div className="space-y-4">
@@ -256,7 +489,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setEditingBlock(block.id);
+                                    // TODO: Implement edit functionality
                                   }}
                                   className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
                                 >

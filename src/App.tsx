@@ -29,6 +29,7 @@ function App() {
     servicesComponents: ''
   });
   const [textBlocks, setTextBlocks] = useState<TextBlock[]>(initialTextBlocks);
+  const [isExporting, setIsExporting] = useState(false);
 
   const selectedBlocks = textBlocks.filter(block => block.isSelected);
 
@@ -57,15 +58,201 @@ function App() {
     }
   };
 
-  const handleExport = (format: string) => {
-    // Simulate export functionality
-    alert(`Exporting document as ${format.toUpperCase()}...`);
-    console.log('Export data:', {
-      documentType: selectedDocumentType,
-      projectInfo,
-      selectedBlocks,
-      format
+  const generateDocumentContent = () => {
+    const groupedBlocks = selectedBlocks.reduce((acc, block) => {
+      if (!acc[block.category]) {
+        acc[block.category] = [];
+      }
+      acc[block.category].push(block);
+      return acc;
+    }, {} as Record<string, TextBlock[]>);
+
+    let content = `
+# ${selectedDocumentType.toUpperCase().replace('-', ' ')}
+
+${projectInfo.customerName ? `**Customer:** ${projectInfo.customerName}` : ''}
+${projectInfo.projectName ? `**Project:** ${projectInfo.projectName}` : ''}
+${projectInfo.startDate ? `**Start Date:** ${new Date(projectInfo.startDate).toLocaleDateString()}` : ''}
+
+---
+
+## Project Overview
+${projectInfo.projectOverview || 'No project overview provided.'}
+
+## Technical Overview
+${projectInfo.technicalOverview || 'No technical overview provided.'}
+
+---
+
+## Content Sections
+`;
+
+    Object.entries(groupedBlocks).forEach(([category, blocks]) => {
+      content += `\n### ${category}\n\n`;
+      blocks.forEach((block, index) => {
+        content += `#### ${block.title}\n\n${block.content}\n\n`;
+      });
     });
+
+    if (projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable) {
+      content += `\n## Pricing & Components\n\n`;
+      
+      if (projectInfo.hardwareComponents) {
+        content += `### Hardware Components\n\n${projectInfo.hardwareComponents}\n\n`;
+      }
+      
+      if (projectInfo.servicesComponents) {
+        content += `### Services Components\n\n${projectInfo.servicesComponents}\n\n`;
+      }
+      
+      if (projectInfo.pricingTable) {
+        content += `### Pricing Structure\n\n${projectInfo.pricingTable}\n\n`;
+      }
+    }
+
+    content += `\n---\n\n*Generated on ${new Date().toLocaleDateString()}*`;
+
+    return content;
+  };
+
+  const downloadFile = (content: string, filename: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExport = async (format: string) => {
+    setIsExporting(true);
+    
+    try {
+      const content = generateDocumentContent();
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+      const baseFilename = `${projectInfo.customerName || 'Document'}_${selectedDocumentType}_${timestamp}`;
+
+      switch (format) {
+        case 'pdf':
+          // For PDF, we'll create a simple HTML that can be printed to PDF
+          const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${selectedDocumentType}</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+    h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+    h2 { color: #1e40af; margin-top: 30px; }
+    h3 { color: #1e3a8a; }
+    h4 { color: #1e293b; }
+    .header { text-align: center; margin-bottom: 40px; }
+    .section { margin-bottom: 30px; }
+    .block { background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb; }
+    .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #64748b; }
+    @media print { body { margin: 20px; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
+    ${projectInfo.customerName ? `<h2>${projectInfo.customerName}</h2>` : ''}
+    ${projectInfo.projectName ? `<h3>${projectInfo.projectName}</h3>` : ''}
+    ${projectInfo.startDate ? `<p><strong>Start Date:</strong> ${new Date(projectInfo.startDate).toLocaleDateString()}</p>` : ''}
+  </div>
+
+  <div class="section">
+    <h2>Project Overview</h2>
+    <div class="block">${projectInfo.projectOverview || 'No project overview provided.'}</div>
+  </div>
+
+  <div class="section">
+    <h2>Technical Overview</h2>
+    <div class="block">${projectInfo.technicalOverview || 'No technical overview provided.'}</div>
+  </div>
+
+  ${Object.entries(selectedBlocks.reduce((acc, block) => {
+    if (!acc[block.category]) acc[block.category] = [];
+    acc[block.category].push(block);
+    return acc;
+  }, {} as Record<string, TextBlock[]>)).map(([category, blocks]) => `
+  <div class="section">
+    <h2>${category}</h2>
+    ${blocks.map(block => `
+    <div class="block">
+      <h4>${block.title}</h4>
+      <p>${block.content.replace(/\n/g, '<br>')}</p>
+    </div>
+    `).join('')}
+  </div>
+  `).join('')}
+
+  ${(projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable) ? `
+  <div class="section">
+    <h2>Pricing & Components</h2>
+    ${projectInfo.hardwareComponents ? `
+    <div class="block">
+      <h4>Hardware Components</h4>
+      <p>${projectInfo.hardwareComponents}</p>
+    </div>
+    ` : ''}
+    ${projectInfo.servicesComponents ? `
+    <div class="block">
+      <h4>Services Components</h4>
+      <p>${projectInfo.servicesComponents}</p>
+    </div>
+    ` : ''}
+    ${projectInfo.pricingTable ? `
+    <div class="block">
+      <h4>Pricing Structure</h4>
+      <p>${projectInfo.pricingTable}</p>
+    </div>
+    ` : ''}
+  </div>
+  ` : ''}
+
+  <div class="footer">
+    <p><em>Generated on ${new Date().toLocaleDateString()}</em></p>
+  </div>
+</body>
+</html>`;
+
+          downloadFile(htmlContent, `${baseFilename}.html`, 'text/html');
+          alert('HTML file generated! Open it in a browser and use "Print to PDF" to save as PDF.');
+          break;
+
+        case 'docx':
+          // For DOCX, we'll create a simple text file that can be opened in Word
+          const docxContent = content.replace(/^# (.+)$/gm, 'TITLE: $1')
+                                   .replace(/^## (.+)$/gm, 'HEADING: $1')
+                                   .replace(/^### (.+)$/gm, 'SUBHEADING: $1')
+                                   .replace(/^#### (.+)$/gm, 'SUBSECTION: $1')
+                                   .replace(/\*\*(.+?)\*\*/g, 'BOLD: $1');
+          downloadFile(docxContent, `${baseFilename}.txt`, 'text/plain');
+          alert('Text file generated! Open it in Microsoft Word to convert to DOCX format.');
+          break;
+
+        case 'gdocs':
+          // For Google Docs, we'll create a markdown file that can be imported
+          downloadFile(content, `${baseFilename}.md`, 'text/markdown');
+          alert('Markdown file generated! You can import this into Google Docs.');
+          break;
+
+        default:
+          // Default to plain text
+          downloadFile(content, `${baseFilename}.txt`, 'text/plain');
+          break;
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Error exporting document. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const renderCurrentStep = () => {
@@ -99,6 +286,7 @@ function App() {
             selectedBlocks={selectedBlocks}
             documentType={selectedDocumentType}
             onExport={handleExport}
+            isExporting={isExporting}
           />
         );
       default:
