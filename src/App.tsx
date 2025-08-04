@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { Document, Packer, Paragraph, TextRun } from 'docx';
+
 import { WizardProgress } from './components/WizardProgress';
 import { DocumentTypeSelector } from './components/DocumentTypeSelector';
 import { ProjectInfoForm } from './components/ProjectInfoForm';
@@ -135,6 +137,9 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
       const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
       const baseFilename = `${projectInfo.customerName || 'Document'}_${selectedDocumentType}_${timestamp}`;
 
+      console.log('Starting export for format:', format);
+      console.log('Document content length:', content.length);
+
       switch (format) {
         case 'pdf':
           // For PDF, we'll create a simple HTML that can be printed to PDF
@@ -226,14 +231,166 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
           break;
 
         case 'docx':
-          // For DOCX, we'll create a simple text file that can be opened in Word
-          const docxContent = content.replace(/^# (.+)$/gm, 'TITLE: $1')
-                                   .replace(/^## (.+)$/gm, 'HEADING: $1')
-                                   .replace(/^### (.+)$/gm, 'SUBHEADING: $1')
-                                   .replace(/^#### (.+)$/gm, 'SUBSECTION: $1')
-                                   .replace(/\*\*(.+?)\*\*/g, 'BOLD: $1');
-          downloadFile(docxContent, `${baseFilename}.txt`, 'text/plain');
-          alert('Text file generated! Open it in Microsoft Word to convert to DOCX format.');
+          try {
+            console.log('Starting DOCX generation...');
+            
+            // Create paragraphs array
+            const paragraphs = [];
+            
+            // Title
+            paragraphs.push(new Paragraph({
+              children: [new TextRun({ text: selectedDocumentType.toUpperCase().replace('-', ' '), bold: true })]
+            }));
+            
+            // Customer and Project info
+            paragraphs.push(new Paragraph({
+              children: [new TextRun({ text: `Customer: ${projectInfo.customerName || 'N/A'}` })]
+            }));
+            
+            paragraphs.push(new Paragraph({
+              children: [new TextRun({ text: `Project: ${projectInfo.projectName || 'N/A'}` })]
+            }));
+            
+            // Project Overview
+            paragraphs.push(new Paragraph({
+              children: [new TextRun({ text: "Project Overview", bold: true })]
+            }));
+            paragraphs.push(new Paragraph({
+              children: [new TextRun({ text: projectInfo.projectOverview || 'No project overview provided.' })]
+            }));
+            
+            // Technical Overview
+            paragraphs.push(new Paragraph({
+              children: [new TextRun({ text: "Technical Overview", bold: true })]
+            }));
+            paragraphs.push(new Paragraph({
+              children: [new TextRun({ text: projectInfo.technicalOverview || 'No technical overview provided.' })]
+            }));
+            
+            // Content Blocks
+            selectedBlocks.forEach((block, index) => {
+              paragraphs.push(new Paragraph({
+                children: [new TextRun({ text: `${index + 1}. ${block.title}`, bold: true })]
+              }));
+              paragraphs.push(new Paragraph({
+                children: [new TextRun({ text: block.content })]
+              }));
+            });
+            
+            // Pricing Components
+            if (projectInfo.hardwareComponents) {
+              paragraphs.push(new Paragraph({
+                children: [new TextRun({ text: "Hardware Components", bold: true })]
+              }));
+              paragraphs.push(new Paragraph({
+                children: [new TextRun({ text: projectInfo.hardwareComponents })]
+              }));
+            }
+            
+            if (projectInfo.servicesComponents) {
+              paragraphs.push(new Paragraph({
+                children: [new TextRun({ text: "Services Components", bold: true })]
+              }));
+              paragraphs.push(new Paragraph({
+                children: [new TextRun({ text: projectInfo.servicesComponents })]
+              }));
+            }
+            
+            if (projectInfo.pricingTable) {
+              paragraphs.push(new Paragraph({
+                children: [new TextRun({ text: "Pricing Structure", bold: true })]
+              }));
+              paragraphs.push(new Paragraph({
+                children: [new TextRun({ text: projectInfo.pricingTable })]
+              }));
+            }
+            
+            // Footer
+            paragraphs.push(new Paragraph({
+              children: [new TextRun({ text: `Generated on ${new Date().toLocaleDateString()}`, italics: true })]
+            }));
+            
+            // Create document
+            const doc = new Document({
+              sections: [{
+                properties: {},
+                children: paragraphs
+              }]
+            });
+
+            console.log('Creating DOCX blob...');
+            const blob = await Packer.toBlob(doc);
+            console.log('DOCX blob created, size:', blob.size);
+            
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${baseFilename}.docx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            console.log('DOCX file downloaded successfully');
+          } catch (docxError) {
+            console.error('DOCX generation error:', docxError);
+            console.error('Error details:', (docxError as Error).message, (docxError as Error).stack);
+            
+            // Create a simple text file as fallback
+            const textContent = `
+${selectedDocumentType.toUpperCase().replace('-', ' ')}
+
+Customer: ${projectInfo.customerName || 'N/A'}
+Project: ${projectInfo.projectName || 'N/A'}
+
+PROJECT OVERVIEW
+${projectInfo.projectOverview || 'No project overview provided.'}
+
+TECHNICAL OVERVIEW
+${projectInfo.technicalOverview || 'No technical overview provided.'}
+
+CONTENT BLOCKS
+${selectedBlocks.map((block, index) => `
+${index + 1}. ${block.title}
+${block.content}
+`).join('\n')}
+
+Generated on ${new Date().toLocaleDateString()}
+`;
+
+            // Create a simple DOCX as fallback
+            const fallbackDoc = new Document({
+              sections: [{
+                properties: {},
+                children: [
+                  new Paragraph({
+                    children: [new TextRun({ text: selectedDocumentType.toUpperCase().replace('-', ' '), bold: true })]
+                  }),
+                  new Paragraph({
+                    children: [new TextRun({ text: `Customer: ${projectInfo.customerName || 'N/A'}` })]
+                  }),
+                  new Paragraph({
+                    children: [new TextRun({ text: `Project: ${projectInfo.projectName || 'N/A'}` })]
+                  }),
+                  new Paragraph({
+                    children: [new TextRun({ text: projectInfo.projectOverview || 'No project overview provided.' })]
+                  })
+                ]
+              }]
+            });
+            
+            const fallbackBlob = await Packer.toBlob(fallbackDoc);
+            const fallbackUrl = URL.createObjectURL(fallbackBlob);
+            const fallbackLink = document.createElement('a');
+            fallbackLink.href = fallbackUrl;
+            fallbackLink.download = `${baseFilename}.docx`;
+            document.body.appendChild(fallbackLink);
+            fallbackLink.click();
+            document.body.removeChild(fallbackLink);
+            URL.revokeObjectURL(fallbackUrl);
+            
+            alert('DOCX generation failed. A simplified DOCX file has been created instead.');
+          }
           break;
 
         case 'gdocs':
@@ -249,7 +406,12 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
       }
     } catch (error) {
       console.error('Export error:', error);
-      alert('Error exporting document. Please try again.');
+      console.error('Error details:', {
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+        format: format
+      });
+      alert(`Error exporting document as ${format.toUpperCase()}. Please try again. Error: ${(error as Error).message}`);
     } finally {
       setIsExporting(false);
     }

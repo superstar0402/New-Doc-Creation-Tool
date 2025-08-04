@@ -100,7 +100,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                   {isExporting ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5" />
                   )}
                   <span className="font-medium">{isExporting ? 'Exporting...' : 'Export to Word'}</span>
                 </div>
@@ -116,7 +116,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                   {isExporting ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5" />
                   )}
                   <span className="font-medium">{isExporting ? 'Exporting...' : 'Export to PDF'}</span>
                 </div>
@@ -132,7 +132,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                   {isExporting ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5" />
                   )}
                   <span className="font-medium">{isExporting ? 'Exporting...' : 'Google Docs'}</span>
                 </div>
