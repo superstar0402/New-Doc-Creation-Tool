@@ -8,7 +8,7 @@ import { ProjectInfoForm } from './components/ProjectInfoForm';
 import { TextBlockSelector } from './components/TextBlockSelector';
 import { DocumentPreview } from './components/DocumentPreview';
 import { documentTypes, textBlocks as initialTextBlocks } from './data/mockData';
-import { ProjectInfo, TextBlock, WizardStep, PricingItem } from './types';
+import { ProjectInfo, TextBlock, WizardStep, PricingItem, FormattedContent } from './types';
 
 const wizardSteps: WizardStep[] = [
   { id: 1, title: 'Document Type', description: 'Choose template', completed: false },
@@ -16,6 +16,72 @@ const wizardSteps: WizardStep[] = [
   { id: 3, title: 'Content Blocks', description: 'Select content', completed: false },
   { id: 4, title: 'Preview & Export', description: 'Generate document', completed: false }
 ];
+
+// Helper function to convert formatted content to DOCX TextRuns
+const convertFormattedContentToTextRuns = (formattedContent: FormattedContent[] | undefined): TextRun[] => {
+  if (!formattedContent || formattedContent.length === 0) {
+    return [new TextRun({ text: '' })];
+  }
+
+  return formattedContent.map((item) => {
+    const textRunOptions: any = { text: item.text };
+    
+    if (item.style?.bold) textRunOptions.bold = true;
+    if (item.style?.italic) textRunOptions.italics = true;
+    if (item.style?.underline) textRunOptions.underline = {};
+    if (item.style?.color) textRunOptions.color = item.style.color;
+    if (item.style?.fontSize) {
+      // Convert fontSize to docx size (in half-points)
+      const sizeMap: { [key: string]: number } = {
+        'xs': 16, // 8pt
+        'sm': 20, // 10pt
+        'base': 24, // 12pt
+        'lg': 28, // 14pt
+        'xl': 32, // 16pt
+        '2xl': 36, // 18pt
+        '3xl': 40  // 20pt
+      };
+      textRunOptions.size = sizeMap[item.style.fontSize] || 24;
+    }
+    
+    return new TextRun(textRunOptions);
+  });
+};
+
+// Helper function to convert formatted content to HTML
+const convertFormattedContentToHTML = (formattedContent: FormattedContent[] | undefined): string => {
+  if (!formattedContent || formattedContent.length === 0) {
+    return '';
+  }
+
+  return formattedContent.map((item) => {
+    let html = item.text;
+    
+    if (item.style?.bold) html = `<strong>${html}</strong>`;
+    if (item.style?.italic) html = `<em>${html}</em>`;
+    if (item.style?.underline) html = `<u>${html}</u>`;
+    
+    if (item.style?.color || item.style?.fontSize) {
+      const style = [];
+      if (item.style?.color) style.push(`color: ${item.style.color}`);
+      if (item.style?.fontSize) {
+        const sizeMap: { [key: string]: string } = {
+          'xs': '0.75rem',
+          'sm': '0.875rem',
+          'base': '1rem',
+          'lg': '1.125rem',
+          'xl': '1.25rem',
+          '2xl': '1.5rem',
+          '3xl': '1.875rem'
+        };
+        style.push(`font-size: ${sizeMap[item.style.fontSize] || '1rem'}`);
+      }
+      html = `<span style="${style.join('; ')}">${html}</span>`;
+    }
+    
+    return html;
+  }).join('');
+};
 
 function App() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -212,7 +278,9 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
     ${blocks.map(block => `
     <div class="block">
       <h4>${block.title}</h4>
-      <p>${block.content.replace(/\n/g, '<br>')}</p>
+      <p>${block.formattedContent && block.formattedContent.length > 0 
+        ? convertFormattedContentToHTML(block.formattedContent) 
+        : block.content.replace(/\n/g, '<br>')}</p>
     </div>
     `).join('')}
   </div>
@@ -319,9 +387,17 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               paragraphs.push(new Paragraph({
                 children: [new TextRun({ text: `${index + 1}. ${block.title}`, bold: true })]
               }));
-              paragraphs.push(new Paragraph({
-                children: [new TextRun({ text: block.content })]
-              }));
+              
+              // Use formatted content if available, otherwise fall back to plain content
+              if (block.formattedContent && block.formattedContent.length > 0) {
+                paragraphs.push(new Paragraph({
+                  children: convertFormattedContentToTextRuns(block.formattedContent)
+                }));
+              } else {
+                paragraphs.push(new Paragraph({
+                  children: [new TextRun({ text: block.content })]
+                }));
+              }
             });
             
             // Pricing Components
@@ -448,7 +524,9 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
 CONTENT BLOCKS
 ${selectedBlocks.map((block, index) => `
 ${index + 1}. ${block.title}
-${block.content}
+${block.formattedContent && block.formattedContent.length > 0 
+  ? block.formattedContent.map(item => item.text).join('')
+  : block.content}
 `).join('\n')}
 
 Generated on ${new Date().toLocaleDateString()}

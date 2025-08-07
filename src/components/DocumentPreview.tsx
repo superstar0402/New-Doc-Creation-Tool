@@ -1,6 +1,6 @@
 import React from 'react';
 import { Download, FileText, Eye, Settings, Star, Award, Shield } from 'lucide-react';
-import { ProjectInfo, TextBlock } from '../types';
+import { ProjectInfo, TextBlock, FormattedContent } from '../types';
 
 interface DocumentPreviewProps {
   projectInfo: ProjectInfo;
@@ -9,6 +9,39 @@ interface DocumentPreviewProps {
   onExport: (format: string) => void;
   isExporting?: boolean;
 }
+
+// Helper function to render formatted content (copied/adapted from TextBlockSelector)
+const renderFormattedContent = (formattedContent: FormattedContent[] | undefined) => {
+  if (!formattedContent || formattedContent.length === 0) {
+    return null;
+  }
+  return (
+    <>
+      {formattedContent.map((item, idx) => {
+        const style: React.CSSProperties = {};
+        const className: string[] = [];
+        if (item.style?.fontSize) {
+          switch (item.style.fontSize) {
+            case 'xs': className.push('text-xs'); break;
+            case 'sm': className.push('text-sm'); break;
+            case 'base': className.push('text-base'); break;
+            case 'lg': className.push('text-lg'); break;
+            case 'xl': className.push('text-xl'); break;
+            case '2xl': className.push('text-2xl'); break;
+            case '3xl': className.push('text-3xl'); break;
+          }
+        }
+        if (item.style?.bold) className.push('font-bold');
+        if (item.style?.italic) className.push('italic');
+        if (item.style?.underline) className.push('underline');
+        if (item.style?.color) style.color = item.style.color;
+        return (
+          <span key={idx} className={className.join(' ')} style={style}>{item.text}</span>
+        );
+      })}
+    </>
+  );
+};
 
 export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   projectInfo,
@@ -264,10 +297,11 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                             </div>
                             {block.title}
                           </h4>
-                          <div 
-                            className="prose prose-gray max-w-none text-gray-700 leading-relaxed"
-                            dangerouslySetInnerHTML={{ __html: formatContent(block.content) }}
-                          />
+                          <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed">
+                            {block.formattedContent && block.formattedContent.length > 0
+                              ? renderFormattedContent(block.formattedContent)
+                              : <span dangerouslySetInnerHTML={{ __html: formatContent(block.content) }} />}
+                          </div>
                         </div>
                       ))}
                     </div>
