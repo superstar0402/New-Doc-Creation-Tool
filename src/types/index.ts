@@ -5,6 +5,15 @@ export interface DocumentType {
   icon: string;
 }
 
+export interface PricingItem {
+  id: string;
+  item: string;
+  quantity: number;
+  description: string;
+  price: number;
+  extendedPrice: number;
+}
+
 export interface ProjectInfo {
   customerName: string;
   customerLogo?: File;
@@ -12,7 +21,7 @@ export interface ProjectInfo {
   startDate: string;
   projectOverview: string;
   technicalOverview: string;
-  pricingTable: string;
+  pricingTable: PricingItem[];
   hardwareComponents: string;
   servicesComponents: string;
 }

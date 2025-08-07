@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import { Document, Packer, Paragraph, TextRun } from 'docx';
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType } from 'docx';
 
 import { WizardProgress } from './components/WizardProgress';
 import { DocumentTypeSelector } from './components/DocumentTypeSelector';
@@ -8,7 +8,7 @@ import { ProjectInfoForm } from './components/ProjectInfoForm';
 import { TextBlockSelector } from './components/TextBlockSelector';
 import { DocumentPreview } from './components/DocumentPreview';
 import { documentTypes, textBlocks as initialTextBlocks } from './data/mockData';
-import { ProjectInfo, TextBlock, WizardStep } from './types';
+import { ProjectInfo, TextBlock, WizardStep, PricingItem } from './types';
 
 const wizardSteps: WizardStep[] = [
   { id: 1, title: 'Document Type', description: 'Choose template', completed: false },
@@ -26,7 +26,7 @@ function App() {
     startDate: '',
     projectOverview: '',
     technicalOverview: '',
-    pricingTable: '',
+    pricingTable: [],
     hardwareComponents: '',
     servicesComponents: ''
   });
@@ -52,7 +52,20 @@ function App() {
       case 0:
         return selectedDocumentType !== '';
       case 1:
-        return projectInfo.customerName && projectInfo.projectName;
+        // Check if required fields are filled (customerName and projectName are required)
+        const customerName = projectInfo.customerName || '';
+        const projectName = projectInfo.projectName || '';
+        const isValid = customerName.trim().length > 0 && projectName.trim().length > 0;
+        console.log('Validation check:', { 
+          customerName, 
+          projectName, 
+          customerNameTrimmed: customerName.trim(), 
+          projectNameTrimmed: projectName.trim(),
+          customerNameLength: customerName.trim().length,
+          projectNameLength: projectName.trim().length,
+          isValid 
+        });
+        return isValid;
       case 2:
         return selectedBlocks.length > 0;
       default:
@@ -96,7 +109,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
       });
     });
 
-    if (projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable) {
+    if (projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable.length > 0) {
       content += `\n## Pricing & Components\n\n`;
       
       if (projectInfo.hardwareComponents) {
@@ -107,8 +120,17 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
         content += `### Services Components\n\n${projectInfo.servicesComponents}\n\n`;
       }
       
-      if (projectInfo.pricingTable) {
-        content += `### Pricing Structure\n\n${projectInfo.pricingTable}\n\n`;
+      if (projectInfo.pricingTable.length > 0) {
+        content += `### Pricing Structure\n\n`;
+        content += `| Item | Quantity | Description | Price ($) | Extended Price ($) |\n`;
+        content += `|------|----------|-------------|-----------|-------------------|\n`;
+        
+        projectInfo.pricingTable.forEach(item => {
+          content += `| ${item.item || 'N/A'} | ${item.quantity} | ${item.description || 'N/A'} | $${item.price.toFixed(2)} | $${item.extendedPrice.toFixed(2)} |\n`;
+        });
+        
+        const total = projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0);
+        content += `| **Total** | | | | **$${total.toFixed(2)}** |\n\n`;
       }
     }
 
@@ -196,7 +218,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
   </div>
   `).join('')}
 
-  ${(projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable) ? `
+  ${(projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable.length > 0) ? `
   <div class="section">
     <h2>Pricing & Components</h2>
     ${projectInfo.hardwareComponents ? `
@@ -211,10 +233,35 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
       <p>${projectInfo.servicesComponents}</p>
     </div>
     ` : ''}
-    ${projectInfo.pricingTable ? `
+    ${projectInfo.pricingTable.length > 0 ? `
     <div class="block">
       <h4>Pricing Structure</h4>
-      <p>${projectInfo.pricingTable}</p>
+      <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <thead>
+          <tr style="background-color: #f8fafc;">
+            <th style="border: 1px solid #e2e8f0; padding: 8px; text-align: left;">Item</th>
+            <th style="border: 1px solid #e2e8f0; padding: 8px; text-align: left;">Quantity</th>
+            <th style="border: 1px solid #e2e8f0; padding: 8px; text-align: left;">Description</th>
+            <th style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">Price ($)</th>
+            <th style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">Extended Price ($)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${projectInfo.pricingTable.map(item => `
+            <tr>
+              <td style="border: 1px solid #e2e8f0; padding: 8px;">${item.item || 'N/A'}</td>
+              <td style="border: 1px solid #e2e8f0; padding: 8px;">${item.quantity}</td>
+              <td style="border: 1px solid #e2e8f0; padding: 8px;">${item.description || 'N/A'}</td>
+              <td style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">$${item.price.toFixed(2)}</td>
+              <td style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">$${item.extendedPrice.toFixed(2)}</td>
+            </tr>
+          `).join('')}
+          <tr style="background-color: #f8fafc; font-weight: bold;">
+            <td colspan="4" style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">Total:</td>
+            <td style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">$${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     ` : ''}
   </div>
@@ -296,13 +343,62 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               }));
             }
             
-            if (projectInfo.pricingTable) {
+            if (projectInfo.pricingTable.length > 0) {
               paragraphs.push(new Paragraph({
                 children: [new TextRun({ text: "Pricing Structure", bold: true })]
               }));
-              paragraphs.push(new Paragraph({
-                children: [new TextRun({ text: projectInfo.pricingTable })]
-              }));
+              
+              // Create pricing table
+              const tableRows = [];
+              
+              // Header row
+              const headerRow = new TableRow({
+                children: [
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Item", bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Quantity", bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Description", bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Price ($)", bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Extended Price ($)", bold: true })] })] })
+                ]
+              });
+              tableRows.push(headerRow);
+              
+              // Data rows
+              projectInfo.pricingTable.forEach(item => {
+                const dataRow = new TableRow({
+                  children: [
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.item || 'N/A' })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.quantity.toString() })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.description || 'N/A' })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${item.price.toFixed(2)}` })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${item.extendedPrice.toFixed(2)}` })] })] })
+                  ]
+                });
+                tableRows.push(dataRow);
+              });
+              
+              // Total row
+              const total = projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0);
+              const totalRow = new TableRow({
+                children: [
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Total", bold: true })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "" })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "" })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "" })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${total.toFixed(2)}`, bold: true })] })] })
+                ]
+              });
+              tableRows.push(totalRow);
+              
+              const pricingTable = new Table({
+                rows: tableRows,
+                width: {
+                  size: 100,
+                  type: WidthType.PERCENTAGE,
+                },
+              });
+              
+              paragraphs.push(pricingTable);
             }
             
             // Footer

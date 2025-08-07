@@ -1,6 +1,6 @@
 import React from 'react';
-import { Upload, Calendar, User, Briefcase, Building, MapPin, Phone, Mail } from 'lucide-react';
-import { ProjectInfo } from '../types';
+import { Upload, Calendar, User, Briefcase, Building, MapPin, Phone, Mail, Plus, Trash2 } from 'lucide-react';
+import { ProjectInfo, PricingItem } from '../types';
 
 interface ProjectInfoFormProps {
   projectInfo: ProjectInfo;
@@ -26,6 +26,53 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
         customerLogo: file
       });
     }
+  };
+
+  const handlePricingItemChange = (id: string, field: keyof PricingItem, value: string | number) => {
+    const updatedPricingTable = projectInfo.pricingTable.map(item => {
+      if (item.id === id) {
+        const updatedItem = { ...item, [field]: value };
+        // Calculate extended price
+        if (field === 'quantity' || field === 'price') {
+          updatedItem.extendedPrice = updatedItem.quantity * updatedItem.price;
+        }
+        return updatedItem;
+      }
+      return item;
+    });
+
+    onInfoChange({
+      ...projectInfo,
+      pricingTable: updatedPricingTable
+    });
+  };
+
+  const addPricingItem = () => {
+    const newItem: PricingItem = {
+      id: `item-${Date.now()}`,
+      item: '',
+      quantity: 1,
+      description: '',
+      price: 0,
+      extendedPrice: 0
+    };
+
+    onInfoChange({
+      ...projectInfo,
+      pricingTable: [...projectInfo.pricingTable, newItem]
+    });
+  };
+
+  const removePricingItem = (id: string) => {
+    const updatedPricingTable = projectInfo.pricingTable.filter(item => item.id !== id);
+    onInfoChange({
+      ...projectInfo,
+      pricingTable: updatedPricingTable
+    });
+  };
+
+  const calculateTotal = () => {
+    return projectInfo.pricingTable.reduce((total, item) => total + item.extendedPrice, 0);
   };
 
   return (
@@ -244,16 +291,111 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Pricing Table
-            </label>
-            <textarea
-              value={projectInfo.pricingTable}
-              onChange={(e) => handleInputChange('pricingTable', e.target.value)}
-              rows={5}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-              placeholder="Provide detailed pricing structure, payment terms, and cost breakdown..."
-            />
+            <div className="flex justify-between items-center mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Pricing Table
+              </label>
+              <button
+                type="button"
+                onClick={addPricingItem}
+                className="flex items-center px-4 py-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg hover:from-violet-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Item
+              </button>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                <thead className="bg-gradient-to-r from-violet-50 to-purple-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">Item</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">Quantity</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">Description</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">Price ($)</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">Extended Price ($)</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  {projectInfo.pricingTable.map((item, index) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                      <td className="px-4 py-3 border-b border-gray-100">
+                        <input
+                          type="text"
+                          value={item.item}
+                          onChange={(e) => handlePricingItemChange(item.id, 'item', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300"
+                          placeholder={`Item ${index + 1}`}
+                        />
+                      </td>
+                      <td className="px-4 py-3 border-b border-gray-100">
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => handlePricingItemChange(item.id, 'quantity', parseInt(e.target.value) || 0)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300"
+                        />
+                      </td>
+                      <td className="px-4 py-3 border-b border-gray-100">
+                        <input
+                          type="text"
+                          value={item.description}
+                          onChange={(e) => handlePricingItemChange(item.id, 'description', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300"
+                          placeholder="Description"
+                        />
+                      </td>
+                      <td className="px-4 py-3 border-b border-gray-100">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.price}
+                          onChange={(e) => handlePricingItemChange(item.id, 'price', parseFloat(e.target.value) || 0)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300"
+                        />
+                      </td>
+                      <td className="px-4 py-3 border-b border-gray-100">
+                        <div className="px-3 py-2 bg-gray-50 rounded-lg font-medium text-gray-700">
+                          ${item.extendedPrice.toFixed(2)}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 border-b border-gray-100 text-center">
+                        <button
+                          type="button"
+                          onClick={() => removePricingItem(item.id)}
+                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {projectInfo.pricingTable.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                        No pricing items added yet. Click "Add Item" to get started.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+                {projectInfo.pricingTable.length > 0 && (
+                  <tfoot className="bg-gradient-to-r from-violet-50 to-purple-50">
+                    <tr>
+                      <td colSpan={4} className="px-4 py-3 text-right font-semibold text-gray-700">
+                        Total:
+                      </td>
+                      <td className="px-4 py-3 font-bold text-lg text-violet-700">
+                        ${calculateTotal().toFixed(2)}
+                      </td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
           </div>
         </div>
       </div>

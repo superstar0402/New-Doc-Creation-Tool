@@ -299,10 +299,43 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                         </div>
                       )}
 
-                      {projectInfo.pricingTable && (
+                      {projectInfo.pricingTable && projectInfo.pricingTable.length > 0 && (
                         <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border-l-4 border-amber-500">
                           <h4 className="text-lg font-semibold text-amber-800 mb-3">Pricing Structure</h4>
-                          <p className="text-gray-700 leading-relaxed">{projectInfo.pricingTable}</p>
+                          <div className="overflow-x-auto">
+                            <table className="w-full border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                              <thead className="bg-gradient-to-r from-amber-100 to-orange-100">
+                                <tr>
+                                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">Item</th>
+                                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">Quantity</th>
+                                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200">Description</th>
+                                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 border-b border-gray-200">Price ($)</th>
+                                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 border-b border-gray-200">Extended Price ($)</th>
+                                </tr>
+                              </thead>
+                              <tbody className="bg-white">
+                                {projectInfo.pricingTable.map((item, index) => (
+                                  <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                                    <td className="px-4 py-3 border-b border-gray-100 text-gray-700">{item.item || 'N/A'}</td>
+                                    <td className="px-4 py-3 border-b border-gray-100 text-gray-700">{item.quantity}</td>
+                                    <td className="px-4 py-3 border-b border-gray-100 text-gray-700">{item.description || 'N/A'}</td>
+                                    <td className="px-4 py-3 border-b border-gray-100 text-right text-gray-700">${item.price.toFixed(2)}</td>
+                                    <td className="px-4 py-3 border-b border-gray-100 text-right text-gray-700 font-medium">${item.extendedPrice.toFixed(2)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                              <tfoot className="bg-gradient-to-r from-amber-100 to-orange-100">
+                                <tr>
+                                  <td colSpan={4} className="px-4 py-3 text-right font-semibold text-gray-700">
+                                    Total:
+                                  </td>
+                                  <td className="px-4 py-3 font-bold text-lg text-amber-700">
+                                    ${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}
+                                  </td>
+                                </tr>
+                              </tfoot>
+                            </table>
+                          </div>
                         </div>
                       )}
                     </div>
