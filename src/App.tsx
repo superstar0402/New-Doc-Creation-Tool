@@ -278,9 +278,11 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
     ${blocks.map(block => `
     <div class="block">
       <h4>${block.title}</h4>
+      ${(block.headerOptions && block.headerOptions.some(opt => opt)) ? `<div class="text-xs text-gray-500 mb-1">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</div>` : ''}
       <p>${block.formattedContent && block.formattedContent.length > 0 
         ? convertFormattedContentToHTML(block.formattedContent) 
         : block.content.replace(/\n/g, '<br>')}</p>
+      ${(block.footerOptions && block.footerOptions.some(opt => opt)) ? `<div class="text-xs text-gray-500 mt-2">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</div>` : ''}
     </div>
     `).join('')}
   </div>
@@ -387,7 +389,12 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               paragraphs.push(new Paragraph({
                 children: [new TextRun({ text: `${index + 1}. ${block.title}`, bold: true })]
               }));
-              
+              // Header options
+              if (block.headerOptions && block.headerOptions.some(opt => opt)) {
+                paragraphs.push(new Paragraph({
+                  children: [new TextRun({ text: `Header: ${block.headerOptions.filter(Boolean).join(' | ')}`, italics: true, size: 18 })]
+                }));
+              }
               // Use formatted content if available, otherwise fall back to plain content
               if (block.formattedContent && block.formattedContent.length > 0) {
                 paragraphs.push(new Paragraph({
@@ -396,6 +403,12 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               } else {
                 paragraphs.push(new Paragraph({
                   children: [new TextRun({ text: block.content })]
+                }));
+              }
+              // Footer options
+              if (block.footerOptions && block.footerOptions.some(opt => opt)) {
+                paragraphs.push(new Paragraph({
+                  children: [new TextRun({ text: `Footer: ${block.footerOptions.filter(Boolean).join(' | ')}`, italics: true, size: 18 })]
                 }));
               }
             });
@@ -524,9 +537,11 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
 CONTENT BLOCKS
 ${selectedBlocks.map((block, index) => `
 ${index + 1}. ${block.title}
+${block.headerOptions && block.headerOptions.some(opt => opt) ? `Header: ${block.headerOptions.filter(Boolean).join(' | ')}` : ''}
 ${block.formattedContent && block.formattedContent.length > 0 
   ? block.formattedContent.map(item => item.text).join('')
   : block.content}
+${block.footerOptions && block.footerOptions.some(opt => opt) ? `Footer: ${block.footerOptions.filter(Boolean).join(' | ')}` : ''}
 `).join('\n')}
 
 Generated on ${new Date().toLocaleDateString()}

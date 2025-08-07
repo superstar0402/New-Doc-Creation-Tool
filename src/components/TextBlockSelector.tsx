@@ -248,6 +248,15 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
     'Custom': 'from-gray-500 to-gray-600'
   };
 
+  // Helper to safely set editBlock with header/footer options always present
+  const openEditBlock = (block: TextBlock) => {
+    setEditBlock({
+      ...block,
+      headerOptions: block.headerOptions && block.headerOptions.length === 2 ? block.headerOptions : [block.headerOptions?.[0] || '', block.headerOptions?.[1] || ''],
+      footerOptions: block.footerOptions && block.footerOptions.length === 2 ? block.footerOptions : [block.footerOptions?.[0] || '', block.footerOptions?.[1] || ''],
+    });
+  };
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
       {/* Hero Section */}
@@ -715,27 +724,27 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         <div className="flex items-center justify-between w-full">
                           <span className="text-white font-medium text-sm">{block.category}</span>
                           <div className="flex items-center gap-2">
+                            {/* Allow editing for all blocks, not just custom ones */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openEditBlock(block);
+                              }}
+                              className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            {/* Only allow deleting custom blocks */}
                             {block.id.startsWith('custom-') && (
-                              <>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setEditBlock(block);
-                                  }}
-                                  className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteBlock(block.id);
-                                  }}
-                                  className="p-1.5 text-white/80 hover:text-white hover:bg-red-500/30 rounded-lg transition-all duration-200"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteBlock(block.id);
+                                }}
+                                className="p-1.5 text-white/80 hover:text-white hover:bg-red-500/30 rounded-lg transition-all duration-200"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             )}
                             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
                               block.isSelected
