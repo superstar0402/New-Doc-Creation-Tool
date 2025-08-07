@@ -103,7 +103,9 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isAddingBlock, setIsAddingBlock] = useState(false);
   const [isImportingContent, setIsImportingContent] = useState(false);
-  const [newBlock, setNewBlock] = useState({ title: '', content: '', category: 'Custom' });
+  // Update newBlock state to include headerOptions and footerOptions
+  const [newBlock, setNewBlock] = useState({ title: '', content: '', category: 'Custom', headerOptions: ['', ''], footerOptions: ['', ''] });
+  const [editBlock, setEditBlock] = useState<TextBlock | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [importMethod, setImportMethod] = useState<'file' | 'url' | 'text'>('file');
   const [importData, setImportData] = useState({
@@ -117,8 +119,11 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
   const categories = ['All', ...Array.from(new Set(textBlocks.map(block => block.category)))];
   
   const filteredBlocks = textBlocks.filter(block => {
-    const matchesSearch = block.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         block.content.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      block.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      block.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (block.headerOptions && block.headerOptions.some(opt => opt.toLowerCase().includes(searchTerm.toLowerCase()))) ||
+      (block.footerOptions && block.footerOptions.some(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())));
     const matchesCategory = selectedCategory === 'All' || block.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -139,11 +144,23 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         title: newBlock.title,
         content: newBlock.content,
         category: newBlock.category,
-        isSelected: false
+        isSelected: false,
+        headerOptions: newBlock.headerOptions,
+        footerOptions: newBlock.footerOptions
       };
       onBlocksChange([...textBlocks, block]);
-      setNewBlock({ title: '', content: '', category: 'Custom' });
+      setNewBlock({ title: '', content: '', category: 'Custom', headerOptions: ['', ''], footerOptions: ['', ''] });
       setIsAddingBlock(false);
+    }
+  };
+
+  const handleEditBlockSave = () => {
+    if (editBlock) {
+      const updatedBlocks = textBlocks.map(block =>
+        block.id === editBlock.id ? { ...editBlock } : block
+      );
+      onBlocksChange(updatedBlocks);
+      setEditBlock(null);
     }
   };
 
@@ -533,6 +550,44 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                       rows={4}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
                     />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">Header Option 1</label>
+                        <input
+                          type="text"
+                          value={newBlock.headerOptions[0]}
+                          onChange={e => setNewBlock({ ...newBlock, headerOptions: [e.target.value, newBlock.headerOptions[1]] })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">Header Option 2</label>
+                        <input
+                          type="text"
+                          value={newBlock.headerOptions[1]}
+                          onChange={e => setNewBlock({ ...newBlock, headerOptions: [newBlock.headerOptions[0], e.target.value] })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">Footer Option 1</label>
+                        <input
+                          type="text"
+                          value={newBlock.footerOptions[0]}
+                          onChange={e => setNewBlock({ ...newBlock, footerOptions: [e.target.value, newBlock.footerOptions[1]] })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold mb-1">Footer Option 2</label>
+                        <input
+                          type="text"
+                          value={newBlock.footerOptions[1]}
+                          onChange={e => setNewBlock({ ...newBlock, footerOptions: [newBlock.footerOptions[0], e.target.value] })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                        />
+                      </div>
+                    </div>
                     <div className="flex gap-3">
                       <button
                         onClick={addNewBlock}
@@ -548,6 +603,94 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         <X className="w-4 h-4" />
                         Cancel
                       </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Edit Block Modal */}
+              {editBlock && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                  <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg relative">
+                    <button
+                      className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+                      onClick={() => setEditBlock(null)}
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
+                      <Edit className="w-5 h-5 mr-2 text-primary-600" />
+                      Edit Content Block
+                    </h4>
+                    <div className="space-y-4">
+                      <input
+                        type="text"
+                        placeholder="Block title"
+                        value={editBlock.title}
+                        onChange={e => setEditBlock({ ...editBlock, title: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                      />
+                      <textarea
+                        placeholder="Block content"
+                        value={editBlock.content}
+                        onChange={e => setEditBlock({ ...editBlock, content: e.target.value })}
+                        rows={4}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
+                      />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold mb-1">Header Option 1</label>
+                          <input
+                            type="text"
+                            value={editBlock.headerOptions?.[0] || ''}
+                            onChange={e => setEditBlock({ ...editBlock, headerOptions: [e.target.value, editBlock.headerOptions?.[1] || ''] })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold mb-1">Header Option 2</label>
+                          <input
+                            type="text"
+                            value={editBlock.headerOptions?.[1] || ''}
+                            onChange={e => setEditBlock({ ...editBlock, headerOptions: [editBlock.headerOptions?.[0] || '', e.target.value] })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold mb-1">Footer Option 1</label>
+                          <input
+                            type="text"
+                            value={editBlock.footerOptions?.[0] || ''}
+                            onChange={e => setEditBlock({ ...editBlock, footerOptions: [e.target.value, editBlock.footerOptions?.[1] || ''] })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold mb-1">Footer Option 2</label>
+                          <input
+                            type="text"
+                            value={editBlock.footerOptions?.[1] || ''}
+                            onChange={e => setEditBlock({ ...editBlock, footerOptions: [editBlock.footerOptions?.[0] || '', e.target.value] })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={handleEditBlockSave}
+                          className="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-300 flex items-center gap-2 shadow-lg"
+                        >
+                          <Check className="w-4 h-4" />
+                          Save Changes
+                        </button>
+                        <button
+                          onClick={() => setEditBlock(null)}
+                          className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 flex items-center gap-2"
+                        >
+                          <X className="w-4 h-4" />
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -577,7 +720,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    // TODO: Implement edit functionality
+                                    setEditBlock(block);
                                   }}
                                   className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
                                 >
@@ -622,6 +765,23 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             block.content.substring(0, viewMode === 'grid' ? 150 : 300) + (block.content.length > (viewMode === 'grid' ? 150 : 300) ? '...' : '')
                           }
                         </p>
+                        {/* Show header/footer options if present */}
+                        {(block.headerOptions && block.headerOptions.some(opt => opt)) && (
+                          <div className="mt-2">
+                            <div className="text-xs font-semibold text-gray-500 mb-1">Header Options:</div>
+                            <ul className="text-xs text-gray-500 space-y-1">
+                              {block.headerOptions.map((opt, idx) => opt && <li key={idx}>• {opt}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {(block.footerOptions && block.footerOptions.some(opt => opt)) && (
+                          <div className="mt-2">
+                            <div className="text-xs font-semibold text-gray-500 mb-1">Footer Options:</div>
+                            <ul className="text-xs text-gray-500 space-y-1">
+                              {block.footerOptions.map((opt, idx) => opt && <li key={idx}>• {opt}</li>)}
+                            </ul>
+                          </div>
+                        )}
                         
                         <div className="mt-4 flex items-center justify-between">
                           <div className="text-xs text-gray-400">

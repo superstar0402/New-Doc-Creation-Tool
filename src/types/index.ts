@@ -33,6 +33,8 @@ export interface TextBlock {
   formattedContent?: FormattedContent[];
   category: string;
   isSelected: boolean;
+  headerOptions?: string[];
+  footerOptions?: string[];
 }
 
 export interface FormattedContent {

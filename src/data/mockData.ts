@@ -44,7 +44,9 @@ export const textBlocks: TextBlock[] = [
       { text: '.', style: { fontSize: 'base' } }
     ],
     category: 'Introduction',
-    isSelected: false
+    isSelected: false,
+    headerOptions: ['Header Option 1', 'Header Option 2'],
+    footerOptions: ['Footer Option 1', 'Footer Option 2']
   },
   {
     id: 'intro-2',
@@ -60,7 +62,9 @@ export const textBlocks: TextBlock[] = [
       { text: ' brings extensive experience across various industries and technology platforms.', style: { fontSize: 'base' } }
     ],
     category: 'Introduction',
-    isSelected: false
+    isSelected: false,
+    headerOptions: ['Header Option 1', 'Header Option 2'],
+    footerOptions: ['Footer Option 1', 'Footer Option 2']
   },
   {
     id: 'req-1',
@@ -82,7 +86,9 @@ export const textBlocks: TextBlock[] = [
       { text: '.', style: { fontSize: 'base' } }
     ],
     category: 'Requirements',
-    isSelected: false
+    isSelected: false,
+    headerOptions: ['Header Option 1', 'Header Option 2'],
+    footerOptions: ['Footer Option 1', 'Footer Option 2']
   },
   {
     id: 'req-2',
@@ -102,7 +108,9 @@ export const textBlocks: TextBlock[] = [
       { text: ' before proceeding to subsequent phases.', style: { fontSize: 'base' } }
     ],
     category: 'Requirements',
-    isSelected: false
+    isSelected: false,
+    headerOptions: ['Header Option 1', 'Header Option 2'],
+    footerOptions: ['Footer Option 1', 'Footer Option 2']
   },
   {
     id: 'assume-1',
@@ -120,7 +128,9 @@ export const textBlocks: TextBlock[] = [
       { text: ' and may result in additional costs.', style: { fontSize: 'base' } }
     ],
     category: 'Assumptions',
-    isSelected: false
+    isSelected: false,
+    headerOptions: ['Header Option 1', 'Header Option 2'],
+    footerOptions: ['Footer Option 1', 'Footer Option 2']
   },
   {
     id: 'assume-2',
@@ -142,7 +152,9 @@ export const textBlocks: TextBlock[] = [
       { text: '.', style: { fontSize: 'base' } }
     ],
     category: 'Assumptions',
-    isSelected: false
+    isSelected: false,
+    headerOptions: ['Header Option 1', 'Header Option 2'],
+    footerOptions: ['Footer Option 1', 'Footer Option 2']
   },
   {
     id: 'except-1',
@@ -160,7 +172,9 @@ export const textBlocks: TextBlock[] = [
       { text: ' will be quoted separately.', style: { fontSize: 'base' } }
     ],
     category: 'Exceptions',
-    isSelected: false
+    isSelected: false,
+    headerOptions: ['Header Option 1', 'Header Option 2'],
+    footerOptions: ['Footer Option 1', 'Footer Option 2']
   },
   {
     id: 'except-2',
@@ -178,7 +192,9 @@ export const textBlocks: TextBlock[] = [
       { text: ' upon request.', style: { fontSize: 'base' } }
     ],
     category: 'Exceptions',
-    isSelected: false
+    isSelected: false,
+    headerOptions: ['Header Option 1', 'Header Option 2'],
+    footerOptions: ['Footer Option 1', 'Footer Option 2']
   },
   {
     id: 'resource-1',
@@ -198,7 +214,9 @@ export const textBlocks: TextBlock[] = [
       { text: ' with relevant industry experience.', style: { fontSize: 'base' } }
     ],
     category: 'Resources',
-    isSelected: false
+    isSelected: false,
+    headerOptions: ['Header Option 1', 'Header Option 2'],
+    footerOptions: ['Footer Option 1', 'Footer Option 2']
   },
   {
     id: 'resource-2',
@@ -216,7 +234,9 @@ export const textBlocks: TextBlock[] = [
       { text: ' are available under separate terms.', style: { fontSize: 'base' } }
     ],
     category: 'Resources',
-    isSelected: false
+    isSelected: false,
+    headerOptions: ['Header Option 1', 'Header Option 2'],
+    footerOptions: ['Footer Option 1', 'Footer Option 2']
   }
 ];
 
