@@ -674,9 +674,9 @@ Generated on ${new Date().toLocaleDateString()}
                   style={{ width: `${((currentStep + 1) / wizardSteps.length) * 100}%` }}
                 ></div>
               </div>
-              <div className="text-sm text-gray-600 bg-white/60 px-4 py-2 rounded-full border border-gray-200">
+              {/* <div className="text-sm text-gray-600 bg-white/60 px-4 py-2 rounded-full border border-gray-200">
                 <span className="font-medium">Contact Dmytro:</span> plyskadmytro1@gmail.com
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
