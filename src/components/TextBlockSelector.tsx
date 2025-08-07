@@ -1,11 +1,99 @@
 import React, { useState, useRef } from 'react';
 import { Search, Plus, Edit, Trash2, Check, X, Grid, List, Star, Upload, Link, FileText, Download } from 'lucide-react';
-import { TextBlock } from '../types';
+import { TextBlock, FormattedContent } from '../types';
 
 interface TextBlockSelectorProps {
   textBlocks: TextBlock[];
   onBlocksChange: (blocks: TextBlock[]) => void;
 }
+
+// Helper function to render formatted content
+const renderFormattedContent = (formattedContent: FormattedContent[] | undefined, maxLength?: number) => {
+  if (!formattedContent || formattedContent.length === 0) {
+    return null;
+  }
+
+  let currentLength = 0;
+  const elements: React.ReactNode[] = [];
+
+  for (const item of formattedContent) {
+    if (maxLength && currentLength >= maxLength) {
+      elements.push(<span key={`ellipsis-${currentLength}`}>...</span>);
+      break;
+    }
+
+    const style: React.CSSProperties = {};
+    const className: string[] = [];
+
+    // Apply font size
+    if (item.style?.fontSize) {
+      switch (item.style.fontSize) {
+        case 'xs':
+          className.push('text-xs');
+          break;
+        case 'sm':
+          className.push('text-sm');
+          break;
+        case 'base':
+          className.push('text-base');
+          break;
+        case 'lg':
+          className.push('text-lg');
+          break;
+        case 'xl':
+          className.push('text-xl');
+          break;
+        case '2xl':
+          className.push('text-2xl');
+          break;
+        case '3xl':
+          className.push('text-3xl');
+          break;
+      }
+    }
+
+    // Apply font weight
+    if (item.style?.bold) {
+      className.push('font-bold');
+    }
+
+    // Apply font style
+    if (item.style?.italic) {
+      className.push('italic');
+    }
+
+    // Apply text decoration
+    if (item.style?.underline) {
+      className.push('underline');
+    }
+
+    // Apply color
+    if (item.style?.color) {
+      style.color = item.style.color;
+    }
+
+    const textContent = maxLength && currentLength + item.text.length > maxLength 
+      ? item.text.substring(0, maxLength - currentLength)
+      : item.text;
+
+    elements.push(
+      <span
+        key={`${currentLength}-${item.text.substring(0, 10)}`}
+        className={className.join(' ')}
+        style={style}
+      >
+        {textContent}
+      </span>
+    );
+
+    currentLength += item.text.length;
+    if (maxLength && currentLength >= maxLength) {
+      break;
+    }
+  }
+
+  return <>{elements}</>;
+};
 
 export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
   textBlocks,
@@ -529,8 +617,10 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         <p className={`text-sm leading-relaxed transition-colors duration-300 ${
                           block.isSelected ? 'text-primary-700' : 'text-gray-600 group-hover:text-gray-700'
                         }`}>
-                          {block.content.substring(0, viewMode === 'grid' ? 150 : 300)}
-                          {block.content.length > (viewMode === 'grid' ? 150 : 300) && '...'}
+                          {block.formattedContent ? 
+                            renderFormattedContent(block.formattedContent, viewMode === 'grid' ? 150 : 300) :
+                            block.content.substring(0, viewMode === 'grid' ? 150 : 300) + (block.content.length > (viewMode === 'grid' ? 150 : 300) ? '...' : '')
+                          }
                         </p>
                         
                         <div className="mt-4 flex items-center justify-between">
@@ -606,7 +696,13 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               <X className="w-4 h-4" />
                             </button>
                           </div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-gray-600 leading-relaxed">
+                            {block.formattedContent ? 
+                              renderFormattedContent(block.formattedContent, 100) :
+                              block.content.substring(0, 100) + (block.content.length > 100 ? '...' : '')
+                            }
+                          </div>
+                          <div className="text-xs text-gray-400 mt-2">
                             Position: {index + 1}
                           </div>
                         </div>

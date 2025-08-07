@@ -30,8 +30,21 @@ export interface TextBlock {
   id: string;
   title: string;
   content: string;
+  formattedContent?: FormattedContent[];
   category: string;
   isSelected: boolean;
+}
+
+export interface FormattedContent {
+  text: string;
+  style?: {
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    fontSize?: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl';
+    color?: string;
+    fontFamily?: string;
+  };
 }
 
 export interface DocumentTemplate {
