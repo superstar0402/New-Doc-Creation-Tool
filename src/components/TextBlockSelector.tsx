@@ -1,6 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { Search, Plus, Edit, Trash2, Check, X, Grid, List, Star, Upload, Link, FileText, Download } from 'lucide-react';
 import { TextBlock, FormattedContent } from '../types';
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 interface TextBlockSelectorProps {
   textBlocks: TextBlock[];
@@ -646,6 +650,60 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         rows={4}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
                       />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="file"
+                          accept=".txt,.doc,.docx,.pdf"
+                          id="edit-block-upload"
+                          style={{ display: 'none' }}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            let text = '';
+                            if (file.type === 'application/pdf') {
+                              // PDF: use PDF.js or fallback
+                              try {
+                                const arrayBuffer = await file.arrayBuffer();
+                                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                                let pdfText = '';
+                                for (let i = 1; i <= pdf.numPages; i++) {
+                                  const page = await pdf.getPage(i);
+                                  const content = await page.getTextContent();
+                                  pdfText += content.items.map((item: any) => item.str).join(' ') + '\n';
+                                }
+                                text = pdfText;
+                              } catch (err) {
+                                alert('PDF reading failed. Please use a .txt file or paste content manually.');
+                                return;
+                              }
+                            } else if (file.name.endsWith('.docx')) {
+                              // DOCX: use mammoth
+                              try {
+                                const mammoth = await import('mammoth');
+                                const arrayBuffer = await file.arrayBuffer();
+                                const result = await mammoth.extractRawText({ arrayBuffer });
+                                text = result.value;
+                              } catch (err) {
+                                alert('DOCX reading failed. Please use a .txt file or paste content manually.');
+                                return;
+                              }
+                            } else if (file.name.endsWith('.doc')) {
+                              alert('DOC files are not supported. Please use DOCX, TXT, or PDF.');
+                              return;
+                            } else {
+                              // TXT or fallback
+                              text = await file.text();
+                            }
+                            setEditBlock({ ...editBlock, content: text });
+                          }}
+                        />
+                        <label htmlFor="edit-block-upload" className="px-3 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-all text-xs">
+                          Upload Content
+                        </label>
+                        {editBlock.content && (
+                          <span className="text-xs text-gray-400">{editBlock.content.length} chars</span>
+                        )}
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-semibold mb-1">Header Option 1</label>
