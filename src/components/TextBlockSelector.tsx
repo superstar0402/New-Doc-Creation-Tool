@@ -119,6 +119,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
   });
   const [importing, setImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const addBlockFileInputRef = useRef<HTMLInputElement>(null);
 
   const categories = ['All', ...Array.from(new Set(textBlocks.map(block => block.category)))];
   
@@ -155,6 +156,10 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
       onBlocksChange([...textBlocks, block]);
       setNewBlock({ title: '', content: '', category: 'Custom', headerOptions: ['', ''], footerOptions: ['', ''] });
       setIsAddingBlock(false);
+      // Reset file input
+      if (addBlockFileInputRef.current) {
+        addBlockFileInputRef.current.value = '';
+      }
     }
   };
 
@@ -564,13 +569,76 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         <option value="Resources">Resources</option>
                       </select>
                     </div>
-                    <textarea
-                      placeholder="Block content"
-                      value={newBlock.content}
-                      onChange={(e) => setNewBlock({ ...newBlock, content: e.target.value })}
-                      rows={4}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
-                    />
+                    <div className="space-y-3">
+                      <textarea
+                        placeholder="Block content"
+                        value={newBlock.content}
+                        onChange={(e) => setNewBlock({ ...newBlock, content: e.target.value })}
+                        rows={6}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
+                      />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="file"
+                          accept=".txt,.doc,.docx,.pdf"
+                          id="add-block-upload"
+                          style={{ display: 'none' }}
+                          ref={addBlockFileInputRef}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            let text = '';
+                            if (file.type === 'application/pdf') {
+                              // PDF: use PDF.js or fallback
+                              try {
+                                const arrayBuffer = await file.arrayBuffer();
+                                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                                let pdfText = '';
+                                for (let i = 1; i <= pdf.numPages; i++) {
+                                  const page = await pdf.getPage(i);
+                                  const content = await page.getTextContent();
+                                  pdfText += content.items.map((item: any) => item.str).join(' ') + '\n';
+                                }
+                                text = pdfText;
+                              } catch (err) {
+                                alert('PDF reading failed. Please use a .txt file or paste content manually.');
+                                return;
+                              }
+                            } else if (file.name.endsWith('.docx')) {
+                              // DOCX: use mammoth
+                              try {
+                                const mammoth = await import('mammoth');
+                                const arrayBuffer = await file.arrayBuffer();
+                                const result = await mammoth.extractRawText({ arrayBuffer });
+                                text = result.value;
+                              } catch (err) {
+                                alert('DOCX reading failed. Please use a .txt file or paste content manually.');
+                                return;
+                              }
+                            } else if (file.name.endsWith('.doc')) {
+                              alert('DOC files are not supported. Please use DOCX, TXT, or PDF.');
+                              return;
+                            } else {
+                              // TXT or fallback
+                              text = await file.text();
+                            }
+                            setNewBlock({ ...newBlock, content: text });
+                          }}
+                        />
+                        <label htmlFor="add-block-upload" className="px-3 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-all text-xs">
+                          Upload Content
+                        </label>
+                        <button
+                          onClick={() => setNewBlock({ ...newBlock, content: '' })}
+                          className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all text-xs"
+                        >
+                          Clear Content
+                        </button>
+                        <span className="text-xs text-gray-400">
+                          {newBlock.content ? newBlock.content.length : 0} chars
+                        </span>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-semibold mb-1">Header Option 1</label>
@@ -618,7 +686,13 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         Add Block
                       </button>
                       <button
-                        onClick={() => setIsAddingBlock(false)}
+                        onClick={() => {
+                          setIsAddingBlock(false);
+                          // Reset file input
+                          if (addBlockFileInputRef.current) {
+                            addBlockFileInputRef.current.value = '';
+                          }
+                        }}
                         className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 flex items-center gap-2"
                       >
                         <X className="w-4 h-4" />
