@@ -1,6 +1,53 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, Calendar, User, Briefcase, Building, MapPin, Phone, Mail, Plus, Trash2 } from 'lucide-react';
 import { ProjectInfo, PricingItem } from '../types';
+
+// Utility function to format date consistently in MM/DD/YYYY format
+const formatDate = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+  
+  return `${month}/${day}/${year}`;
+};
+
+// Utility function to convert MM/DD/YYYY to YYYY-MM-DD for storage
+const parseDateInput = (inputValue: string): string => {
+  if (!inputValue) return '';
+  
+  // Remove any non-numeric characters except slashes
+  const cleaned = inputValue.replace(/[^\d/]/g, '');
+  
+  // Check if it matches MM/DD/YYYY pattern
+  const datePattern = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+  const match = cleaned.match(datePattern);
+  
+  if (match) {
+    const [, month, day, year] = match;
+    const monthNum = parseInt(month, 10);
+    const dayNum = parseInt(day, 10);
+    const yearNum = parseInt(year, 10);
+    
+    // Basic validation
+    if (monthNum < 1 || monthNum > 12) return '';
+    if (dayNum < 1 || dayNum > 31) return '';
+    if (yearNum < 1900 || yearNum > 2100) return '';
+    
+    // Validate date using Date object
+    const date = new Date(yearNum, monthNum - 1, dayNum);
+    if (date.getFullYear() === yearNum && 
+        date.getMonth() === monthNum - 1 && 
+        date.getDate() === dayNum) {
+      return `${yearNum}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+  }
+  
+  return '';
+};
 
 interface ProjectInfoFormProps {
   projectInfo: ProjectInfo;
@@ -11,11 +58,53 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
   projectInfo,
   onInfoChange
 }) => {
+  const [dateInputValue, setDateInputValue] = useState('');
+
+  // Update date input display when projectInfo.startDate changes
+  useEffect(() => {
+    setDateInputValue(formatDate(projectInfo.startDate));
+  }, [projectInfo.startDate]);
+
   const handleInputChange = (field: keyof ProjectInfo, value: string) => {
     onInfoChange({
       ...projectInfo,
       [field]: value
     });
+  };
+
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    setDateInputValue(inputValue);
+    
+    // Allow empty input
+    if (!inputValue) {
+      handleInputChange('startDate', '');
+      return;
+    }
+    
+    // Remove any non-numeric characters except slashes
+    const cleaned = inputValue.replace(/[^\d/]/g, '');
+    
+    // Auto-format as user types
+    let formatted = cleaned;
+    if (cleaned.length >= 2 && !cleaned.includes('/')) {
+      formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2);
+    }
+    if (formatted.length >= 5 && formatted.split('/').length === 2) {
+      formatted = formatted.slice(0, 5) + '/' + formatted.slice(5);
+    }
+    
+    // Limit to MM/DD/YYYY format
+    if (formatted.length > 10) {
+      formatted = formatted.slice(0, 10);
+    }
+    
+    // Update the input display
+    setDateInputValue(formatted);
+    
+    // Parse and store the date
+    const parsedDate = parseDateInput(formatted);
+    handleInputChange('startDate', parsedDate);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,12 +295,24 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
-                        type="date"
-                        value={projectInfo.startDate}
-                        onChange={(e) => handleInputChange('startDate', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white"
+                        type="text"
+                        value={dateInputValue}
+                        onChange={handleDateInputChange}
+                        className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white ${
+                          dateInputValue && !projectInfo.startDate ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="MM/DD/YYYY"
+                        maxLength={10}
                       />
                     </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Format: MM/DD/YYYY (e.g., 12/25/2024)
+                    </p>
+                    {dateInputValue && !projectInfo.startDate && (
+                      <p className="mt-1 text-xs text-red-500">
+                        Please enter a valid date in MM/DD/YYYY format
+                      </p>
+                    )}
                   </div>
                 </div>
 
