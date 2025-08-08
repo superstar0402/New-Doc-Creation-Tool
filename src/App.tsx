@@ -8,7 +8,7 @@ import { ProjectInfoForm } from './components/ProjectInfoForm';
 import { TextBlockSelector } from './components/TextBlockSelector';
 import { DocumentPreview } from './components/DocumentPreview';
 import { documentTypes, textBlocks as initialTextBlocks } from './data/mockData';
-import { ProjectInfo, TextBlock, WizardStep, PricingItem, FormattedContent } from './types';
+import { ProjectInfo, TextBlock, WizardStep, PricingItem, FormattedContent, TextFormatting } from './types';
 
 const wizardSteps: WizardStep[] = [
   { id: 1, title: 'Document Type', description: 'Choose template', completed: false },
@@ -30,6 +30,7 @@ const convertFormattedContentToTextRuns = (formattedContent: FormattedContent[] 
     if (item.style?.italic) textRunOptions.italics = true;
     if (item.style?.underline) textRunOptions.underline = {};
     if (item.style?.color) textRunOptions.color = item.style.color;
+    if (item.style?.fontFamily) textRunOptions.font = item.style.fontFamily;
     if (item.style?.fontSize) {
       // Convert fontSize to docx size (in half-points)
       const sizeMap: { [key: string]: number } = {
@@ -386,29 +387,51 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             
             // Content Blocks
             selectedBlocks.forEach((block, index) => {
-              paragraphs.push(new Paragraph({
-                children: [new TextRun({ text: `${index + 1}. ${block.title}`, bold: true })]
-              }));
+              // Title with formatting
+              const titleRuns: TextRun[] = [new TextRun({ text: `${index + 1}. ` })];
+              const titleOptions: any = { text: block.title };
+              if (block.titleFormatting?.bold) titleOptions.bold = true;
+              if (block.titleFormatting?.italic) titleOptions.italics = true;
+              if (block.titleFormatting?.underline) titleOptions.underline = {};
+              if (block.titleFormatting?.color) titleOptions.color = block.titleFormatting.color;
+              if (block.titleFormatting?.fontFamily) titleOptions.font = block.titleFormatting.fontFamily;
+              if (block.titleFormatting?.fontSize) {
+                const sizeMap: { [key: string]: number } = { xs: 16, sm: 20, base: 24, lg: 28, xl: 32, '2xl': 36, '3xl': 40 };
+                titleOptions.size = sizeMap[block.titleFormatting.fontSize] || 24;
+              }
+              titleRuns.push(new TextRun(titleOptions));
+              paragraphs.push(new Paragraph({ children: titleRuns }));
+
               // Header options
               if (block.headerOptions && block.headerOptions.some(opt => opt)) {
                 paragraphs.push(new Paragraph({
-                  children: [new TextRun({ text: `Header: ${block.headerOptions.filter(Boolean).join(' | ')}`, italics: true, size: 18 })]
+                  children: [new TextRun({ text: `Header: ${block.headerOptions.filter(Boolean).join(' | ')}`, italics: true, size: 18, color: '888888' })]
                 }));
               }
-              // Use formatted content if available, otherwise fall back to plain content
+
+              // Content with formatting when no formattedContent
               if (block.formattedContent && block.formattedContent.length > 0) {
                 paragraphs.push(new Paragraph({
                   children: convertFormattedContentToTextRuns(block.formattedContent)
                 }));
               } else {
-                paragraphs.push(new Paragraph({
-                  children: [new TextRun({ text: block.content })]
-                }));
+                const contentOptions: any = { text: block.content };
+                if (block.contentFormatting?.bold) contentOptions.bold = true;
+                if (block.contentFormatting?.italic) contentOptions.italics = true;
+                if (block.contentFormatting?.underline) contentOptions.underline = {};
+                if (block.contentFormatting?.color) contentOptions.color = block.contentFormatting.color;
+                if (block.contentFormatting?.fontFamily) contentOptions.font = block.contentFormatting.fontFamily;
+                if (block.contentFormatting?.fontSize) {
+                  const sizeMap: { [key: string]: number } = { xs: 16, sm: 20, base: 24, lg: 28, xl: 32, '2xl': 36, '3xl': 40 };
+                  contentOptions.size = sizeMap[block.contentFormatting.fontSize] || 24;
+                }
+                paragraphs.push(new Paragraph({ children: [new TextRun(contentOptions)] }));
               }
+
               // Footer options
               if (block.footerOptions && block.footerOptions.some(opt => opt)) {
                 paragraphs.push(new Paragraph({
-                  children: [new TextRun({ text: `Footer: ${block.footerOptions.filter(Boolean).join(' | ')}`, italics: true, size: 18 })]
+                  children: [new TextRun({ text: `Footer: ${block.footerOptions.filter(Boolean).join(' | ')}`, italics: true, size: 18, color: '888888' })]
                 }));
               }
             });
