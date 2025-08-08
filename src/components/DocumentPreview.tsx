@@ -291,17 +291,64 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                     <div className="space-y-6 pl-11">
                       {blocks.map((block, blockIndex) => (
                         <div key={block.id} className="bg-gradient-to-r from-gray-50 to-slate-50 p-6 rounded-xl border border-gray-200">
-                          <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                            <div className="w-6 h-6 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full flex items-center justify-center mr-2 text-xs text-white font-bold">
-                              {blockIndex + 1}
-                            </div>
-                            {block.title}
-                          </h4>
-                          <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed">
-                            {block.formattedContent && block.formattedContent.length > 0
-                              ? renderFormattedContent(block.formattedContent)
-                              : <span dangerouslySetInnerHTML={{ __html: formatContent(block.content) }} />}
-                          </div>
+                          {(() => { 
+                            const titleStyle: React.CSSProperties = {
+                              fontFamily: block.titleFormatting?.fontFamily,
+                              color: block.titleFormatting?.color || undefined,
+                              fontWeight: block.titleFormatting?.bold ? '700' as const : undefined,
+                              fontStyle: block.titleFormatting?.italic ? 'italic' : undefined,
+                              textDecoration: block.titleFormatting?.underline ? 'underline' : undefined,
+                            };
+                            const titleSizeClass = (() => {
+                              switch (block.titleFormatting?.fontSize) {
+                                case 'xs': return 'text-xs';
+                                case 'sm': return 'text-sm';
+                                case 'base': return 'text-base';
+                                case 'lg': return 'text-lg';
+                                case 'xl': return 'text-xl';
+                                case '2xl': return 'text-2xl';
+                                case '3xl': return 'text-3xl';
+                                default: return 'text-lg';
+                              }
+                            })();
+                            return (
+                              <h4 className={`font-semibold mb-4 flex items-center ${titleSizeClass}`} style={titleStyle}>
+                                <div className="w-6 h-6 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full flex items-center justify-center mr-2 text-xs text-white font-bold">
+                                  {blockIndex + 1}
+                                </div>
+                                {block.title}
+                              </h4>
+                            );
+                          })()}
+                          {(() => {
+                            if (block.formattedContent && block.formattedContent.length > 0) {
+                              return <div className="prose prose-gray max-w-none text-gray-700 leading-relaxed">{renderFormattedContent(block.formattedContent)}</div>;
+                            }
+                            const contentStyle: React.CSSProperties = {
+                              fontFamily: block.contentFormatting?.fontFamily,
+                              color: block.contentFormatting?.color || undefined,
+                              fontWeight: block.contentFormatting?.bold ? '700' as const : undefined,
+                              fontStyle: block.contentFormatting?.italic ? 'italic' : undefined,
+                              textDecoration: block.contentFormatting?.underline ? 'underline' : undefined,
+                            };
+                            const contentSizeClass = (() => {
+                              switch (block.contentFormatting?.fontSize) {
+                                case 'xs': return 'text-xs';
+                                case 'sm': return 'text-sm';
+                                case 'base': return 'text-base';
+                                case 'lg': return 'text-lg';
+                                case 'xl': return 'text-xl';
+                                case '2xl': return 'text-2xl';
+                                case '3xl': return 'text-3xl';
+                                default: return 'text-base';
+                              }
+                            })();
+                            return (
+                              <div className={`prose prose-gray max-w-none leading-relaxed ${contentSizeClass}`} style={contentStyle}>
+                                <span dangerouslySetInnerHTML={{ __html: formatContent(block.content) }} />
+                              </div>
+                            );
+                          })()}
                         </div>
                       ))}
                     </div>

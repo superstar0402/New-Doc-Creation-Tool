@@ -99,6 +99,29 @@ const renderFormattedContent = (formattedContent: FormattedContent[] | undefined
   return <>{elements}</>;
 };
 
+// Build CSS classes and inline styles from formatting options
+const buildFormatting = (formatting?: { fontFamily?: string; fontSize?: string; bold?: boolean; italic?: boolean; underline?: boolean; color?: string; }) => {
+  const classes: string[] = [];
+  const style: React.CSSProperties = {};
+
+  switch (formatting?.fontSize) {
+    case 'xs': classes.push('text-xs'); break;
+    case 'sm': classes.push('text-sm'); break;
+    case 'base': classes.push('text-base'); break;
+    case 'lg': classes.push('text-lg'); break;
+    case 'xl': classes.push('text-xl'); break;
+    case '2xl': classes.push('text-2xl'); break;
+    case '3xl': classes.push('text-3xl'); break;
+  }
+  if (formatting?.bold) classes.push('font-bold');
+  if (formatting?.italic) classes.push('italic');
+  if (formatting?.underline) classes.push('underline');
+  if (formatting?.color) style.color = formatting.color;
+  if (formatting?.fontFamily) style.fontFamily = formatting.fontFamily;
+
+  return { className: classes.join(' '), style };
+};
+
 export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
   textBlocks,
   onBlocksChange
@@ -925,17 +948,26 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
 
                       {/* Content */}
                       <div className="bg-white p-6">
-                        <h4 className={`font-semibold text-lg mb-3 transition-colors duration-300 ${
-                          block.isSelected ? 'text-primary-900' : 'text-gray-900 group-hover:text-primary-700'
-                        }`}>
-                          {block.title}
-                        </h4>
+                        {(() => { const f = buildFormatting(block.titleFormatting); return (
+                          <h4 className={`font-semibold mb-3 transition-colors duration-300 ${
+                            block.isSelected ? 'text-primary-900' : 'text-gray-900 group-hover:text-primary-700'
+                          } ${f.className}`}
+                          style={f.style}
+                          >
+                            {block.title}
+                          </h4>
+                        ); })() }
                         <p className={`text-sm leading-relaxed transition-colors duration-300 ${
                           block.isSelected ? 'text-primary-700' : 'text-gray-600 group-hover:text-gray-700'
                         }`}>
                           {block.formattedContent && block.formattedContent.length > 0 ? 
                             renderFormattedContent(block.formattedContent, viewMode === 'grid' ? 150 : 300) :
-                            block.content.substring(0, viewMode === 'grid' ? 150 : 300) + (block.content.length > (viewMode === 'grid' ? 150 : 300) ? '...' : '')
+                            (() => { const f = buildFormatting(block.contentFormatting); return (
+                              <span className={f.className} style={f.style}>
+                                {block.content.substring(0, viewMode === 'grid' ? 150 : 300)}
+                                {block.content.length > (viewMode === 'grid' ? 150 : 300) ? '...' : ''}
+                              </span>
+                            ); })()
                           }
                         </p>
                         {/* Show header/footer options if present */}
@@ -1032,7 +1064,12 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                           <div className="text-xs text-gray-600 leading-relaxed">
                             {block.formattedContent && block.formattedContent.length > 0 ? 
                               renderFormattedContent(block.formattedContent, 100) :
-                              block.content.substring(0, 100) + (block.content.length > 100 ? '...' : '')
+                              (() => { const f = buildFormatting(block.contentFormatting); return (
+                                <span className={f.className} style={f.style}>
+                                  {block.content.substring(0, 100)}
+                                  {block.content.length > 100 ? '...' : ''}
+                                </span>
+                              ); })()
                             }
                           </div>
                           <div className="text-xs text-gray-400 mt-2">
