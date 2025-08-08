@@ -181,66 +181,90 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
               </div>
             </div>
             
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Project Name *
-                  </label>
-                  <div className="relative">
-                    <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      value={projectInfo.projectName}
-                      onChange={(e) => handleInputChange('projectName', e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white"
-                      placeholder="Enter project name"
-                    />
+                          <div className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Project Name *
+                    </label>
+                    <div className="relative">
+                      <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="text"
+                        value={projectInfo.projectName}
+                        onChange={(e) => handleInputChange('projectName', e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white"
+                        placeholder="Enter project name"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Start Date
+                    </label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="date"
+                        value={projectInfo.startDate}
+                        onChange={(e) => handleInputChange('startDate', e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white"
+                      />
+                    </div>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Start Date
+                    Project Overview
                   </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="date"
-                      value={projectInfo.startDate}
-                      onChange={(e) => handleInputChange('startDate', e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white"
+                  <textarea
+                    value={projectInfo.projectOverview}
+                    onChange={(e) => handleInputChange('projectOverview', e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
+                    placeholder="Describe the project scope, objectives, and key deliverables..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Technical Overview
+                  </label>
+                  <textarea
+                    value={projectInfo.technicalOverview}
+                    onChange={(e) => handleInputChange('technicalOverview', e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
+                    placeholder="Provide technical details, approach, and implementation strategy..."
+                  />
+                </div>
+
+                {/* Header/Footer Options */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Header</label>
+                    <textarea
+                      value={projectInfo.headerText}
+                      onChange={(e) => handleInputChange('headerText', e.target.value)}
+                      rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
+                      placeholder="e.g., Company Name | Customer | Project Title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Footer</label>
+                    <textarea
+                      value={projectInfo.footerText}
+                      onChange={(e) => handleInputChange('footerText', e.target.value)}
+                      rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
+                      placeholder="e.g., Company Name | Confidential"
                     />
                   </div>
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Project Overview
-                </label>
-                <textarea
-                  value={projectInfo.projectOverview}
-                  onChange={(e) => handleInputChange('projectOverview', e.target.value)}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-                  placeholder="Describe the project scope, objectives, and key deliverables..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Technical Overview
-                </label>
-                <textarea
-                  value={projectInfo.technicalOverview}
-                  onChange={(e) => handleInputChange('technicalOverview', e.target.value)}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-                  placeholder="Provide technical details, approach, and implementation strategy..."
-                />
-              </div>
-            </div>
           </div>
         </div>
       </div>

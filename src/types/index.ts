@@ -24,6 +24,8 @@ export interface ProjectInfo {
   pricingTable: PricingItem[];
   hardwareComponents: string;
   servicesComponents: string;
+  headerText: string;
+  footerText: string;
 }
 
 export interface TextFormatting {

@@ -220,30 +220,33 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             
             <div className="p-8 bg-gradient-to-br from-gray-50 to-slate-50 max-h-[800px] overflow-y-auto">
               <div className="bg-white p-12 shadow-xl border border-gray-200 min-h-full rounded-lg">
-                {/* Document Header */}
-                <div className="text-center mb-12 pb-8 border-b-2 border-gray-200 relative">
-                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-1 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"></div>
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-                    {documentType.toUpperCase().replace('-', ' ')}
-                  </h1>
-                  {projectInfo.customerName && (
-                    <h2 className="text-2xl text-gray-700 mb-3 font-semibold">
-                      {projectInfo.customerName}
-                    </h2>
-                  )}
-                  {projectInfo.projectName && (
-                    <h3 className="text-xl text-gray-600 mb-4">
-                      {projectInfo.projectName}
-                    </h3>
-                  )}
-                  {projectInfo.startDate && (
-                    <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
-                      <span className="text-sm text-blue-700 font-medium">
-                        Project Start Date: {new Date(projectInfo.startDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                                 {/* Document Header */}
+                 <div className="text-center mb-12 pb-8 border-b-2 border-gray-200 relative">
+                   <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-1 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"></div>
+                   {projectInfo.headerText && (
+                     <div className="mb-3 text-sm text-gray-500">{projectInfo.headerText}</div>
+                   )}
+                   <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+                     {documentType.toUpperCase().replace('-', ' ')}
+                   </h1>
+                   {projectInfo.customerName && (
+                     <h2 className="text-2xl text-gray-700 mb-3 font-semibold">
+                       {projectInfo.customerName}
+                     </h2>
+                   )}
+                   {projectInfo.projectName && (
+                     <h3 className="text-xl text-gray-600 mb-4">
+                       {projectInfo.projectName}
+                     </h3>
+                   )}
+                   {projectInfo.startDate && (
+                     <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
+                       <span className="text-sm text-blue-700 font-medium">
+                         Project Start Date: {new Date(projectInfo.startDate).toLocaleDateString()}
+                       </span>
+                     </div>
+                   )}
+                 </div>
 
                 {/* Project Overview */}
                 {projectInfo.projectOverview && (
@@ -427,7 +430,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                 <div className="text-center pt-12 border-t-2 border-gray-200 relative">
                   <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-1 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"></div>
                   <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-6 rounded-xl border border-gray-200">
-                    <p className="text-gray-600 font-medium mb-2">This document is confidential and proprietary</p>
+                    <p className="text-gray-600 font-medium mb-2">{projectInfo.footerText || 'This document is confidential and proprietary'}</p>
                     <p className="text-sm text-gray-500">Generated on {new Date().toLocaleDateString()}</p>
                   </div>
                 </div>

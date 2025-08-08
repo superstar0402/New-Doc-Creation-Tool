@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType } from 'docx';
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, Header, Footer } from 'docx';
 
 import { WizardProgress } from './components/WizardProgress';
 import { DocumentTypeSelector } from './components/DocumentTypeSelector';
@@ -62,9 +62,10 @@ const convertFormattedContentToHTML = (formattedContent: FormattedContent[] | un
     if (item.style?.italic) html = `<em>${html}</em>`;
     if (item.style?.underline) html = `<u>${html}</u>`;
     
-    if (item.style?.color || item.style?.fontSize) {
-      const style = [];
+    if (item.style?.color || item.style?.fontSize || item.style?.fontFamily) {
+      const style = [] as string[];
       if (item.style?.color) style.push(`color: ${item.style.color}`);
+      if (item.style?.fontFamily) style.push(`font-family: ${item.style.fontFamily}`);
       if (item.style?.fontSize) {
         const sizeMap: { [key: string]: string } = {
           'xs': '0.75rem',
@@ -84,6 +85,30 @@ const convertFormattedContentToHTML = (formattedContent: FormattedContent[] | un
   }).join('');
 };
 
+// Build inline style string from TextFormatting
+const buildInlineStyleFromFormatting = (fmt?: TextFormatting): string => {
+  if (!fmt) return '';
+  const style: string[] = [];
+  if (fmt.fontFamily) style.push(`font-family: ${fmt.fontFamily}`);
+  if (fmt.color) style.push(`color: ${fmt.color}`);
+  if (fmt.bold) style.push('font-weight: 700');
+  if (fmt.italic) style.push('font-style: italic');
+  if (fmt.underline) style.push('text-decoration: underline');
+  if (fmt.fontSize) {
+    const sizeMap: { [key: string]: string } = {
+      xs: '0.75rem',
+      sm: '0.875rem',
+      base: '1rem',
+      lg: '1.125rem',
+      xl: '1.25rem',
+      '2xl': '1.5rem',
+      '3xl': '1.875rem',
+    };
+    style.push(`font-size: ${sizeMap[fmt.fontSize] || '1rem'}`);
+  }
+  return style.join('; ');
+};
+
 function App() {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedDocumentType, setSelectedDocumentType] = useState('');
@@ -95,7 +120,9 @@ function App() {
     technicalOverview: '',
     pricingTable: [],
     hardwareComponents: '',
-    servicesComponents: ''
+    servicesComponents: '',
+    headerText: '',
+    footerText: ''
   });
   const [textBlocks, setTextBlocks] = useState<TextBlock[]>(initialTextBlocks);
   const [isExporting, setIsExporting] = useState(false);
@@ -231,7 +258,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
 
       switch (format) {
         case 'pdf':
-          // For PDF, we'll create a simple HTML that can be printed to PDF
+          // Build HTML that reflects block-level formatting
           const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -276,16 +303,22 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
   }, {} as Record<string, TextBlock[]>)).map(([category, blocks]) => `
   <div class="section">
     <h2>${category}</h2>
-    ${blocks.map(block => `
-    <div class="block">
-      <h4>${block.title}</h4>
-      ${(block.headerOptions && block.headerOptions.some(opt => opt)) ? `<div class="text-xs text-gray-500 mb-1">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</div>` : ''}
-      <p>${block.formattedContent && block.formattedContent.length > 0 
-        ? convertFormattedContentToHTML(block.formattedContent) 
-        : block.content.replace(/\n/g, '<br>')}</p>
-      ${(block.footerOptions && block.footerOptions.some(opt => opt)) ? `<div class="text-xs text-gray-500 mt-2">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</div>` : ''}
-    </div>
-    `).join('')}
+    ${blocks.map(block => {
+      const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
+      const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
+      const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.25rem;">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</div>` : '';
+      const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</div>` : '';
+      const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
+        ? convertFormattedContentToHTML(block.formattedContent)
+        : block.content.replace(/\n/g, '<br>');
+      return `
+      <div class="block">
+        <h4 style="${titleStyle}">${block.title}</h4>
+        ${headerHTML}
+        <div style="${contentStyle}">${contentHTML}</div>
+        ${footerHTML}
+      </div>`;
+    }).join('')}
   </div>
   `).join('')}
 
@@ -518,10 +551,12 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               children: [new TextRun({ text: `Generated on ${new Date().toLocaleDateString()}`, italics: true })]
             }));
             
-            // Create document
+            // Create document with header/footer if provided
             const doc = new Document({
               sections: [{
                 properties: {},
+                headers: projectInfo.headerText ? { default: new Header({ children: [new Paragraph({ children: [new TextRun({ text: projectInfo.headerText, size: 18, color: '666666' })] })] }) } : undefined,
+                footers: projectInfo.footerText ? { default: new Footer({ children: [new Paragraph({ children: [new TextRun({ text: projectInfo.footerText, size: 18, color: '666666' })] })] }) } : undefined,
                 children: paragraphs
               }]
             });
@@ -606,9 +641,43 @@ Generated on ${new Date().toLocaleDateString()}
           break;
 
         case 'gdocs':
-          // For Google Docs, we'll create a markdown file that can be imported
-          downloadFile(content, `${baseFilename}.md`, 'text/markdown');
-          alert('Markdown file generated! You can import this into Google Docs.');
+          // Use the same styled HTML as PDF for better fidelity in Google Docs import
+          const gdocsHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${selectedDocumentType}</title>
+</head>
+<body>
+  <h1>${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
+  ${Object.entries(selectedBlocks.reduce((acc, block) => {
+    if (!acc[block.category]) acc[block.category] = [];
+    acc[block.category].push(block);
+    return acc;
+  }, {} as Record<string, TextBlock[]>)).map(([category, blocks]) => `
+  <h2>${category}</h2>
+  ${blocks.map(block => {
+    const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
+    const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
+    const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.25rem;">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</div>` : '';
+    const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</div>` : '';
+    const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
+      ? convertFormattedContentToHTML(block.formattedContent)
+      : block.content.replace(/\n/g, '<br>');
+    return `
+    <div>
+      <h4 style="${titleStyle}">${block.title}</h4>
+      ${headerHTML}
+      <div style="${contentStyle}">${contentHTML}</div>
+      ${footerHTML}
+    </div>`;
+  }).join('')}
+  `).join('')}
+</body>
+</html>`;
+          downloadFile(gdocsHtml, `${baseFilename}.html`, 'text/html');
+          alert('HTML file generated for Google Docs. Open Google Docs, File -> Open -> Upload this HTML.');
           break;
 
         default:
