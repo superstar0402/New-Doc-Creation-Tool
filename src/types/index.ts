@@ -26,6 +26,15 @@ export interface ProjectInfo {
   servicesComponents: string;
 }
 
+export interface TextFormatting {
+  fontFamily: string;
+  fontSize: string;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  color: string;
+}
+
 export interface TextBlock {
   id: string;
   title: string;
@@ -35,6 +44,8 @@ export interface TextBlock {
   isSelected: boolean;
   headerOptions?: string[];
   footerOptions?: string[];
+  titleFormatting?: TextFormatting;
+  contentFormatting?: TextFormatting;
 }
 
 export interface FormattedContent {

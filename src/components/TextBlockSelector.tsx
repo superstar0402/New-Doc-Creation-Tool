@@ -106,8 +106,30 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isAddingBlock, setIsAddingBlock] = useState(false);
-  // Update newBlock state to include headerOptions and footerOptions
-  const [newBlock, setNewBlock] = useState({ title: '', content: '', category: 'Custom', headerOptions: ['', ''], footerOptions: ['', ''] });
+  // Update newBlock state to include headerOptions, footerOptions, and formatting options
+  const [newBlock, setNewBlock] = useState({ 
+    title: '', 
+    content: '', 
+    category: 'Custom', 
+    headerOptions: ['', ''], 
+    footerOptions: ['', ''],
+    titleFormatting: {
+      fontFamily: 'Inter',
+      fontSize: 'base',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#000000'
+    },
+    contentFormatting: {
+      fontFamily: 'Inter',
+      fontSize: 'base',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#000000'
+    }
+  });
   const [editBlock, setEditBlock] = useState<TextBlock | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -143,10 +165,34 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         category: newBlock.category,
         isSelected: false,
         headerOptions: newBlock.headerOptions,
-        footerOptions: newBlock.footerOptions
+        footerOptions: newBlock.footerOptions,
+        titleFormatting: newBlock.titleFormatting,
+        contentFormatting: newBlock.contentFormatting
       };
       onBlocksChange([...textBlocks, block]);
-      setNewBlock({ title: '', content: '', category: 'Custom', headerOptions: ['', ''], footerOptions: ['', ''] });
+      setNewBlock({ 
+        title: '', 
+        content: '', 
+        category: 'Custom', 
+        headerOptions: ['', ''], 
+        footerOptions: ['', ''],
+        titleFormatting: {
+          fontFamily: 'Inter',
+          fontSize: 'base',
+          bold: false,
+          italic: false,
+          underline: false,
+          color: '#000000'
+        },
+        contentFormatting: {
+          fontFamily: 'Inter',
+          fontSize: 'base',
+          bold: false,
+          italic: false,
+          underline: false,
+          color: '#000000'
+        }
+      });
       setIsAddingBlock(false);
       // Reset file input
       if (addBlockFileInputRef.current) {
@@ -341,6 +387,106 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         <option value="Resources">Resources</option>
                       </select>
                     </div>
+
+                    {/* Title Formatting Options */}
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <h5 className="font-semibold text-gray-900 mb-3 flex items-center">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                        Title Formatting
+                      </h5>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Font Family</label>
+                          <select
+                            value={newBlock.titleFormatting.fontFamily}
+                            onChange={(e) => setNewBlock({
+                              ...newBlock,
+                              titleFormatting: { ...newBlock.titleFormatting, fontFamily: e.target.value }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
+                          >
+                            <option value="Inter">Inter</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Helvetica">Helvetica</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Font Size</label>
+                          <select
+                            value={newBlock.titleFormatting.fontSize}
+                            onChange={(e) => setNewBlock({
+                              ...newBlock,
+                              titleFormatting: { ...newBlock.titleFormatting, fontSize: e.target.value }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
+                          >
+                            <option value="xs">Extra Small</option>
+                            <option value="sm">Small</option>
+                            <option value="base">Base</option>
+                            <option value="lg">Large</option>
+                            <option value="xl">Extra Large</option>
+                            <option value="2xl">2XL</option>
+                            <option value="3xl">3XL</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
+                          <input
+                            type="color"
+                            value={newBlock.titleFormatting.color}
+                            onChange={(e) => setNewBlock({
+                              ...newBlock,
+                              titleFormatting: { ...newBlock.titleFormatting, color: e.target.value }
+                            })}
+                            className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                          />
+                        </div>
+                        <div className="flex items-end gap-2">
+                          <button
+                            onClick={() => setNewBlock({
+                              ...newBlock,
+                              titleFormatting: { ...newBlock.titleFormatting, bold: !newBlock.titleFormatting.bold }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              newBlock.titleFormatting.bold 
+                                ? 'bg-blue-500 text-white' 
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Bold
+                          </button>
+                          <button
+                            onClick={() => setNewBlock({
+                              ...newBlock,
+                              titleFormatting: { ...newBlock.titleFormatting, italic: !newBlock.titleFormatting.italic }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              newBlock.titleFormatting.italic 
+                                ? 'bg-blue-500 text-white' 
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Italic
+                          </button>
+                          <button
+                            onClick={() => setNewBlock({
+                              ...newBlock,
+                              titleFormatting: { ...newBlock.titleFormatting, underline: !newBlock.titleFormatting.underline }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              newBlock.titleFormatting.underline 
+                                ? 'bg-blue-500 text-white' 
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Underline
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                     <div className="space-y-3">
                       <textarea
                         placeholder="Block content"
@@ -409,6 +555,106 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         <span className="text-xs text-gray-400">
                           {newBlock.content ? newBlock.content.length : 0} chars
                         </span>
+                      </div>
+                    </div>
+
+                    {/* Content Formatting Options */}
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <h5 className="font-semibold text-gray-900 mb-3 flex items-center">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        Content Formatting
+                      </h5>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Font Family</label>
+                          <select
+                            value={newBlock.contentFormatting.fontFamily}
+                            onChange={(e) => setNewBlock({
+                              ...newBlock,
+                              contentFormatting: { ...newBlock.contentFormatting, fontFamily: e.target.value }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
+                          >
+                            <option value="Inter">Inter</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Helvetica">Helvetica</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Font Size</label>
+                          <select
+                            value={newBlock.contentFormatting.fontSize}
+                            onChange={(e) => setNewBlock({
+                              ...newBlock,
+                              contentFormatting: { ...newBlock.contentFormatting, fontSize: e.target.value }
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
+                          >
+                            <option value="xs">Extra Small</option>
+                            <option value="sm">Small</option>
+                            <option value="base">Base</option>
+                            <option value="lg">Large</option>
+                            <option value="xl">Extra Large</option>
+                            <option value="2xl">2XL</option>
+                            <option value="3xl">3XL</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
+                          <input
+                            type="color"
+                            value={newBlock.contentFormatting.color}
+                            onChange={(e) => setNewBlock({
+                              ...newBlock,
+                              contentFormatting: { ...newBlock.contentFormatting, color: e.target.value }
+                            })}
+                            className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                          />
+                        </div>
+                        <div className="flex items-end gap-2">
+                          <button
+                            onClick={() => setNewBlock({
+                              ...newBlock,
+                              contentFormatting: { ...newBlock.contentFormatting, bold: !newBlock.contentFormatting.bold }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              newBlock.contentFormatting.bold 
+                                ? 'bg-green-500 text-white' 
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Bold
+                          </button>
+                          <button
+                            onClick={() => setNewBlock({
+                              ...newBlock,
+                              contentFormatting: { ...newBlock.contentFormatting, italic: !newBlock.contentFormatting.italic }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              newBlock.contentFormatting.italic 
+                                ? 'bg-green-500 text-white' 
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Italic
+                          </button>
+                          <button
+                            onClick={() => setNewBlock({
+                              ...newBlock,
+                              contentFormatting: { ...newBlock.contentFormatting, underline: !newBlock.contentFormatting.underline }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              newBlock.contentFormatting.underline 
+                                ? 'bg-green-500 text-white' 
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Underline
+                          </button>
+                        </div>
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
