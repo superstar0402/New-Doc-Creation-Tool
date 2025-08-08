@@ -680,7 +680,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-semibold mb-1">Header Option 1</label>
                         <input
@@ -717,7 +717,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                           className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                         />
                       </div>
-                    </div>
+                    </div> */}
                     <div className="flex gap-3">
                       <button
                         onClick={addNewBlock}
@@ -833,7 +833,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             {editBlock.content ? editBlock.content.length : 0} chars
                           </span>
                         </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-semibold mb-1">Header Option 1</label>
                           <input
@@ -870,7 +870,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                           />
                         </div>
-                      </div>
+                      </div> */}
                       <div className="flex gap-3">
                         <button
                           onClick={handleEditBlockSave}
