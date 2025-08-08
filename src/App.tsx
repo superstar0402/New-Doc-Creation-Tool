@@ -10,6 +10,19 @@ import { DocumentPreview } from './components/DocumentPreview';
 import { documentTypes, textBlocks as initialTextBlocks } from './data/mockData';
 import { ProjectInfo, TextBlock, WizardStep, PricingItem, FormattedContent, TextFormatting } from './types';
 
+// Utility function to format date consistently in MM/DD/YYYY format
+const formatDate = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+  
+  return `${month}/${day}/${year}`;
+};
+
 const wizardSteps: WizardStep[] = [
   { id: 1, title: 'Document Type', description: 'Choose template', completed: false },
   { id: 2, title: 'Project Info', description: 'Enter details', completed: false },
@@ -181,7 +194,7 @@ function App() {
 
 ${projectInfo.customerName ? `**Customer:** ${projectInfo.customerName}` : ''}
 ${projectInfo.projectName ? `**Project:** ${projectInfo.projectName}` : ''}
-${projectInfo.startDate ? `**Start Date:** ${new Date(projectInfo.startDate).toLocaleDateString()}` : ''}
+${projectInfo.startDate ? `**Start Date:** ${formatDate(projectInfo.startDate)}` : ''}
 
 ---
 
@@ -228,7 +241,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
       }
     }
 
-    content += `\n---\n\n*Generated on ${new Date().toLocaleDateString()}*`;
+    content += `\n---\n\n*Generated on ${formatDate(new Date().toISOString().split('T')[0])}*`;
 
     return content;
   };
@@ -283,7 +296,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
     <h1>${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
     ${projectInfo.customerName ? `<h2>${projectInfo.customerName}</h2>` : ''}
     ${projectInfo.projectName ? `<h3>${projectInfo.projectName}</h3>` : ''}
-    ${projectInfo.startDate ? `<p><strong>Start Date:</strong> ${new Date(projectInfo.startDate).toLocaleDateString()}</p>` : ''}
+    ${projectInfo.startDate ? `<p><strong>Start Date:</strong> ${formatDate(projectInfo.startDate)}</p>` : ''}
   </div>
 
   <div class="section">
@@ -372,7 +385,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
   ` : ''}
 
   <div class="footer">
-    <p><em>Generated on ${new Date().toLocaleDateString()}</em></p>
+    <p><em>Generated on ${formatDate(new Date().toISOString().split('T')[0])}</em></p>
   </div>
 </body>
 </html>`;
@@ -548,7 +561,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             
             // Footer
             paragraphs.push(new Paragraph({
-              children: [new TextRun({ text: `Generated on ${new Date().toLocaleDateString()}`, italics: true })]
+              children: [new TextRun({ text: `Generated on ${formatDate(new Date().toISOString().split('T')[0])}`, italics: true })]
             }));
             
             // Create document with header/footer if provided
@@ -602,7 +615,7 @@ ${block.formattedContent && block.formattedContent.length > 0
 ${block.footerOptions && block.footerOptions.some(opt => opt) ? `Footer: ${block.footerOptions.filter(Boolean).join(' | ')}` : ''}
 `).join('\n')}
 
-Generated on ${new Date().toLocaleDateString()}
+Generated on ${formatDate(new Date().toISOString().split('T')[0])}
 `;
 
             // Create a simple DOCX as fallback

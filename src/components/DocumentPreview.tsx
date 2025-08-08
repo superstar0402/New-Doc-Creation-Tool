@@ -2,6 +2,19 @@ import React from 'react';
 import { Download, FileText, Eye, Settings, Star, Award, Shield } from 'lucide-react';
 import { ProjectInfo, TextBlock, FormattedContent } from '../types';
 
+// Utility function to format date consistently in MM/DD/YYYY format
+const formatDate = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+  
+  return `${month}/${day}/${year}`;
+};
+
 interface DocumentPreviewProps {
   projectInfo: ProjectInfo;
   selectedBlocks: TextBlock[];
@@ -242,7 +255,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                    {projectInfo.startDate && (
                      <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
                        <span className="text-sm text-blue-700 font-medium">
-                         Project Start Date: {new Date(projectInfo.startDate).toLocaleDateString()}
+                         Project Start Date: {formatDate(projectInfo.startDate)}
                        </span>
                      </div>
                    )}
@@ -431,7 +444,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                   <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-1 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full"></div>
                   <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-6 rounded-xl border border-gray-200">
                     <p className="text-gray-600 font-medium mb-2">{projectInfo.footerText || 'This document is confidential and proprietary'}</p>
-                    <p className="text-sm text-gray-500">Generated on {new Date().toLocaleDateString()}</p>
+                    <p className="text-sm text-gray-500">Generated on {formatDate(new Date().toISOString().split('T')[0])}</p>
                   </div>
                 </div>
               </div>
