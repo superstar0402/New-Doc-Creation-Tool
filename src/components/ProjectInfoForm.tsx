@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Upload, Calendar, User, Briefcase, Building, MapPin, Phone, Mail, Plus, Trash2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Upload, Calendar, User, Briefcase, Building, MapPin, Phone, Mail, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ProjectInfo, PricingItem } from '../types';
 
 // Utility function to format date consistently in MM/DD/YYYY format
@@ -49,6 +49,162 @@ const parseDateInput = (inputValue: string): string => {
   return '';
 };
 
+// Utility function to convert YYYY-MM-DD to MM/DD/YYYY for display
+const formatDateForDisplay = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+  
+  return `${month}/${day}/${year}`;
+};
+
+// Utility function to validate MM/DD/YYYY format
+const isValidDate = (dateString: string): boolean => {
+  if (!dateString) return false;
+  
+  const datePattern = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+  const match = dateString.match(datePattern);
+  
+  if (!match) return false;
+  
+  const [, month, day, year] = match;
+  const monthNum = parseInt(month, 10);
+  const dayNum = parseInt(day, 10);
+  const yearNum = parseInt(year, 10);
+  
+  // Basic validation
+  if (monthNum < 1 || monthNum > 12) return false;
+  if (dayNum < 1 || dayNum > 31) return false;
+  if (yearNum < 1900 || yearNum > 2100) return false;
+  
+  // Validate date using Date object
+  const date = new Date(yearNum, monthNum - 1, dayNum);
+  return date.getFullYear() === yearNum && 
+         date.getMonth() === monthNum - 1 && 
+         date.getDate() === dayNum;
+};
+
+// Calendar component
+const CalendarPicker: React.FC<{
+  selectedDate: Date | null;
+  onDateSelect: (date: Date) => void;
+  onClose: () => void;
+}> = ({ selectedDate, onDateSelect, onClose }) => {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
+
+  const getDaysInMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+
+  const goToPreviousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  };
+
+  const handleDateClick = (day: number) => {
+    const selectedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    onDateSelect(selectedDate);
+    onClose();
+  };
+
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const daysInMonth = getDaysInMonth(currentMonth);
+  const firstDayOfMonth = getFirstDayOfMonth(currentMonth);
+  const days = [];
+
+  // Add empty cells for days before the first day of the month
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    days.push(<div key={`empty-${i}`} className="w-8 h-8"></div>);
+  }
+
+  // Add cells for each day of the month
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    const isSelected = selectedDate && 
+      date.getDate() === selectedDate.getDate() &&
+      date.getMonth() === selectedDate.getMonth() &&
+      date.getFullYear() === selectedDate.getFullYear();
+    
+    days.push(
+      <button
+        key={day}
+        onClick={() => handleDateClick(day)}
+        className={`w-8 h-8 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-primary-100 ${
+          isSelected 
+            ? 'bg-primary-500 text-white hover:bg-primary-600' 
+            : 'text-gray-700 hover:text-primary-700'
+        }`}
+      >
+        {day}
+      </button>
+    );
+  }
+
+  return (
+    <div 
+      ref={calendarRef}
+      className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4 min-w-[280px]"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={goToPreviousMonth}
+          className="p-1 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+        >
+          <ChevronLeft className="w-5 h-5 text-gray-600" />
+        </button>
+        <h3 className="text-lg font-semibold text-gray-800">
+          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        </h3>
+        <button
+          onClick={goToNextMonth}
+          className="p-1 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+        >
+          <ChevronRight className="w-5 h-5 text-gray-600" />
+        </button>
+      </div>
+      
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+          <div key={day} className="w-8 h-8 flex items-center justify-center text-xs font-medium text-gray-500">
+            {day}
+          </div>
+        ))}
+      </div>
+      
+      <div className="grid grid-cols-7 gap-1">
+        {days}
+      </div>
+    </div>
+  );
+};
+
 interface ProjectInfoFormProps {
   projectInfo: ProjectInfo;
   onInfoChange: (info: ProjectInfo) => void;
@@ -59,10 +215,15 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
   onInfoChange
 }) => {
   const [dateInputValue, setDateInputValue] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Update date input display when projectInfo.startDate changes
   useEffect(() => {
-    setDateInputValue(formatDate(projectInfo.startDate));
+    setDateInputValue(formatDateForDisplay(projectInfo.startDate));
+    if (projectInfo.startDate) {
+      setSelectedDate(new Date(projectInfo.startDate));
+    }
   }, [projectInfo.startDate]);
 
   const handleInputChange = (field: keyof ProjectInfo, value: string) => {
@@ -79,6 +240,7 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
     // Allow empty input
     if (!inputValue) {
       handleInputChange('startDate', '');
+      setSelectedDate(null);
       return;
     }
     
@@ -102,9 +264,24 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
     // Update the input display
     setDateInputValue(formatted);
     
-    // Parse and store the date
-    const parsedDate = parseDateInput(formatted);
+    // Parse and store the date if valid
+    if (isValidDate(formatted)) {
+      const parsedDate = parseDateInput(formatted);
+      handleInputChange('startDate', parsedDate);
+      setSelectedDate(new Date(parsedDate));
+    }
+  };
+
+  const handleCalendarDateSelect = (date: Date) => {
+    const formattedDate = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/${date.getFullYear()}`;
+    setDateInputValue(formattedDate);
+    const parsedDate = parseDateInput(formattedDate);
     handleInputChange('startDate', parsedDate);
+    setSelectedDate(date);
+  };
+
+  const toggleDatePicker = () => {
+    setShowDatePicker(!showDatePicker);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -270,102 +447,117 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
               </div>
             </div>
             
-                          <div className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Project Name *
-                    </label>
-                    <div className="relative">
-                      <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <input
-                        type="text"
-                        value={projectInfo.projectName}
-                        onChange={(e) => handleInputChange('projectName', e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white"
-                        placeholder="Enter project name"
-                      />
-                    </div>
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Project Name *
+                  </label>
+                  <div className="relative">
+                    <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      value={projectInfo.projectName}
+                      onChange={(e) => handleInputChange('projectName', e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white"
+                      placeholder="Enter project name"
+                    />
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Start Date
-                    </label>
-                    <div className="relative">
-                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <input
-                        type="text"
-                        value={dateInputValue}
-                        onChange={handleDateInputChange}
-                        className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white ${
-                          dateInputValue && !projectInfo.startDate ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300'
-                        }`}
-                        placeholder="MM/DD/YYYY"
-                        maxLength={10}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Start Date
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      value={dateInputValue}
+                      onChange={handleDateInputChange}
+                      onFocus={toggleDatePicker}
+                      className={`w-full pl-10 pr-10 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white ${
+                        dateInputValue && !isValidDate(dateInputValue) ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="MM/DD/YYYY"
+                      maxLength={10}
+                    />
+                    <button
+                      type="button"
+                      onClick={toggleDatePicker}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-500 transition-colors duration-200"
+                    >
+                      <Calendar className="w-5 h-5" />
+                    </button>
+                    {showDatePicker && (
+                      <CalendarPicker
+                        selectedDate={selectedDate}
+                        onDateSelect={handleCalendarDateSelect}
+                        onClose={() => setShowDatePicker(false)}
                       />
-                    </div>
-                    <p className="mt-1 text-xs text-gray-500">
-                      Format: MM/DD/YYYY (e.g., 12/25/2024)
-                    </p>
-                    {dateInputValue && !projectInfo.startDate && (
-                      <p className="mt-1 text-xs text-red-500">
-                        Please enter a valid date in MM/DD/YYYY format
-                      </p>
                     )}
                   </div>
+                  {/* <p className="mt-1 text-xs text-gray-500">
+                    Format: MM/DD/YYYY (e.g., 12/25/2024) - Type manually or click calendar icon
+                  </p> */}
+                  {dateInputValue && !isValidDate(dateInputValue) && (
+                    <p className="mt-1 text-xs text-red-500">
+                      Please enter a valid date in MM/DD/YYYY format
+                    </p>
+                  )}
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Project Overview
-                  </label>
-                  <textarea
-                    value={projectInfo.projectOverview}
-                    onChange={(e) => handleInputChange('projectOverview', e.target.value)}
-                    rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-                    placeholder="Describe the project scope, objectives, and key deliverables..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Technical Overview
-                  </label>
-                  <textarea
-                    value={projectInfo.technicalOverview}
-                    onChange={(e) => handleInputChange('technicalOverview', e.target.value)}
-                    rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-                    placeholder="Provide technical details, approach, and implementation strategy..."
-                  />
-                </div>
-
-                {/* Header/Footer Options */}
-                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Header</label>
-                    <textarea
-                      value={projectInfo.headerText}
-                      onChange={(e) => handleInputChange('headerText', e.target.value)}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-                      placeholder="e.g., Company Name | Customer | Project Title"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Footer</label>
-                    <textarea
-                      value={projectInfo.footerText}
-                      onChange={(e) => handleInputChange('footerText', e.target.value)}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-                      placeholder="e.g., Company Name | Confidential"
-                    />
-                  </div>
-                </div> */}
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Project Overview
+                </label>
+                <textarea
+                  value={projectInfo.projectOverview}
+                  onChange={(e) => handleInputChange('projectOverview', e.target.value)}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
+                  placeholder="Describe the project scope, objectives, and key deliverables..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Technical Overview
+                </label>
+                <textarea
+                  value={projectInfo.technicalOverview}
+                  onChange={(e) => handleInputChange('technicalOverview', e.target.value)}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
+                  placeholder="Provide technical details, approach, and implementation strategy..."
+                />
+              </div>
+
+              {/* Header/Footer Options */}
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Header</label>
+                  <textarea
+                    value={projectInfo.headerText}
+                    onChange={(e) => handleInputChange('headerText', e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
+                    placeholder="e.g., Company Name | Customer | Project Title"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Footer</label>
+                  <textarea
+                    value={projectInfo.footerText}
+                    onChange={(e) => handleInputChange('footerText', e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
+                    placeholder="e.g., Company Name | Confidential"
+                  />
+                </div>
+              </div> */}
+            </div>
           </div>
         </div>
       </div>
