@@ -249,6 +249,16 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
 
 
   const categoryColors = {
+    'Executive': 'from-blue-500 to-blue-600',
+    'Technical': 'from-red-500 to-red-600',
+    'Timeline': 'from-emerald-500 to-emerald-600',
+    'Financial': 'from-purple-500 to-purple-600',
+    'Quality': 'from-amber-500 to-amber-600',
+    'Risk': 'from-red-600 to-red-700',
+    'Communication': 'from-blue-600 to-blue-700',
+    'Training': 'from-purple-600 to-purple-700',
+    'Compliance': 'from-green-600 to-green-700',
+    'Metrics': 'from-amber-600 to-amber-700',
     'Introduction': 'from-blue-500 to-blue-600',
     'Requirements': 'from-emerald-500 to-emerald-600',
     'Assumptions': 'from-amber-500 to-amber-600',
@@ -403,6 +413,16 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                       >
                         <option value="Custom">Custom</option>
+                        <option value="Executive">Executive</option>
+                        <option value="Technical">Technical</option>
+                        <option value="Timeline">Timeline</option>
+                        <option value="Financial">Financial</option>
+                        <option value="Quality">Quality</option>
+                        <option value="Risk">Risk</option>
+                        <option value="Communication">Communication</option>
+                        <option value="Training">Training</option>
+                        <option value="Compliance">Compliance</option>
+                        <option value="Metrics">Metrics</option>
                         <option value="Introduction">Introduction</option>
                         <option value="Requirements">Requirements</option>
                         <option value="Assumptions">Assumptions</option>
@@ -429,6 +449,15 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
                           >
                             <option value="Inter">Inter</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Lato">Lato</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Nunito">Nunito</option>
+                            <option value="Source Sans Pro">Source Sans Pro</option>
+                            <option value="Ubuntu">Ubuntu</option>
+                            <option value="Work Sans">Work Sans</option>
                             <option value="Arial">Arial</option>
                             <option value="Times New Roman">Times New Roman</option>
                             <option value="Georgia">Georgia</option>
@@ -599,6 +628,15 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
                           >
                             <option value="Inter">Inter</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Lato">Lato</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Nunito">Nunito</option>
+                            <option value="Source Sans Pro">Source Sans Pro</option>
+                            <option value="Ubuntu">Ubuntu</option>
+                            <option value="Work Sans">Work Sans</option>
                             <option value="Arial">Arial</option>
                             <option value="Times New Roman">Times New Roman</option>
                             <option value="Georgia">Georgia</option>

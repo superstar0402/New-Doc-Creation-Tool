@@ -29,214 +29,385 @@ export const documentTypes: DocumentType[] = [
 
 export const textBlocks: TextBlock[] = [
   {
-    id: 'intro-1',
-    title: 'Company Introduction - Technology Focus',
-    content: 'Our company has been at the forefront of technology innovation for over two decades, specializing in enterprise solutions that drive digital transformation. We combine deep technical expertise with industry best practices to deliver measurable business outcomes.',
+    id: 'template-1',
+    title: 'Executive Summary Template',
+    content: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting key deliverables, timeline, and expected outcomes. Our approach focuses on delivering measurable business value while ensuring seamless integration with existing systems.',
     formattedContent: [
-      { text: 'Our company has been at the ', style: { fontSize: 'base' } },
-      { text: 'forefront of technology innovation', style: { bold: true, fontSize: 'lg', color: '#2563eb' } },
-      { text: ' for over ', style: { fontSize: 'base' } },
-      { text: 'two decades', style: { bold: true, italic: true, fontSize: 'base' } },
-      { text: ', specializing in enterprise solutions that drive ', style: { fontSize: 'base' } },
-      { text: 'digital transformation', style: { bold: true, fontSize: 'lg', color: '#059669' } },
-      { text: '. We combine deep technical expertise with industry best practices to deliver ', style: { fontSize: 'base' } },
-      { text: 'measurable business outcomes', style: { bold: true, underline: true, fontSize: 'base' } },
-      { text: '.', style: { fontSize: 'base' } }
+      { text: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting ', style: { fontSize: 'base', fontFamily: 'Inter' } },
+      { text: 'key deliverables', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Inter' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Inter' } },
+      { text: 'timeline', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Inter' } },
+      { text: ', and ', style: { fontSize: 'base', fontFamily: 'Inter' } },
+      { text: 'expected outcomes', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Inter' } },
+      { text: '. Our approach focuses on delivering ', style: { fontSize: 'base', fontFamily: 'Inter' } },
+      { text: 'measurable business value', style: { italic: true, underline: true, fontSize: 'base', color: '#059669', fontFamily: 'Inter' } },
+      { text: ' while ensuring seamless integration with existing systems.', style: { fontSize: 'base', fontFamily: 'Inter' } }
     ],
-    category: 'Introduction',
+    category: 'Executive',
     isSelected: false,
-    headerOptions: ['Header Option 1', 'Header Option 2'],
-    footerOptions: ['Footer Option 1', 'Footer Option 2']
+    titleFormatting: {
+      fontFamily: 'Inter',
+      fontSize: '2xl',
+      bold: true,
+      italic: false,
+      underline: false,
+      color: '#1e40af'
+    },
+    contentFormatting: {
+      fontFamily: 'Inter',
+      fontSize: 'base',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#374151'
+    }
   },
+  
   {
-    id: 'intro-2',
-    title: 'Company Introduction - Service Excellence',
-    content: 'We pride ourselves on delivering exceptional service quality and maintaining long-term partnerships with our clients. Our team of certified professionals brings extensive experience across various industries and technology platforms.',
+    id: 'template-2',
+    title: 'Technical Specification Template',
+    content: 'The technical specification outlines the detailed requirements, architecture, and implementation approach for the proposed solution. This includes system requirements, data flow diagrams, security protocols, and performance benchmarks that ensure optimal system performance.',
     formattedContent: [
-      { text: 'We pride ourselves on delivering ', style: { fontSize: 'base' } },
-      { text: 'exceptional service quality', style: { bold: true, fontSize: 'lg', color: '#7c3aed' } },
-      { text: ' and maintaining ', style: { fontSize: 'base' } },
-      { text: 'long-term partnerships', style: { italic: true, fontSize: 'base', color: '#dc2626' } },
-      { text: ' with our clients. Our team of ', style: { fontSize: 'base' } },
-      { text: 'certified professionals', style: { bold: true, underline: true, fontSize: 'base' } },
-      { text: ' brings extensive experience across various industries and technology platforms.', style: { fontSize: 'base' } }
+      { text: 'The technical specification outlines the detailed requirements, architecture, and implementation approach for the proposed solution. This includes ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
+      { text: 'system requirements', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Roboto' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
+      { text: 'data flow diagrams', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Roboto' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
+      { text: 'security protocols', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Roboto' } },
+      { text: ', and ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
+      { text: 'performance benchmarks', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Roboto' } },
+      { text: ' that ensure ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
+      { text: 'optimal system performance', style: { italic: true, underline: true, fontSize: 'base', color: '#7c3aed', fontFamily: 'Roboto' } },
+      { text: '.', style: { fontSize: 'base', fontFamily: 'Roboto' } }
     ],
-    category: 'Introduction',
+    category: 'Technical',
     isSelected: false,
-    headerOptions: ['Header Option 1', 'Header Option 2'],
-    footerOptions: ['Footer Option 1', 'Footer Option 2']
+    titleFormatting: {
+      fontFamily: 'Roboto',
+      fontSize: 'xl',
+      bold: true,
+      italic: true,
+      underline: false,
+      color: '#dc2626'
+    },
+    contentFormatting: {
+      fontFamily: 'Roboto',
+      fontSize: 'sm',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#4b5563'
+    }
   },
+  
   {
-    id: 'req-1',
-    title: 'Standard Requirements - Technical',
-    content: 'All technical implementations will follow industry best practices and comply with relevant security standards including SOC 2, ISO 27001, and applicable regulatory requirements. Solutions will be designed for scalability, maintainability, and optimal performance.',
+    id: 'template-3',
+    title: 'Project Timeline Template',
+    content: 'Our project timeline is structured in phases to ensure systematic delivery and quality control. Phase 1 focuses on discovery and planning, Phase 2 on development and testing, and Phase 3 on deployment and knowledge transfer. Each phase includes milestone reviews and stakeholder sign-offs.',
     formattedContent: [
-      { text: 'All technical implementations will follow ', style: { fontSize: 'base' } },
-      { text: 'industry best practices', style: { bold: true, fontSize: 'lg', color: '#059669' } },
-      { text: ' and comply with relevant security standards including ', style: { fontSize: 'base' } },
-      { text: 'SOC 2', style: { bold: true, fontSize: 'base', color: '#dc2626' } },
-      { text: ', ', style: { fontSize: 'base' } },
-      { text: 'ISO 27001', style: { bold: true, fontSize: 'base', color: '#dc2626' } },
-      { text: ', and applicable regulatory requirements. Solutions will be designed for ', style: { fontSize: 'base' } },
-      { text: 'scalability', style: { italic: true, fontSize: 'base' } },
-      { text: ', ', style: { fontSize: 'base' } },
-      { text: 'maintainability', style: { italic: true, fontSize: 'base' } },
-      { text: ', and ', style: { fontSize: 'base' } },
-      { text: 'optimal performance', style: { italic: true, fontSize: 'base' } },
-      { text: '.', style: { fontSize: 'base' } }
+      { text: 'Our project timeline is structured in phases to ensure systematic delivery and quality control. ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
+      { text: 'Phase 1', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Open Sans' } },
+      { text: ' focuses on discovery and planning, ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
+      { text: 'Phase 2', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Open Sans' } },
+      { text: ' on development and testing, and ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
+      { text: 'Phase 3', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Open Sans' } },
+      { text: ' on deployment and knowledge transfer. Each phase includes ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
+      { text: 'milestone reviews', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Open Sans' } },
+      { text: ' and ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
+      { text: 'stakeholder sign-offs', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Open Sans' } },
+      { text: '.', style: { fontSize: 'base', fontFamily: 'Open Sans' } }
     ],
-    category: 'Requirements',
+    category: 'Timeline',
     isSelected: false,
-    headerOptions: ['Header Option 1', 'Header Option 2'],
-    footerOptions: ['Footer Option 1', 'Footer Option 2']
+    titleFormatting: {
+      fontFamily: 'Open Sans',
+      fontSize: 'lg',
+      bold: true,
+      italic: false,
+      underline: true,
+      color: '#059669'
+    },
+    contentFormatting: {
+      fontFamily: 'Open Sans',
+      fontSize: 'base',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#6b7280'
+    }
   },
+  
   {
-    id: 'req-2',
-    title: 'Standard Requirements - Project Management',
-    content: 'Project delivery will follow established project management methodologies with regular status reporting, milestone tracking, and stakeholder communication. All deliverables will be reviewed and approved before proceeding to subsequent phases.',
+    id: 'template-4',
+    title: 'Cost Analysis Template',
+    content: 'The comprehensive cost analysis includes all direct and indirect costs associated with the project implementation. This covers labor costs, software licensing, hardware requirements, training expenses, and ongoing maintenance. We provide detailed breakdowns with transparent pricing and flexible payment terms.',
     formattedContent: [
-      { text: 'Project delivery will follow ', style: { fontSize: 'base' } },
-      { text: 'established project management methodologies', style: { bold: true, fontSize: 'lg', color: '#2563eb' } },
-      { text: ' with regular ', style: { fontSize: 'base' } },
-      { text: 'status reporting', style: { underline: true, fontSize: 'base' } },
-      { text: ', ', style: { fontSize: 'base' } },
-      { text: 'milestone tracking', style: { underline: true, fontSize: 'base' } },
-      { text: ', and ', style: { fontSize: 'base' } },
-      { text: 'stakeholder communication', style: { underline: true, fontSize: 'base' } },
-      { text: '. All deliverables will be ', style: { fontSize: 'base' } },
-      { text: 'reviewed and approved', style: { bold: true, italic: true, fontSize: 'base', color: '#059669' } },
-      { text: ' before proceeding to subsequent phases.', style: { fontSize: 'base' } }
+      { text: 'The comprehensive cost analysis includes all direct and indirect costs associated with the project implementation. This covers ', style: { fontSize: 'base', fontFamily: 'Lato' } },
+      { text: 'labor costs', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Lato' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Lato' } },
+      { text: 'software licensing', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Lato' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Lato' } },
+      { text: 'hardware requirements', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Lato' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Lato' } },
+      { text: 'training expenses', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Lato' } },
+      { text: ', and ', style: { fontSize: 'base', fontFamily: 'Lato' } },
+      { text: 'ongoing maintenance', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Lato' } },
+      { text: '. We provide ', style: { fontSize: 'base', fontFamily: 'Lato' } },
+      { text: 'detailed breakdowns', style: { italic: true, underline: true, fontSize: 'base', color: '#dc2626', fontFamily: 'Lato' } },
+      { text: ' with transparent pricing and flexible payment terms.', style: { fontSize: 'base', fontFamily: 'Lato' } }
     ],
-    category: 'Requirements',
+    category: 'Financial',
     isSelected: false,
-    headerOptions: ['Header Option 1', 'Header Option 2'],
-    footerOptions: ['Footer Option 1', 'Footer Option 2']
+    titleFormatting: {
+      fontFamily: 'Lato',
+      fontSize: 'xl',
+      bold: true,
+      italic: true,
+      underline: true,
+      color: '#7c3aed'
+    },
+    contentFormatting: {
+      fontFamily: 'Lato',
+      fontSize: 'lg',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#374151'
+    }
   },
+  
   {
-    id: 'assume-1',
-    title: 'Standard Assumptions - Infrastructure',
-    content: 'We assume that existing infrastructure meets minimum requirements for the proposed solution. Any infrastructure upgrades or modifications required will be identified during the discovery phase and may result in additional costs.',
+    id: 'template-5',
+    title: 'Quality Assurance Template',
+    content: 'Our quality assurance framework ensures that all deliverables meet the highest standards of excellence. This includes comprehensive testing protocols, code reviews, security audits, and performance validation. We maintain strict quality gates throughout the development lifecycle to guarantee successful project delivery.',
     formattedContent: [
-      { text: 'We assume that ', style: { fontSize: 'base' } },
-      { text: 'existing infrastructure', style: { bold: true, fontSize: 'lg', color: '#7c3aed' } },
-      { text: ' meets minimum requirements for the proposed solution. Any ', style: { fontSize: 'base' } },
-      { text: 'infrastructure upgrades', style: { italic: true, fontSize: 'base' } },
-      { text: ' or ', style: { fontSize: 'base' } },
-      { text: 'modifications', style: { italic: true, fontSize: 'base' } },
-      { text: ' required will be identified during the ', style: { fontSize: 'base' } },
-      { text: 'discovery phase', style: { bold: true, underline: true, fontSize: 'base', color: '#dc2626' } },
-      { text: ' and may result in additional costs.', style: { fontSize: 'base' } }
+      { text: 'Our quality assurance framework ensures that all deliverables meet the highest standards of excellence. This includes ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
+      { text: 'comprehensive testing protocols', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Poppins' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
+      { text: 'code reviews', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Poppins' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
+      { text: 'security audits', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Poppins' } },
+      { text: ', and ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
+      { text: 'performance validation', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Poppins' } },
+      { text: '. We maintain ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
+      { text: 'strict quality gates', style: { italic: true, underline: true, fontSize: 'base', color: '#059669', fontFamily: 'Poppins' } },
+      { text: ' throughout the development lifecycle to guarantee ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
+      { text: 'successful project delivery', style: { italic: true, underline: true, fontSize: 'base', color: '#059669', fontFamily: 'Poppins' } },
+      { text: '.', style: { fontSize: 'base', fontFamily: 'Poppins' } }
     ],
-    category: 'Assumptions',
+    category: 'Quality',
     isSelected: false,
-    headerOptions: ['Header Option 1', 'Header Option 2'],
-    footerOptions: ['Footer Option 1', 'Footer Option 2']
+    titleFormatting: {
+      fontFamily: 'Poppins',
+      fontSize: '2xl',
+      bold: true,
+      italic: false,
+      underline: false,
+      color: '#f59e0b'
+    },
+    contentFormatting: {
+      fontFamily: 'Poppins',
+      fontSize: 'sm',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#5b5b5b'
+    }
   },
+  
   {
-    id: 'assume-2',
-    title: 'Standard Assumptions - Access',
-    content: 'Client will provide necessary access to systems, personnel, and documentation required for project completion. Any delays in providing access may impact project timeline and deliverables.',
+    id: 'template-6',
+    title: 'Risk Assessment Template',
+    content: 'This comprehensive risk assessment identifies potential project risks and mitigation strategies. We evaluate technical risks, resource constraints, timeline dependencies, and external factors that may impact project success. Each risk is categorized by probability and impact, with detailed contingency plans developed for high-priority items.',
     formattedContent: [
-      { text: 'Client will provide necessary access to ', style: { fontSize: 'base' } },
-      { text: 'systems', style: { bold: true, fontSize: 'base', color: '#2563eb' } },
-      { text: ', ', style: { fontSize: 'base' } },
-      { text: 'personnel', style: { bold: true, fontSize: 'base', color: '#2563eb' } },
-      { text: ', and ', style: { fontSize: 'base' } },
-      { text: 'documentation', style: { bold: true, fontSize: 'base', color: '#2563eb' } },
-      { text: ' required for project completion. Any ', style: { fontSize: 'base' } },
-      { text: 'delays in providing access', style: { italic: true, fontSize: 'base', color: '#dc2626' } },
-      { text: ' may impact ', style: { fontSize: 'base' } },
-      { text: 'project timeline', style: { underline: true, fontSize: 'base' } },
-      { text: ' and ', style: { fontSize: 'base' } },
-      { text: 'deliverables', style: { underline: true, fontSize: 'base' } },
-      { text: '.', style: { fontSize: 'base' } }
+      { text: 'This comprehensive risk assessment identifies potential project risks and mitigation strategies. We evaluate ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
+      { text: 'technical risks', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Montserrat' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
+      { text: 'resource constraints', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Montserrat' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
+      { text: 'timeline dependencies', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Montserrat' } },
+      { text: ', and ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
+      { text: 'external factors', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Montserrat' } },
+      { text: ' that may impact project success. Each risk is categorized by ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
+      { text: 'probability and impact', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Montserrat' } },
+      { text: ', with detailed ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
+      { text: 'contingency plans', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Montserrat' } },
+      { text: ' developed for high-priority items.', style: { fontSize: 'base', fontFamily: 'Montserrat' } }
     ],
-    category: 'Assumptions',
+    category: 'Risk',
     isSelected: false,
-    headerOptions: ['Header Option 1', 'Header Option 2'],
-    footerOptions: ['Footer Option 1', 'Footer Option 2']
+    titleFormatting: {
+      fontFamily: 'Montserrat',
+      fontSize: 'xl',
+      bold: true,
+      italic: false,
+      underline: true,
+      color: '#dc2626'
+    },
+    contentFormatting: {
+      fontFamily: 'Montserrat',
+      fontSize: 'base',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#4b5563'
+    }
   },
+  
   {
-    id: 'except-1',
-    title: 'Standard Exceptions - Third Party',
-    content: 'This proposal does not include third-party licensing costs, hardware procurement, or integration with systems not explicitly mentioned in the requirements. Any additional integrations will be quoted separately.',
+    id: 'template-7',
+    title: 'Communication Plan Template',
+    content: 'Our communication strategy ensures effective stakeholder engagement throughout the project lifecycle. This includes regular status updates, milestone reporting, issue escalation procedures, and change management communications. We establish clear communication channels, frequency schedules, and escalation matrices to maintain transparency and alignment.',
     formattedContent: [
-      { text: 'This proposal does not include ', style: { fontSize: 'base' } },
-      { text: 'third-party licensing costs', style: { bold: true, fontSize: 'lg', color: '#dc2626' } },
-      { text: ', ', style: { fontSize: 'base' } },
-      { text: 'hardware procurement', style: { bold: true, fontSize: 'lg', color: '#dc2626' } },
-      { text: ', or ', style: { fontSize: 'base' } },
-      { text: 'integration with systems', style: { bold: true, fontSize: 'lg', color: '#dc2626' } },
-      { text: ' not explicitly mentioned in the requirements. Any ', style: { fontSize: 'base' } },
-      { text: 'additional integrations', style: { italic: true, underline: true, fontSize: 'base' } },
-      { text: ' will be quoted separately.', style: { fontSize: 'base' } }
+      { text: 'Our communication strategy ensures effective stakeholder engagement throughout the project lifecycle. This includes ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
+      { text: 'regular status updates', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Nunito' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
+      { text: 'milestone reporting', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Nunito' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
+      { text: 'issue escalation procedures', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Nunito' } },
+      { text: ', and ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
+      { text: 'change management communications', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Nunito' } },
+      { text: '. We establish ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
+      { text: 'clear communication channels', style: { italic: true, underline: true, fontSize: 'base', color: '#059669', fontFamily: 'Nunito' } },
+      { text: ', frequency schedules, and escalation matrices to maintain ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
+      { text: 'transparency and alignment', style: { italic: true, underline: true, fontSize: 'base', color: '#059669', fontFamily: 'Nunito' } },
+      { text: '.', style: { fontSize: 'base', fontFamily: 'Nunito' } }
     ],
-    category: 'Exceptions',
+    category: 'Communication',
     isSelected: false,
-    headerOptions: ['Header Option 1', 'Header Option 2'],
-    footerOptions: ['Footer Option 1', 'Footer Option 2']
+    titleFormatting: {
+      fontFamily: 'Nunito',
+      fontSize: '2xl',
+      bold: true,
+      italic: true,
+      underline: false,
+      color: '#2563eb'
+    },
+    contentFormatting: {
+      fontFamily: 'Nunito',
+      fontSize: 'lg',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#374151'
+    }
   },
+  
   {
-    id: 'except-2',
-    title: 'Standard Exceptions - Training',
-    content: 'End-user training beyond standard documentation and knowledge transfer sessions is not included in this proposal. Additional training programs can be provided at standard rates upon request.',
+    id: 'template-8',
+    title: 'Training and Support Template',
+    content: 'Comprehensive training and support services ensure successful system adoption and user proficiency. Our training program includes user documentation, hands-on workshops, video tutorials, and ongoing support through helpdesk services. We provide role-based training modules, certification programs, and continuous learning resources to maximize user productivity.',
     formattedContent: [
-      { text: 'End-user training beyond ', style: { fontSize: 'base' } },
-      { text: 'standard documentation', style: { bold: true, fontSize: 'base', color: '#7c3aed' } },
-      { text: ' and ', style: { fontSize: 'base' } },
-      { text: 'knowledge transfer sessions', style: { bold: true, fontSize: 'base', color: '#7c3aed' } },
-      { text: ' is not included in this proposal. ', style: { fontSize: 'base' } },
-      { text: 'Additional training programs', style: { italic: true, fontSize: 'base' } },
-      { text: ' can be provided at ', style: { fontSize: 'base' } },
-      { text: 'standard rates', style: { underline: true, fontSize: 'base', color: '#059669' } },
-      { text: ' upon request.', style: { fontSize: 'base' } }
+      { text: 'Comprehensive training and support services ensure successful system adoption and user proficiency. Our training program includes ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
+      { text: 'user documentation', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Source Sans Pro' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
+      { text: 'hands-on workshops', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Source Sans Pro' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
+      { text: 'video tutorials', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Source Sans Pro' } },
+      { text: ', and ongoing support through ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
+      { text: 'helpdesk services', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Source Sans Pro' } },
+      { text: '. We provide ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
+      { text: 'role-based training modules', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Source Sans Pro' } },
+      { text: ', certification programs, and continuous learning resources to maximize ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
+      { text: 'user productivity', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Source Sans Pro' } },
+      { text: '.', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } }
     ],
-    category: 'Exceptions',
+    category: 'Training',
     isSelected: false,
-    headerOptions: ['Header Option 1', 'Header Option 2'],
-    footerOptions: ['Footer Option 1', 'Footer Option 2']
+    titleFormatting: {
+      fontFamily: 'Source Sans Pro',
+      fontSize: 'lg',
+      bold: true,
+      italic: false,
+      underline: true,
+      color: '#7c3aed'
+    },
+    contentFormatting: {
+      fontFamily: 'Source Sans Pro',
+      fontSize: 'sm',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#6b7280'
+    }
   },
+  
   {
-    id: 'resource-1',
-    title: 'Standard Resources - Project Team',
-    content: 'Our dedicated project team will include a Project Manager, Technical Lead, Senior Developers, and Quality Assurance specialists. All team members are certified professionals with relevant industry experience.',
+    id: 'template-9',
+    title: 'Compliance and Security Template',
+    content: 'Our compliance and security framework ensures adherence to industry standards and regulatory requirements. This includes data protection measures, access controls, audit trails, and regular security assessments. We implement industry best practices for cybersecurity, privacy protection, and regulatory compliance to safeguard sensitive information and maintain trust.',
     formattedContent: [
-      { text: 'Our dedicated project team will include a ', style: { fontSize: 'base' } },
-      { text: 'Project Manager', style: { bold: true, fontSize: 'lg', color: '#2563eb' } },
-      { text: ', ', style: { fontSize: 'base' } },
-      { text: 'Technical Lead', style: { bold: true, fontSize: 'lg', color: '#2563eb' } },
-      { text: ', ', style: { fontSize: 'base' } },
-      { text: 'Senior Developers', style: { bold: true, fontSize: 'lg', color: '#2563eb' } },
-      { text: ', and ', style: { fontSize: 'base' } },
-      { text: 'Quality Assurance specialists', style: { bold: true, fontSize: 'lg', color: '#2563eb' } },
-      { text: '. All team members are ', style: { fontSize: 'base' } },
-      { text: 'certified professionals', style: { italic: true, underline: true, fontSize: 'base', color: '#059669' } },
-      { text: ' with relevant industry experience.', style: { fontSize: 'base' } }
+      { text: 'Our compliance and security framework ensures adherence to industry standards and regulatory requirements. This includes ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
+      { text: 'data protection measures', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Ubuntu' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
+      { text: 'access controls', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Ubuntu' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
+      { text: 'audit trails', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Ubuntu' } },
+      { text: ', and ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
+      { text: 'regular security assessments', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Ubuntu' } },
+      { text: '. We implement ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
+      { text: 'industry best practices', style: { italic: true, underline: true, fontSize: 'base', color: '#dc2626', fontFamily: 'Ubuntu' } },
+      { text: ' for cybersecurity, privacy protection, and regulatory compliance to safeguard ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
+      { text: 'sensitive information', style: { italic: true, underline: true, fontSize: 'base', color: '#dc2626', fontFamily: 'Ubuntu' } },
+      { text: ' and maintain trust.', style: { fontSize: 'base', fontFamily: 'Ubuntu' } }
     ],
-    category: 'Resources',
+    category: 'Compliance',
     isSelected: false,
-    headerOptions: ['Header Option 1', 'Header Option 2'],
-    footerOptions: ['Footer Option 1', 'Footer Option 2']
+    titleFormatting: {
+      fontFamily: 'Ubuntu',
+      fontSize: 'xl',
+      bold: true,
+      italic: true,
+      underline: true,
+      color: '#059669'
+    },
+    contentFormatting: {
+      fontFamily: 'Ubuntu',
+      fontSize: 'base',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#374151'
+    }
   },
+  
   {
-    id: 'resource-2',
-    title: 'Standard Resources - Support',
-    content: 'Post-implementation support includes 30 days of warranty support, documentation, and knowledge transfer. Extended support and maintenance agreements are available under separate terms.',
+    id: 'template-10',
+    title: 'Performance Metrics Template',
+    content: 'Key performance indicators and success metrics provide measurable outcomes for project evaluation and continuous improvement. We establish baseline measurements, target thresholds, and monitoring mechanisms to track progress and identify optimization opportunities. Regular performance reviews and data analysis ensure alignment with business objectives and drive strategic decision-making.',
     formattedContent: [
-      { text: 'Post-implementation support includes ', style: { fontSize: 'base' } },
-      { text: '30 days of warranty support', style: { bold: true, fontSize: 'lg', color: '#059669' } },
-      { text: ', ', style: { fontSize: 'base' } },
-      { text: 'documentation', style: { italic: true, fontSize: 'base' } },
-      { text: ', and ', style: { fontSize: 'base' } },
-      { text: 'knowledge transfer', style: { italic: true, fontSize: 'base' } },
-      { text: '. ', style: { fontSize: 'base' } },
-      { text: 'Extended support and maintenance agreements', style: { bold: true, underline: true, fontSize: 'base', color: '#7c3aed' } },
-      { text: ' are available under separate terms.', style: { fontSize: 'base' } }
+      { text: 'Key performance indicators and success metrics provide measurable outcomes for project evaluation and continuous improvement. We establish ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
+      { text: 'baseline measurements', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Work Sans' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
+      { text: 'target thresholds', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Work Sans' } },
+      { text: ', and ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
+      { text: 'monitoring mechanisms', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Work Sans' } },
+      { text: ' to track progress and identify ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
+      { text: 'optimization opportunities', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Work Sans' } },
+      { text: '. Regular ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
+      { text: 'performance reviews', style: { italic: true, underline: true, fontSize: 'base', color: '#7c3aed', fontFamily: 'Work Sans' } },
+      { text: ' and data analysis ensure alignment with ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
+      { text: 'business objectives', style: { italic: true, underline: true, fontSize: 'base', color: '#7c3aed', fontFamily: 'Work Sans' } },
+      { text: ' and drive strategic decision-making.', style: { fontSize: 'base', fontFamily: 'Work Sans' } }
     ],
-    category: 'Resources',
+    category: 'Metrics',
     isSelected: false,
-    headerOptions: ['Header Option 1', 'Header Option 2'],
-    footerOptions: ['Footer Option 1', 'Footer Option 2']
+    titleFormatting: {
+      fontFamily: 'Work Sans',
+      fontSize: '2xl',
+      bold: true,
+      italic: false,
+      underline: false,
+      color: '#f59e0b'
+    },
+    contentFormatting: {
+      fontFamily: 'Work Sans',
+      fontSize: 'lg',
+      bold: false,
+      italic: false,
+      underline: false,
+      color: '#5b5b5b'
+    }
   }
 ];
 
