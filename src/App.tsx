@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, Header, Footer } from 'docx';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 import { WizardProgress } from './components/WizardProgress';
 import { DocumentTypeSelector } from './components/DocumentTypeSelector';
@@ -293,127 +295,167 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
 
       switch (format) {
         case 'pdf':
-          // Build HTML that reflects block-level formatting
-          const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>${selectedDocumentType}</title>
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
-    h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
-    h2 { color: #1e40af; margin-top: 30px; }
-    h3 { color: #1e3a8a; }
-    h4 { color: #1e293b; }
-    .header { text-align: center; margin-bottom: 40px; }
-    .section { margin-bottom: 30px; }
-    .block { background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb; }
-    .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #64748b; }
-    @media print { body { margin: 20px; } }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
-    ${projectInfo.customerName ? `<h2>${projectInfo.customerName}</h2>` : ''}
-    ${projectInfo.projectName ? `<h3>${projectInfo.projectName}</h3>` : ''}
-    ${projectInfo.startDate ? `<p><strong>Start Date:</strong> ${formatDate(projectInfo.startDate)}</p>` : ''}
-  </div>
+          try {
+            console.log('Starting PDF generation...');
+            
+            // Create a temporary div to render the document content
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.top = '-9999px';
+            tempDiv.style.width = '800px';
+            tempDiv.style.padding = '40px';
+            tempDiv.style.backgroundColor = 'white';
+            tempDiv.style.fontFamily = 'Arial, sans-serif';
+            tempDiv.style.lineHeight = '1.6';
+            tempDiv.style.color = 'black';
+            
+            // Build the HTML content for PDF
+            const htmlContent = `
+              <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #2563eb; padding-bottom: 20px;">
+                <h1 style="color: #2563eb; margin: 0; font-size: 28px;">${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
+                ${projectInfo.customerName ? `<h2 style="color: #1e40af; margin: 10px 0; font-size: 20px;">${projectInfo.customerName}</h2>` : ''}
+                ${projectInfo.projectName ? `<h3 style="color: #1e3a8a; margin: 5px 0; font-size: 16px;">${projectInfo.projectName}</h3>` : ''}
+                ${projectInfo.startDate ? `<p style="margin: 5px 0;"><strong>Start Date:</strong> ${formatDate(projectInfo.startDate)}</p>` : ''}
+              </div>
 
-  <div class="section">
-    <h2>Project Overview</h2>
-    <div class="block">${projectInfo.projectOverview || 'No project overview provided.'}</div>
-  </div>
+              <div style="margin-bottom: 30px;">
+                <h2 style="color: #1e40af; margin-top: 30px; font-size: 18px;">Project Overview</h2>
+                <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">${projectInfo.projectOverview || 'No project overview provided.'}</div>
+              </div>
 
-  <div class="section">
-    <h2>Technical Overview</h2>
-    <div class="block">${projectInfo.technicalOverview || 'No technical overview provided.'}</div>
-  </div>
+              <div style="margin-bottom: 30px;">
+                <h2 style="color: #1e40af; margin-top: 30px; font-size: 18px;">Technical Overview</h2>
+                <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">${projectInfo.technicalOverview || 'No technical overview provided.'}</div>
+              </div>
 
-  ${Object.entries(selectedBlocks.reduce((acc, block) => {
-    if (!acc[block.category]) acc[block.category] = [];
-    acc[block.category].push(block);
-    return acc;
-  }, {} as Record<string, TextBlock[]>)).map(([category, blocks]) => `
-  <div class="section">
-    <h2>${category}</h2>
-    ${blocks.map(block => {
-      const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
-      const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
-      const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.25rem;">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</div>` : '';
-      const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</div>` : '';
-      const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
-        ? convertFormattedContentToHTML(block.formattedContent)
-        : block.content.replace(/\n/g, '<br>');
-      return `
-      <div class="block">
-        <h4 style="${titleStyle}">${block.title}</h4>
-        ${headerHTML}
-        <div style="${contentStyle}">${contentHTML}</div>
-        ${footerHTML}
-      </div>`;
-    }).join('')}
-  </div>
-  `).join('')}
+              ${Object.entries(selectedBlocks.reduce((acc, block) => {
+                if (!acc[block.category]) acc[block.category] = [];
+                acc[block.category].push(block);
+                return acc;
+              }, {} as Record<string, TextBlock[]>)).map(([category, blocks]) => `
+              <div style="margin-bottom: 30px;">
+                <h2 style="color: #1e40af; margin-top: 30px; font-size: 18px;">${category}</h2>
+                ${blocks.map(block => {
+                  const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
+                  const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
+                  const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<div style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</div>` : '';
+                  const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<div style="font-size: 12px; color: #6b7280; margin-top: 5px;">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</div>` : '';
+                  const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
+                    ? convertFormattedContentToHTML(block.formattedContent)
+                    : block.content.replace(/\n/g, '<br>');
+                  return `
+                  <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">
+                    <h4 style="${titleStyle} margin: 0 0 10px 0;">${block.title}</h4>
+                    ${headerHTML}
+                    <div style="${contentStyle}">${contentHTML}</div>
+                    ${footerHTML}
+                  </div>`;
+                }).join('')}
+              </div>
+              `).join('')}
 
-  ${(projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable.length > 0) ? `
-  <div class="section">
-    <h2>Pricing & Components</h2>
-    ${projectInfo.hardwareComponents ? `
-    <div class="block">
-      <h4>Hardware Components</h4>
-      <p>${projectInfo.hardwareComponents}</p>
-    </div>
-    ` : ''}
-    ${projectInfo.servicesComponents ? `
-    <div class="block">
-      <h4>Services Components</h4>
-      <p>${projectInfo.servicesComponents}</p>
-    </div>
-    ` : ''}
-    ${projectInfo.pricingTable.length > 0 ? `
-    <div class="block">
-      <h4>Pricing Structure</h4>
-      <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-        <thead>
-          <tr style="background-color: #f8fafc;">
-            <th style="border: 1px solid #e2e8f0; padding: 8px; text-align: left;">Item</th>
-            <th style="border: 1px solid #e2e8f0; padding: 8px; text-align: left;">Quantity</th>
-            <th style="border: 1px solid #e2e8f0; padding: 8px; text-align: left;">Description</th>
-            <th style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">Price ($)</th>
-            <th style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">Extended Price ($)</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${projectInfo.pricingTable.map(item => `
-            <tr>
-              <td style="border: 1px solid #e2e8f0; padding: 8px;">${item.item || 'N/A'}</td>
-              <td style="border: 1px solid #e2e8f0; padding: 8px;">${item.quantity}</td>
-              <td style="border: 1px solid #e2e8f0; padding: 8px;">${item.description || 'N/A'}</td>
-              <td style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">$${item.price.toFixed(2)}</td>
-              <td style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">$${item.extendedPrice.toFixed(2)}</td>
-            </tr>
-          `).join('')}
-          <tr style="background-color: #f8fafc; font-weight: bold;">
-            <td colspan="4" style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">Total:</td>
-            <td style="border: 1px solid #e2e8f0; padding: 8px; text-align: right;">$${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    ` : ''}
-  </div>
-  ` : ''}
+              ${(projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable.length > 0) ? `
+              <div style="margin-bottom: 30px;">
+                <h2 style="color: #1e40af; margin-top: 30px; font-size: 18px;">Pricing & Components</h2>
+                ${projectInfo.hardwareComponents ? `
+                <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">
+                  <h4 style="margin: 0 0 10px 0;">Hardware Components</h4>
+                  <p style="margin: 0;">${projectInfo.hardwareComponents}</p>
+                </div>
+                ` : ''}
+                ${projectInfo.servicesComponents ? `
+                <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">
+                  <h4 style="margin: 0 0 10px 0;">Services Components</h4>
+                  <p style="margin: 0;">${projectInfo.servicesComponents}</p>
+                </div>
+                ` : ''}
+                ${projectInfo.pricingTable.length > 0 ? `
+                <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">
+                  <h4 style="margin: 0 0 10px 0;">Pricing Structure</h4>
+                  <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px;">
+                    <thead>
+                      <tr style="background-color: #f8fafc;">
+                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left;">Item</th>
+                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left;">Qty</th>
+                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left;">Description</th>
+                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: right;">Price ($)</th>
+                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: right;">Extended ($)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${projectInfo.pricingTable.map(item => `
+                        <tr>
+                          <td style="border: 1px solid #e2e8f0; padding: 6px;">${item.item || 'N/A'}</td>
+                          <td style="border: 1px solid #e2e8f0; padding: 6px;">${item.quantity}</td>
+                          <td style="border: 1px solid #e2e8f0; padding: 6px;">${item.description || 'N/A'}</td>
+                          <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: right;">$${item.price.toFixed(2)}</td>
+                          <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: right;">$${item.extendedPrice.toFixed(2)}</td>
+                        </tr>
+                      `).join('')}
+                      <tr style="background-color: #f8fafc; font-weight: bold;">
+                        <td colspan="4" style="border: 1px solid #e2e8f0; padding: 6px; text-align: right;">Total:</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: right;">$${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                ` : ''}
+              </div>
+              ` : ''}
 
-  <div class="footer">
-    <p><em>Generated on ${formatDate(new Date().toISOString().split('T')[0])}</em></p>
-  </div>
-</body>
-</html>`;
-
-          downloadFile(htmlContent, `${baseFilename}.html`, 'text/html');
-          alert('HTML file generated! Open it in a browser and use "Print to PDF" to save as PDF.');
+              <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 12px;">
+                <p style="margin: 0;"><em>Generated on ${formatDate(new Date().toISOString().split('T')[0])}</em></p>
+              </div>
+            `;
+            
+            tempDiv.innerHTML = htmlContent;
+            document.body.appendChild(tempDiv);
+            
+            // Convert HTML to canvas, then to PDF
+            const canvas = await html2canvas(tempDiv, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: '#ffffff',
+              width: 800,
+              height: tempDiv.scrollHeight
+            });
+            
+            // Remove the temporary div
+            document.body.removeChild(tempDiv);
+            
+            // Create PDF
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = pdfWidth - 20; // 10mm margin on each side
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            let heightLeft = imgHeight;
+            let position = 10; // 10mm top margin
+            
+            // Add first page
+            pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+            heightLeft -= (pdfHeight - 20); // Account for margins
+            
+            // Add additional pages if needed
+            while (heightLeft >= 0) {
+              position = heightLeft - imgHeight + 10;
+              pdf.addPage();
+              pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+              heightLeft -= (pdfHeight - 20);
+            }
+            
+            // Save the PDF
+            pdf.save(`${baseFilename}.pdf`);
+            console.log('PDF generated successfully');
+            
+          } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Error generating PDF. Please try again.');
+          }
           break;
 
         case 'docx':
