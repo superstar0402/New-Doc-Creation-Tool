@@ -98,6 +98,24 @@ const convertFormattedContentToHTML = (formattedContent: FormattedContent[] | un
   }).join('');
 };
 
+// Helper function to convert formatted content to plain text with formatting indicators
+const convertFormattedContentToPlainText = (formattedContent: FormattedContent[] | undefined): string => {
+  if (!formattedContent || formattedContent.length === 0) {
+    return '';
+  }
+
+  return formattedContent.map((item) => {
+    let text = item.text;
+    
+    // Add formatting indicators for plain text
+    if (item.style?.bold) text = `**${text}**`;
+    if (item.style?.italic) text = `*${text}*`;
+    if (item.style?.underline) text = `_${text}_`;
+    
+    return text;
+  }).join('');
+};
+
 // Build inline style string from TextFormatting
 const buildInlineStyleFromFormatting = (fmt?: TextFormatting): string => {
   if (!fmt) return '';
@@ -212,7 +230,11 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
     Object.entries(groupedBlocks).forEach(([category, blocks]) => {
       content += `\n### ${category}\n\n`;
       blocks.forEach((block, index) => {
-        content += `#### ${block.title}\n\n${block.content}\n\n`;
+        // Use formatted content if available, otherwise use plain content
+        const blockContent = block.formattedContent && block.formattedContent.length > 0
+          ? convertFormattedContentToPlainText(block.formattedContent)
+          : block.content;
+        content += `#### ${block.title}\n\n${blockContent}\n\n`;
       });
     });
 

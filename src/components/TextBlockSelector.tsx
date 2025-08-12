@@ -136,6 +136,8 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
     category: 'Custom', 
     headerOptions: ['', ''], 
     footerOptions: ['', ''],
+    maintainFormatting: false,
+    formattedContent: undefined as FormattedContent[] | undefined,
     titleFormatting: {
       fontFamily: 'Inter',
       fontSize: 'base',
@@ -153,6 +155,44 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
       color: '#000000'
     }
   });
+  
+  // State to store extracted formatted content from uploaded files
+  const [extractedFormattedContent, setExtractedFormattedContent] = useState<FormattedContent[] | undefined>(undefined);
+  
+  // Function to apply extracted formatting to content formatting controls
+  const applyExtractedFormatting = (formattedContent: FormattedContent[]) => {
+    if (formattedContent.length > 0 && formattedContent[0].style) {
+      const firstStyle = formattedContent[0].style;
+      
+      // Map common font families to our available options
+      const mapFontFamily = (fontFamily: string) => {
+        const font = fontFamily.toLowerCase();
+        if (font.includes('arial') || font.includes('helvetica')) return 'Inter';
+        if (font.includes('times') || font.includes('serif')) return 'Inter';
+        if (font.includes('courier') || font.includes('mono')) return 'Inter';
+        if (font.includes('montserrat')) return 'Montserrat';
+        if (font.includes('nunito')) return 'Nunito';
+        if (font.includes('source') && font.includes('sans')) return 'Source Sans Pro';
+        if (font.includes('ubuntu')) return 'Ubuntu';
+        if (font.includes('work') && font.includes('sans')) return 'Work Sans';
+        return 'Inter'; // Default fallback
+      };
+      
+      setNewBlock({
+        ...newBlock,
+        content: newBlock.content, // Keep existing content
+        formattedContent: formattedContent, // Store the formatted content
+        contentFormatting: {
+          fontFamily: firstStyle.fontFamily ? mapFontFamily(firstStyle.fontFamily) : 'Inter',
+          fontSize: firstStyle.fontSize || 'base',
+          bold: firstStyle.bold || false,
+          italic: firstStyle.italic || false,
+          underline: firstStyle.underline || false,
+          color: firstStyle.color || '#000000'
+        }
+      });
+    }
+  };
   const [editBlock, setEditBlock] = useState<TextBlock | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -190,7 +230,10 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         headerOptions: newBlock.headerOptions,
         footerOptions: newBlock.footerOptions,
         titleFormatting: newBlock.titleFormatting,
-        contentFormatting: newBlock.contentFormatting
+        contentFormatting: newBlock.contentFormatting,
+        // Use formatted content if maintainFormatting is enabled (from either extracted content or existing block)
+        formattedContent: newBlock.maintainFormatting && (extractedFormattedContent || newBlock.formattedContent) ? 
+          (extractedFormattedContent || newBlock.formattedContent) : undefined
       };
       onBlocksChange([...textBlocks, block]);
       setNewBlock({ 
@@ -199,6 +242,8 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         category: 'Custom', 
         headerOptions: ['', ''], 
         footerOptions: ['', ''],
+        maintainFormatting: false,
+        formattedContent: undefined,
         titleFormatting: {
           fontFamily: 'Inter',
           fontSize: 'base',
@@ -217,6 +262,8 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         }
       });
       setIsAddingBlock(false);
+      // Reset extracted formatted content
+      setExtractedFormattedContent(undefined);
       // Reset file input
       if (addBlockFileInputRef.current) {
         addBlockFileInputRef.current.value = '';
@@ -274,6 +321,22 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
       content: block.content, // Ensure content is properly set
       headerOptions: block.headerOptions && block.headerOptions.length === 2 ? block.headerOptions : [block.headerOptions?.[0] || '', block.headerOptions?.[1] || ''],
       footerOptions: block.footerOptions && block.footerOptions.length === 2 ? block.footerOptions : [block.footerOptions?.[0] || '', block.footerOptions?.[1] || ''],
+      titleFormatting: block.titleFormatting || {
+        fontFamily: 'Inter',
+        fontSize: 'base',
+        bold: false,
+        italic: false,
+        underline: false,
+        color: '#000000'
+      },
+      contentFormatting: block.contentFormatting || {
+        fontFamily: 'Inter',
+        fontSize: 'base',
+        bold: false,
+        italic: false,
+        underline: false,
+        color: '#000000'
+      }
     });
   };
 
@@ -547,6 +610,99 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         rows={6}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
                       />
+                      
+                      {/* Show formatted content preview when maintainFormatting is enabled */}
+                      {newBlock.maintainFormatting && (extractedFormattedContent || newBlock.formattedContent) && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <h6 className="text-sm font-medium text-blue-800 mb-2">Formatting Preview:</h6>
+                          <div className="text-sm text-blue-700 mb-3">
+                            {renderFormattedContent(extractedFormattedContent || newBlock.formattedContent)}
+                          </div>
+                          
+                          {/* Show formatting properties summary */}
+                          <div className="bg-white rounded border border-blue-200 p-2">
+                            <div className="text-xs font-medium text-blue-800 block mb-2">Formatting Properties:</div>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              {(() => {
+                                const contentToShow = extractedFormattedContent || newBlock.formattedContent;
+                                const firstStyle = contentToShow?.[0]?.style;
+                                if (firstStyle) {
+                                  return (
+                                    <>
+                                      {firstStyle.fontFamily && (
+                                        <div className="flex items-center gap-1">
+                                          <span className="text-gray-600">Font:</span>
+                                          <span className="font-medium">{firstStyle.fontFamily}</span>
+                                        </div>
+                                      )}
+                                      {firstStyle.fontSize && (
+                                        <div className="flex items-center gap-1">
+                                          <span className="text-gray-600">Size:</span>
+                                          <span className="font-medium">{firstStyle.fontSize}</span>
+                                        </div>
+                                      )}
+                                      {firstStyle.color && (
+                                        <div className="flex items-center gap-1">
+                                          <span className="text-gray-600">Color:</span>
+                                          <span className="font-medium">{firstStyle.color}</span>
+                                        </div>
+                                      )}
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-gray-600">Bold:</span>
+                                        <span className="font-medium">{firstStyle.bold ? 'Yes' : 'No'}</span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-gray-600">Italic:</span>
+                                        <span className="font-medium">{firstStyle.italic ? 'Yes' : 'No'}</span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-gray-600">Underline:</span>
+                                        <span className="font-medium">{firstStyle.underline ? 'Yes' : 'No'}</span>
+                                      </div>
+                                    </>
+                                  );
+                                }
+                                return <span className="text-gray-500">No formatting properties detected</span>;
+                              })()}
+                            </div>
+                          </div>
+                          
+                          {/* Show source of formatting */}
+                          <div className="bg-green-50 rounded border border-green-200 p-2 mt-2">
+                            <div className="text-xs font-medium text-green-700 block mb-2">Formatting Source:</div>
+                            <div className="text-xs text-green-600">
+                              {extractedFormattedContent ? 'From uploaded file' : 'From template'}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newMaintainFormatting = !newBlock.maintainFormatting;
+                            setNewBlock({ ...newBlock, maintainFormatting: newMaintainFormatting });
+                            // Clear extracted content if turning off maintain formatting
+                            if (!newMaintainFormatting) {
+                              setExtractedFormattedContent(undefined);
+                            }
+                          }}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                            newBlock.maintainFormatting 
+                              ? 'bg-purple-500 text-white' 
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                          </svg>
+                          Maintain Formatting
+                        </button>
+                        <span className="text-xs text-gray-500">
+                          {newBlock.maintainFormatting ? 'Preserve formatting' : 'Apply manual formatting'}
+                        </span>
+                      </div> */}
                       <div className="flex items-center gap-2">
                         <input
                           type="file"
@@ -558,6 +714,8 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             const file = e.target.files?.[0];
                             if (!file) return;
                             let text = '';
+                            let formattedContent: FormattedContent[] | undefined;
+                            
                             if (file.type === 'application/pdf') {
                               // PDF: use PDF.js or fallback
                               try {
@@ -575,12 +733,212 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                 return;
                               }
                             } else if (file.name.endsWith('.docx')) {
-                              // DOCX: use mammoth
+                              // DOCX: use mammoth with formatting preservation
                               try {
                                 const mammoth = await import('mammoth');
                                 const arrayBuffer = await file.arrayBuffer();
-                                const result = await mammoth.extractRawText({ arrayBuffer });
-                                text = result.value;
+                                
+                                if (newBlock.maintainFormatting) {
+                                  // Extract HTML with formatting to preserve original properties
+                                  const result = await mammoth.convertToHtml({ arrayBuffer });
+                                  const html = result.value;
+                                  
+                                  // Parse HTML to extract formatting properties
+                                  const parser = new DOMParser();
+                                  const doc = parser.parseFromString(html, 'text/html');
+                                  
+                                  // Extract text content with formatting
+                                  const formattedContent: FormattedContent[] = [];
+                                  
+                                  // Function to process nodes and extract formatting
+                                  const processNode = (node: Node) => {
+                                    if (node.nodeType === Node.TEXT_NODE) {
+                                      if (node.textContent && node.textContent.trim()) {
+                                        const parent = node.parentElement;
+                                        if (parent) {
+                                          const style: any = {};
+                                          
+                                          // Extract font family - check multiple sources
+                                          const fontFamily = parent.style.fontFamily || 
+                                                           parent.getAttribute('style')?.match(/font-family:\s*([^;]+)/)?.[1] ||
+                                                           getComputedStyle(parent).fontFamily;
+                                          if (fontFamily && fontFamily !== 'inherit' && fontFamily !== 'serif') {
+                                            style.fontFamily = fontFamily.replace(/['"]/g, '').split(',')[0].trim();
+                                          }
+                                          
+                                          // Extract font size - check multiple sources and convert to our format
+                                          const fontSize = parent.style.fontSize || 
+                                                        parent.getAttribute('style')?.match(/font-size:\s*([^;]+)/)?.[1] ||
+                                                        getComputedStyle(parent).fontSize;
+                                          if (fontSize && fontSize !== 'inherit') {
+                                            if (fontSize.includes('px')) {
+                                              const pxValue = parseInt(fontSize);
+                                              if (pxValue <= 10) style.fontSize = 'xs';
+                                              else if (pxValue <= 12) style.fontSize = 'sm';
+                                              else if (pxValue <= 14) style.fontSize = 'base';
+                                              else if (pxValue <= 16) style.fontSize = 'lg';
+                                              else if (pxValue <= 18) style.fontSize = 'xl';
+                                              else if (pxValue <= 20) style.fontSize = '2xl';
+                                              else if (pxValue <= 24) style.fontSize = '3xl';
+                                              else style.fontSize = '3xl';
+                                            } else if (fontSize.includes('pt')) {
+                                              const ptValue = parseInt(fontSize);
+                                              if (ptValue <= 8) style.fontSize = 'xs';
+                                              else if (ptValue <= 10) style.fontSize = 'sm';
+                                              else if (ptValue <= 12) style.fontSize = 'base';
+                                              else if (ptValue <= 14) style.fontSize = 'lg';
+                                              else if (ptValue <= 16) style.fontSize = 'xl';
+                                              else if (ptValue <= 18) style.fontSize = '2xl';
+                                              else style.fontSize = '3xl';
+                                            }
+                                          }
+                                          
+                                          // Extract color - check multiple sources
+                                          const color = parent.style.color || 
+                                                      parent.getAttribute('style')?.match(/color:\s*([^;]+)/)?.[1] ||
+                                                      getComputedStyle(parent).color;
+                                          if (color && color !== 'inherit' && color !== 'rgb(0, 0, 0)' && color !== '#000000') {
+                                            style.color = color;
+                                          }
+                                          
+                                          // Extract bold - check multiple sources
+                                          const fontWeight = parent.style.fontWeight || 
+                                                           parent.getAttribute('style')?.match(/font-weight:\s*([^;]+)/)?.[1] ||
+                                                           getComputedStyle(parent).fontWeight;
+                                          if (fontWeight === 'bold' || fontWeight === '700' || fontWeight === '600') {
+                                            style.bold = true;
+                                          }
+                                          
+                                          // Extract italic - check multiple sources
+                                          const fontStyle = parent.style.fontStyle || 
+                                                          parent.getAttribute('style')?.match(/font-style:\s*([^;]+)/)?.[1] ||
+                                                          getComputedStyle(parent).fontStyle;
+                                          if (fontStyle === 'italic') {
+                                            style.italic = true;
+                                          }
+                                          
+                                          // Extract underline - check multiple sources
+                                          const textDecoration = parent.style.textDecoration || 
+                                                               parent.getAttribute('style')?.match(/text-decoration:\s*([^;]+)/)?.[1] ||
+                                                               getComputedStyle(parent).textDecoration;
+                                          if (textDecoration && textDecoration.includes('underline')) {
+                                            style.underline = true;
+                                          }
+                                          
+                                          formattedContent.push({
+                                            text: node.textContent,
+                                            style
+                                          });
+                                        } else {
+                                          formattedContent.push({
+                                            text: node.textContent
+                                          });
+                                        }
+                                      }
+                                    } else if (node.nodeType === Node.ELEMENT_NODE) {
+                                      const element = node as Element;
+                                      
+                                      // Check for specific formatting tags and their styles
+                                      const style: any = {};
+                                      
+                                      // Check for bold tags
+                                      if (element.tagName === 'B' || element.tagName === 'STRONG') {
+                                        style.bold = true;
+                                      }
+                                      
+                                      // Check for italic tags
+                                      if (element.tagName === 'I' || element.tagName === 'EM') {
+                                        style.italic = true;
+                                      }
+                                      
+                                      // Check for underline tags
+                                      if (element.tagName === 'U') {
+                                        style.underline = true;
+                                      }
+                                      
+                                      // Extract inline styles from the element
+                                      const elementStyle = element.getAttribute('style');
+                                      if (elementStyle) {
+                                        // Extract font-family
+                                        const fontFamilyMatch = elementStyle.match(/font-family:\s*([^;]+)/);
+                                        if (fontFamilyMatch) {
+                                          style.fontFamily = fontFamilyMatch[1].replace(/['"]/g, '').split(',')[0].trim();
+                                        }
+                                        
+                                        // Extract font-size
+                                        const fontSizeMatch = elementStyle.match(/font-size:\s*([^;]+)/);
+                                        if (fontSizeMatch) {
+                                          const fontSize = fontSizeMatch[1];
+                                          if (fontSize.includes('px')) {
+                                            const pxValue = parseInt(fontSize);
+                                            if (pxValue <= 10) style.fontSize = 'xs';
+                                            else if (pxValue <= 12) style.fontSize = 'sm';
+                                            else if (pxValue <= 14) style.fontSize = 'base';
+                                            else if (pxValue <= 16) style.fontSize = 'lg';
+                                            else if (pxValue <= 18) style.fontSize = 'xl';
+                                            else if (pxValue <= 20) style.fontSize = '2xl';
+                                            else style.fontSize = '3xl';
+                                          }
+                                        }
+                                        
+                                        // Extract color
+                                        const colorMatch = elementStyle.match(/color:\s*([^;]+)/);
+                                        if (colorMatch) {
+                                          style.color = colorMatch[1];
+                                        }
+                                      }
+                                      
+                                      // Process child nodes
+                                      for (const child of Array.from(element.childNodes)) {
+                                        if (child.nodeType === Node.TEXT_NODE && child.textContent) {
+                                          formattedContent.push({
+                                            text: child.textContent,
+                                            style
+                                          });
+                                        } else {
+                                          processNode(child);
+                                        }
+                                      }
+                                      return; // Skip default processing for elements
+                                    }
+                                    
+                                    // Process child nodes
+                                    for (const child of Array.from(node.childNodes)) {
+                                      processNode(child);
+                                    }
+                                  };
+                                  
+                                  // Process all nodes
+                                  processNode(doc.body);
+                                  
+                                  // Extract plain text for content
+                                  text = doc.body.textContent || '';
+                                  
+                                  // Store the extracted formatted content
+                                  setExtractedFormattedContent(formattedContent);
+                                  
+                                  // Update content formatting to match the first formatted element
+                                  if (formattedContent.length > 0 && formattedContent[0].style) {
+                                    // Update both content and formatting
+                                    setNewBlock({
+                                      ...newBlock,
+                                      content: text,
+                                      formattedContent: formattedContent // Store in newBlock state
+                                    });
+                                    // Apply the extracted formatting
+                                    applyExtractedFormatting(formattedContent);
+                                  } else {
+                                    // If no formatting found, just update the content
+                                    setNewBlock({
+                                      ...newBlock,
+                                      content: text,
+                                      formattedContent: formattedContent
+                                    });
+                                  }
+                                } else {
+                                  const result = await mammoth.extractRawText({ arrayBuffer });
+                                  text = result.value;
+                                }
                               } catch (err) {
                                 alert('DOCX reading failed. Please use a .txt file or paste content manually.');
                                 return;
@@ -592,7 +950,14 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               // TXT or fallback
                               text = await file.text();
                             }
-                            setNewBlock({ ...newBlock, content: text });
+                            
+                            // Only update if we haven't already updated the state above
+                            if (!newBlock.maintainFormatting || !formattedContent || formattedContent.length === 0) {
+                              setNewBlock({ 
+                                ...newBlock, 
+                                content: text
+                              });
+                            }
                           }}
                         />
                         <label htmlFor="add-block-upload" className="px-3 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-all text-xs">
@@ -611,10 +976,15 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                     </div>
 
                     {/* Content Formatting Options */}
-                    <div className="bg-gray-50 rounded-xl p-4">
+                    <div className={`bg-gray-50 rounded-xl p-4 ${newBlock.maintainFormatting ? 'opacity-50' : ''}`}>
                       <h5 className="font-semibold text-gray-900 mb-3 flex items-center">
                         <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                         Content Formatting
+                        {newBlock.maintainFormatting && (
+                          <span className="ml-2 text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                            Disabled - Using uploaded formatting
+                          </span>
+                        )}
                       </h5>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <div>
@@ -625,7 +995,10 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               ...newBlock,
                               contentFormatting: { ...newBlock.contentFormatting, fontFamily: e.target.value }
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
+                            disabled={newBlock.maintainFormatting}
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm ${
+                              newBlock.maintainFormatting ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
                           >
                             <option value="Inter">Inter</option>
                             <option value="Roboto">Roboto</option>
@@ -652,7 +1025,10 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               ...newBlock,
                               contentFormatting: { ...newBlock.contentFormatting, fontSize: e.target.value }
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
+                            disabled={newBlock.maintainFormatting}
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm ${
+                              newBlock.maintainFormatting ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
                           >
                             <option value="xs">Extra Small</option>
                             <option value="sm">Small</option>
@@ -672,7 +1048,10 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               ...newBlock,
                               contentFormatting: { ...newBlock.contentFormatting, color: e.target.value }
                             })}
-                            className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                            disabled={newBlock.maintainFormatting}
+                            className={`w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white ${
+                              newBlock.maintainFormatting ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
                           />
                         </div>
                         <div className="flex items-end gap-2">
@@ -681,8 +1060,11 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               ...newBlock,
                               contentFormatting: { ...newBlock.contentFormatting, bold: !newBlock.contentFormatting.bold }
                             })}
+                            disabled={newBlock.maintainFormatting}
                             className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                              newBlock.contentFormatting.bold 
+                              newBlock.maintainFormatting 
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                : newBlock.contentFormatting.bold 
                                 ? 'bg-green-500 text-white' 
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
@@ -694,8 +1076,11 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               ...newBlock,
                               contentFormatting: { ...newBlock.contentFormatting, italic: !newBlock.contentFormatting.italic }
                             })}
+                            disabled={newBlock.maintainFormatting}
                             className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                              newBlock.contentFormatting.italic 
+                              newBlock.maintainFormatting 
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                : newBlock.contentFormatting.italic 
                                 ? 'bg-green-500 text-white' 
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
@@ -707,8 +1092,11 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               ...newBlock,
                               contentFormatting: { ...newBlock.contentFormatting, underline: !newBlock.contentFormatting.underline }
                             })}
+                            disabled={newBlock.maintainFormatting}
                             className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                              newBlock.contentFormatting.underline 
+                              newBlock.maintainFormatting 
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                : newBlock.contentFormatting.underline 
                                 ? 'bg-green-500 text-white' 
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
@@ -804,111 +1192,276 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         onChange={e => setEditBlock({ ...editBlock, title: e.target.value })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                       />
-                                              <textarea
-                          placeholder="Block content"
-                          value={editBlock.content || ''}
-                          onChange={e => setEditBlock({ ...editBlock, content: e.target.value })}
-                          rows={6}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
-                        />
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="file"
-                            accept=".txt,.doc,.docx,.pdf"
-                            id="edit-block-upload"
-                            style={{ display: 'none' }}
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              let text = '';
-                              if (file.type === 'application/pdf') {
-                                // PDF: use PDF.js or fallback
-                                try {
-                                  const arrayBuffer = await file.arrayBuffer();
-                                  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                                  let pdfText = '';
-                                  for (let i = 1; i <= pdf.numPages; i++) {
-                                    const page = await pdf.getPage(i);
-                                    const content = await page.getTextContent();
-                                    pdfText += content.items.map((item: any) => item.str).join(' ') + '\n';
-                                  }
-                                  text = pdfText;
-                                } catch (err) {
-                                  alert('PDF reading failed. Please use a .txt file or paste content manually.');
-                                  return;
+                      <textarea
+                        placeholder="Block content"
+                        value={editBlock.content || ''}
+                        onChange={e => setEditBlock({ ...editBlock, content: e.target.value })}
+                        rows={6}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
+                      />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="file"
+                          accept=".txt,.doc,.docx,.pdf"
+                          id="edit-block-upload"
+                          style={{ display: 'none' }}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            let text = '';
+                            if (file.type === 'application/pdf') {
+                              // PDF: use PDF.js or fallback
+                              try {
+                                const arrayBuffer = await file.arrayBuffer();
+                                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                                let pdfText = '';
+                                for (let i = 1; i <= pdf.numPages; i++) {
+                                  const page = await pdf.getPage(i);
+                                  const content = await page.getTextContent();
+                                  pdfText += content.items.map((item: any) => item.str).join(' ') + '\n';
                                 }
-                              } else if (file.name.endsWith('.docx')) {
-                                // DOCX: use mammoth
-                                try {
-                                  const mammoth = await import('mammoth');
-                                  const arrayBuffer = await file.arrayBuffer();
-                                  const result = await mammoth.extractRawText({ arrayBuffer });
-                                  text = result.value;
-                                } catch (err) {
-                                  alert('DOCX reading failed. Please use a .txt file or paste content manually.');
-                                  return;
-                                }
-                              } else if (file.name.endsWith('.doc')) {
-                                alert('DOC files are not supported. Please use DOCX, TXT, or PDF.');
+                                text = pdfText;
+                              } catch (err) {
+                                alert('PDF reading failed. Please use a .txt file or paste content manually.');
                                 return;
-                              } else {
-                                // TXT or fallback
-                                text = await file.text();
                               }
-                              setEditBlock({ ...editBlock, content: text });
-                            }}
-                          />
-                          <label htmlFor="edit-block-upload" className="px-3 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-all text-xs">
-                            Upload Content
-                          </label>
+                            } else if (file.name.endsWith('.docx')) {
+                              // DOCX: use mammoth
+                              try {
+                                const mammoth = await import('mammoth');
+                                const arrayBuffer = await file.arrayBuffer();
+                                const result = await mammoth.extractRawText({ arrayBuffer });
+                                text = result.value;
+                              } catch (err) {
+                                alert('DOCX reading failed. Please use a .txt file or paste content manually.');
+                                return;
+                              }
+                            } else if (file.name.endsWith('.doc')) {
+                              alert('DOC files are not supported. Please use DOCX, TXT, or PDF.');
+                              return;
+                            } else {
+                              // TXT or fallback
+                              text = await file.text();
+                            }
+                            setEditBlock({ ...editBlock, content: text });
+                          }}
+                        />
+                        <label htmlFor="edit-block-upload" className="px-3 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-all text-xs">
+                          Upload Content
+                        </label>
+                        <button
+                          onClick={() => setEditBlock({ ...editBlock, content: '' })}
+                          className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all text-xs"
+                        >
+                          Clear Content
+                        </button>
+                        <span className="text-xs text-gray-400">
+                          {editBlock.content ? editBlock.content.length : 0} chars
+                        </span>
+                      </div>
+
+                      {/* Title Formatting */}
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <h5 className="font-semibold text-gray-900 mb-3 flex items-center">
+                          <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+                          Title Formatting
+                        </h5>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Font Family</label>
+                            <select
+                              value={editBlock.titleFormatting?.fontFamily || 'Inter'}
+                              onChange={(e) => setEditBlock({
+                                ...editBlock,
+                                titleFormatting: { ...editBlock.titleFormatting!, fontFamily: e.target.value }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
+                            >
+                              <option value="Inter">Inter</option>
+                              <option value="Roboto">Roboto</option>
+                              <option value="Open Sans">Open Sans</option>
+                              <option value="Lato">Lato</option>
+                              <option value="Poppins">Poppins</option>
+                              <option value="Montserrat">Montserrat</option>
+                              <option value="Nunito">Nunito</option>
+                              <option value="Source Sans Pro">Source Sans Pro</option>
+                              <option value="Ubuntu">Ubuntu</option>
+                              <option value="Work Sans">Work Sans</option>
+                              <option value="Arial">Arial</option>
+                              <option value="Times New Roman">Times New Roman</option>
+                              <option value="Georgia">Georgia</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Font Size</label>
+                            <select
+                              value={editBlock.titleFormatting?.fontSize || 'base'}
+                              onChange={(e) => setEditBlock({
+                                ...editBlock,
+                                titleFormatting: { ...editBlock.titleFormatting!, fontSize: e.target.value }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
+                            >
+                              <option value="xs">XS</option>
+                              <option value="sm">SM</option>
+                              <option value="base">Base</option>
+                              <option value="lg">LG</option>
+                              <option value="xl">XL</option>
+                              <option value="2xl">2XL</option>
+                              <option value="3xl">3XL</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
+                            <input
+                              type="color"
+                              value={editBlock.titleFormatting?.color || '#000000'}
+                              onChange={(e) => setEditBlock({
+                                ...editBlock,
+                                titleFormatting: { ...editBlock.titleFormatting!, color: e.target.value }
+                              })}
+                              className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-end gap-2 mt-2">
                           <button
-                            onClick={() => setEditBlock({ ...editBlock, content: '' })}
-                            className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all text-xs"
+                            onClick={() => setEditBlock({
+                              ...editBlock,
+                              titleFormatting: { ...editBlock.titleFormatting!, bold: !editBlock.titleFormatting?.bold }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              editBlock.titleFormatting?.bold ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
                           >
-                            Clear Content
+                            Bold
                           </button>
-                          <span className="text-xs text-gray-400">
-                            {editBlock.content ? editBlock.content.length : 0} chars
-                          </span>
+                          <button
+                            onClick={() => setEditBlock({
+                              ...editBlock,
+                              titleFormatting: { ...editBlock.titleFormatting!, italic: !editBlock.titleFormatting?.italic }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              editBlock.titleFormatting?.italic ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Italic
+                          </button>
+                          <button
+                            onClick={() => setEditBlock({
+                              ...editBlock,
+                              titleFormatting: { ...editBlock.titleFormatting!, underline: !editBlock.titleFormatting?.underline }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              editBlock.titleFormatting?.underline ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Underline
+                          </button>
                         </div>
-                      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-semibold mb-1">Header Option 1</label>
-                          <input
-                            type="text"
-                            value={editBlock.headerOptions?.[0] || ''}
-                            onChange={e => setEditBlock({ ...editBlock, headerOptions: [e.target.value, editBlock.headerOptions?.[1] || ''] })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
-                          />
+                      </div>
+
+                      {/* Content Formatting */}
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <h5 className="font-semibold text-gray-900 mb-3 flex items-center">
+                          <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                          Content Formatting
+                        </h5>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Font Family</label>
+                            <select
+                              value={editBlock.contentFormatting?.fontFamily || 'Inter'}
+                              onChange={(e) => setEditBlock({
+                                ...editBlock,
+                                contentFormatting: { ...editBlock.contentFormatting!, fontFamily: e.target.value }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
+                            >
+                              <option value="Inter">Inter</option>
+                              <option value="Roboto">Roboto</option>
+                              <option value="Open Sans">Open Sans</option>
+                              <option value="Lato">Lato</option>
+                              <option value="Poppins">Poppins</option>
+                              <option value="Montserrat">Montserrat</option>
+                              <option value="Nunito">Nunito</option>
+                              <option value="Source Sans Pro">Source Sans Pro</option>
+                              <option value="Ubuntu">Ubuntu</option>
+                              <option value="Work Sans">Work Sans</option>
+                              <option value="Arial">Arial</option>
+                              <option value="Times New Roman">Times New Roman</option>
+                              <option value="Georgia">Georgia</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Font Size</label>
+                            <select
+                              value={editBlock.contentFormatting?.fontSize || 'base'}
+                              onChange={(e) => setEditBlock({
+                                ...editBlock,
+                                contentFormatting: { ...editBlock.contentFormatting!, fontSize: e.target.value }
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
+                            >
+                              <option value="xs">XS</option>
+                              <option value="sm">SM</option>
+                              <option value="base">Base</option>
+                              <option value="lg">LG</option>
+                              <option value="xl">XL</option>
+                              <option value="2xl">2XL</option>
+                              <option value="3xl">3XL</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
+                            <input
+                              type="color"
+                              value={editBlock.contentFormatting?.color || '#000000'}
+                              onChange={(e) => setEditBlock({
+                                ...editBlock,
+                                contentFormatting: { ...editBlock.contentFormatting!, color: e.target.value }
+                              })}
+                              className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                            />
+                          </div>
                         </div>
-                        <div>
-                          <label className="block text-xs font-semibold mb-1">Header Option 2</label>
-                          <input
-                            type="text"
-                            value={editBlock.headerOptions?.[1] || ''}
-                            onChange={e => setEditBlock({ ...editBlock, headerOptions: [editBlock.headerOptions?.[0] || '', e.target.value] })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
-                          />
+                        <div className="flex items-end gap-2 mt-2">
+                          <button
+                            onClick={() => setEditBlock({
+                              ...editBlock,
+                              contentFormatting: { ...editBlock.contentFormatting!, bold: !editBlock.contentFormatting?.bold }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              editBlock.contentFormatting?.bold ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Bold
+                          </button>
+                          <button
+                            onClick={() => setEditBlock({
+                              ...editBlock,
+                              contentFormatting: { ...editBlock.contentFormatting!, italic: !editBlock.contentFormatting?.italic }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              editBlock.contentFormatting?.italic ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Italic
+                          </button>
+                          <button
+                            onClick={() => setEditBlock({
+                              ...editBlock,
+                              contentFormatting: { ...editBlock.contentFormatting!, underline: !editBlock.contentFormatting?.underline }
+                            })}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                              editBlock.contentFormatting?.underline ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            }`}
+                          >
+                            Underline
+                          </button>
                         </div>
-                        <div>
-                          <label className="block text-xs font-semibold mb-1">Footer Option 1</label>
-                          <input
-                            type="text"
-                            value={editBlock.footerOptions?.[0] || ''}
-                            onChange={e => setEditBlock({ ...editBlock, footerOptions: [e.target.value, editBlock.footerOptions?.[1] || ''] })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold mb-1">Footer Option 2</label>
-                          <input
-                            type="text"
-                            value={editBlock.footerOptions?.[1] || ''}
-                            onChange={e => setEditBlock({ ...editBlock, footerOptions: [editBlock.footerOptions?.[0] || '', e.target.value] })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
-                          />
-                        </div>
-                      </div> */}
+                      </div>
+
                       <div className="flex gap-3">
                         <button
                           onClick={handleEditBlockSave}
@@ -1008,6 +1561,42 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             ); })()
                           }
                         </p>
+                        {/* Show formatting indicator if block has rich formatting */}
+                        {block.formattedContent && block.formattedContent.length > 0 && (
+                          <div className="mt-2">
+                            <div className="flex items-center gap-2">
+                              <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                                </svg>
+                                Rich Formatting Available
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Enable maintainFormatting and set the formattedContent for this block
+                                  setNewBlock({
+                                    ...newBlock,
+                                    maintainFormatting: true,
+                                    formattedContent: block.formattedContent,
+                                    content: block.content,
+                                    title: block.title, // Also copy the title for convenience
+                                    category: block.category // And the category
+                                  });
+                                  setIsAddingBlock(true);
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium hover:bg-green-200 transition-colors"
+                                title="Click to create a new block with this formatting preserved"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Use This Formatting
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        
                         {/* Show header/footer options if present */}
                         {(block.headerOptions && block.headerOptions.some(opt => opt)) && (
                           <div className="mt-2">
