@@ -310,69 +310,60 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             tempDiv.style.lineHeight = '1.6';
             tempDiv.style.color = 'black';
             
-            // Build the HTML content for PDF
+            // Build the HTML content for PDF - matching Word document format
             const htmlContent = `
-              <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #2563eb; padding-bottom: 20px;">
-                <h1 style="color: #2563eb; margin: 0; font-size: 28px;">${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
-                ${projectInfo.customerName ? `<h2 style="color: #1e40af; margin: 10px 0; font-size: 20px;">${projectInfo.customerName}</h2>` : ''}
-                ${projectInfo.projectName ? `<h3 style="color: #1e3a8a; margin: 5px 0; font-size: 16px;">${projectInfo.projectName}</h3>` : ''}
-                ${projectInfo.startDate ? `<p style="margin: 5px 0;"><strong>Start Date:</strong> ${formatDate(projectInfo.startDate)}</p>` : ''}
+              <div style="margin-bottom: 20px;">
+                <h1 style="color: #2563eb; margin: 0 0 15px 0; font-size: 24px; font-weight: bold;">${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
+                <p style="margin: 5px 0;">Customer: ${projectInfo.customerName || 'N/A'}</p>
+                <p style="margin: 5px 0;">Project: ${projectInfo.projectName || 'N/A'}</p>
+                ${projectInfo.startDate ? `<p style="margin: 5px 0;">Start Date: ${formatDate(projectInfo.startDate)}</p>` : ''}
               </div>
 
-              <div style="margin-bottom: 30px;">
-                <h2 style="color: #1e40af; margin-top: 30px; font-size: 18px;">Project Overview</h2>
-                <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">${projectInfo.projectOverview || 'No project overview provided.'}</div>
+              <div style="margin-bottom: 20px;">
+                <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Project Overview</h2>
+                <p style="margin: 5px 0;">${projectInfo.projectOverview || 'No project overview provided.'}</p>
               </div>
 
-              <div style="margin-bottom: 30px;">
-                <h2 style="color: #1e40af; margin-top: 30px; font-size: 18px;">Technical Overview</h2>
-                <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">${projectInfo.technicalOverview || 'No technical overview provided.'}</div>
+              <div style="margin-bottom: 20px;">
+                <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Technical Overview</h2>
+                <p style="margin: 5px 0;">${projectInfo.technicalOverview || 'No technical overview provided.'}</p>
               </div>
 
-              ${Object.entries(selectedBlocks.reduce((acc, block) => {
-                if (!acc[block.category]) acc[block.category] = [];
-                acc[block.category].push(block);
-                return acc;
-              }, {} as Record<string, TextBlock[]>)).map(([category, blocks]) => `
-              <div style="margin-bottom: 30px;">
-                <h2 style="color: #1e40af; margin-top: 30px; font-size: 18px;">${category}</h2>
-                ${blocks.map(block => {
-                  const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
-                  const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
-                  const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<div style="font-size: 12px; color: #6b7280; margin-bottom: 5px;">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</div>` : '';
-                  const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<div style="font-size: 12px; color: #6b7280; margin-top: 5px;">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</div>` : '';
-                  const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
-                    ? convertFormattedContentToHTML(block.formattedContent)
-                    : block.content.replace(/\n/g, '<br>');
-                  return `
-                  <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">
-                    <h4 style="${titleStyle} margin: 0 0 10px 0;">${block.title}</h4>
-                    ${headerHTML}
-                    <div style="${contentStyle}">${contentHTML}</div>
-                    ${footerHTML}
-                  </div>`;
-                }).join('')}
-              </div>
-              `).join('')}
+              ${selectedBlocks.map((block, index) => {
+                const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
+                const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
+                const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<p style="margin: 5px 0; font-style: italic; color: #6b7280; font-size: 12px;">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</p>` : '';
+                const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<p style="margin: 5px 0; font-style: italic; color: #6b7280; font-size: 12px;">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</p>` : '';
+                const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
+                  ? convertFormattedContentToHTML(block.formattedContent)
+                  : block.content.replace(/\n/g, '<br>');
+                return `
+                <div style="margin-bottom: 15px;">
+                  <p style="margin: 5px 0;"><span style="${titleStyle}">${index + 1}. ${block.title}</span></p>
+                  ${headerHTML}
+                  <p style="margin: 5px 0; ${contentStyle}">${contentHTML}</p>
+                  ${footerHTML}
+                </div>`;
+              }).join('')}
 
               ${(projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable.length > 0) ? `
-              <div style="margin-bottom: 30px;">
-                <h2 style="color: #1e40af; margin-top: 30px; font-size: 18px;">Pricing & Components</h2>
+              <div style="margin-bottom: 20px;">
+                <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Pricing & Components</h2>
                 ${projectInfo.hardwareComponents ? `
-                <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">
-                  <h4 style="margin: 0 0 10px 0;">Hardware Components</h4>
-                  <p style="margin: 0;">${projectInfo.hardwareComponents}</p>
+                <div style="margin-bottom: 15px;">
+                  <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Hardware Components</h3>
+                  <p style="margin: 5px 0;">${projectInfo.hardwareComponents}</p>
                 </div>
                 ` : ''}
                 ${projectInfo.servicesComponents ? `
-                <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">
-                  <h4 style="margin: 0 0 10px 0;">Services Components</h4>
-                  <p style="margin: 0;">${projectInfo.servicesComponents}</p>
+                <div style="margin-bottom: 15px;">
+                  <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Services Components</h3>
+                  <p style="margin: 5px 0;">${projectInfo.servicesComponents}</p>
                 </div>
                 ` : ''}
                 ${projectInfo.pricingTable.length > 0 ? `
-                <div style="background: #f8fafc; padding: 15px; margin: 10px 0; border-left: 4px solid #2563eb;">
-                  <h4 style="margin: 0 0 10px 0;">Pricing Structure</h4>
+                <div style="margin-bottom: 15px;">
+                  <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Pricing Structure</h3>
                   <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px;">
                     <thead>
                       <tr style="background-color: #f8fafc;">
