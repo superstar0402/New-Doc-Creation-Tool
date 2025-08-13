@@ -72,28 +72,28 @@ const renderFormattedContent = (formattedContent: FormattedContent[] | undefined
     }
 
     // Apply color
-    if (item.style?.color) {
-      style.color = item.style.color;
-    }
+    // if (item.style?.color) {
+    //   style.color = item.style.color;
+    // }
 
-    const textContent = maxLength && currentLength + item.text.length > maxLength 
-      ? item.text.substring(0, maxLength - currentLength)
-      : item.text;
+    // const textContent = maxLength && currentLength + item.text.length > maxLength 
+    //   ? item.text.substring(0, maxLength - currentLength)
+    //   : item.text;
 
-    elements.push(
-      <span
-        key={`${currentLength}-${item.text.substring(0, 10)}`}
-        className={className.join(' ')}
-        style={style}
-      >
-        {textContent}
-      </span>
-    );
+    // elements.push(
+    //   <span
+    //     key={`${currentLength}-${item.text.substring(0, 10)}`}
+    //     className={className.join(' ')}
+    //     style={style}
+    //   >
+    //     {textContent}
+    //   </span>
+    // );
 
-    currentLength += item.text.length;
-    if (maxLength && currentLength >= maxLength) {
-      break;
-    }
+    // currentLength += item.text.length;
+    // if (maxLength && currentLength >= maxLength) {
+    //   break;
+    // }
   }
 
   return <>{elements}</>;
@@ -152,7 +152,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
       bold: false,
       italic: false,
       underline: false,
-      color: '#000000'
+      // color: '#000000'
     }
   });
   
@@ -188,7 +188,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
           bold: firstStyle.bold || false,
           italic: firstStyle.italic || false,
           underline: firstStyle.underline || false,
-          color: firstStyle.color || '#000000'
+          // color: firstStyle.color || '#000000'
         }
       });
     }
@@ -258,7 +258,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
           bold: false,
           italic: false,
           underline: false,
-          color: '#000000'
+          // color: '#000000'
         }
       });
       setIsAddingBlock(false);
@@ -327,7 +327,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         bold: false,
         italic: false,
         underline: false,
-        color: '#000000'
+        // color: '#000000'
       },
       contentFormatting: block.contentFormatting || {
         fontFamily: 'Inter',
@@ -335,7 +335,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         bold: false,
         italic: false,
         underline: false,
-        color: '#000000'
+        // color: '#000000'
       }
     });
   };
@@ -514,7 +514,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             <option value="Inter">Inter</option>
                             <option value="Roboto">Roboto</option>
                             <option value="Open Sans">Open Sans</option>
-                            <option value="Lato">Lato</option>
+                            {/* <option value="Lato">Lato</option>
                             <option value="Poppins">Poppins</option>
                             <option value="Montserrat">Montserrat</option>
                             <option value="Nunito">Nunito</option>
@@ -525,7 +525,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             <option value="Times New Roman">Times New Roman</option>
                             <option value="Georgia">Georgia</option>
                             <option value="Verdana">Verdana</option>
-                            <option value="Helvetica">Helvetica</option>
+                            <option value="Helvetica">Helvetica</option> */}
                           </select>
                         </div>
                         <div>
@@ -547,7 +547,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             <option value="3xl">3XL</option>
                           </select>
                         </div>
-                        <div>
+                        {/* <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
                           <input
                             type="color"
@@ -558,7 +558,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             })}
                             className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                           />
-                        </div>
+                        </div> */}
                         <div className="flex items-end gap-2">
                           <button
                             onClick={() => setNewBlock({
@@ -641,12 +641,12 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                           <span className="font-medium">{firstStyle.fontSize}</span>
                                         </div>
                                       )}
-                                      {firstStyle.color && (
+                                      {/* {firstStyle.color && (
                                         <div className="flex items-center gap-1">
                                           <span className="text-gray-600">Color:</span>
                                           <span className="font-medium">{firstStyle.color}</span>
                                         </div>
-                                      )}
+                                      )} */}
                                       <div className="flex items-center gap-1">
                                         <span className="text-gray-600">Bold:</span>
                                         <span className="font-medium">{firstStyle.bold ? 'Yes' : 'No'}</span>
@@ -1003,7 +1003,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             <option value="Inter">Inter</option>
                             <option value="Roboto">Roboto</option>
                             <option value="Open Sans">Open Sans</option>
-                            <option value="Lato">Lato</option>
+                            {/* <option value="Lato">Lato</option>
                             <option value="Poppins">Poppins</option>
                             <option value="Montserrat">Montserrat</option>
                             <option value="Nunito">Nunito</option>
@@ -1014,7 +1014,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             <option value="Times New Roman">Times New Roman</option>
                             <option value="Georgia">Georgia</option>
                             <option value="Verdana">Verdana</option>
-                            <option value="Helvetica">Helvetica</option>
+                            <option value="Helvetica">Helvetica</option> */}
                           </select>
                         </div>
                         <div>
@@ -1039,7 +1039,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             <option value="3xl">3XL</option>
                           </select>
                         </div>
-                        <div>
+                        {/* <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
                           <input
                             type="color"
@@ -1053,7 +1053,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               newBlock.maintainFormatting ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                           />
-                        </div>
+                        </div> */}
                         <div className="flex items-end gap-2">
                           <button
                             onClick={() => setNewBlock({
@@ -1280,7 +1280,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               <option value="Inter">Inter</option>
                               <option value="Roboto">Roboto</option>
                               <option value="Open Sans">Open Sans</option>
-                              <option value="Lato">Lato</option>
+                              {/* <option value="Lato">Lato</option>
                               <option value="Poppins">Poppins</option>
                               <option value="Montserrat">Montserrat</option>
                               <option value="Nunito">Nunito</option>
@@ -1289,7 +1289,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               <option value="Work Sans">Work Sans</option>
                               <option value="Arial">Arial</option>
                               <option value="Times New Roman">Times New Roman</option>
-                              <option value="Georgia">Georgia</option>
+                              <option value="Georgia">Georgia</option> */}
                             </select>
                           </div>
                           <div>
@@ -1311,7 +1311,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               <option value="3xl">3XL</option>
                             </select>
                           </div>
-                          <div>
+                          {/* <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
                             <input
                               type="color"
@@ -1322,7 +1322,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               })}
                               className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                             />
-                          </div>
+                          </div> */}
                         </div>
                         <div className="flex items-end gap-2 mt-2">
                           <button
@@ -1381,7 +1381,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               <option value="Inter">Inter</option>
                               <option value="Roboto">Roboto</option>
                               <option value="Open Sans">Open Sans</option>
-                              <option value="Lato">Lato</option>
+                              {/* <option value="Lato">Lato</option>
                               <option value="Poppins">Poppins</option>
                               <option value="Montserrat">Montserrat</option>
                               <option value="Nunito">Nunito</option>
@@ -1390,7 +1390,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               <option value="Work Sans">Work Sans</option>
                               <option value="Arial">Arial</option>
                               <option value="Times New Roman">Times New Roman</option>
-                              <option value="Georgia">Georgia</option>
+                              <option value="Georgia">Georgia</option> */}
                             </select>
                           </div>
                           <div>
@@ -1412,7 +1412,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               <option value="3xl">3XL</option>
                             </select>
                           </div>
-                          <div>
+                          {/* <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
                             <input
                               type="color"
@@ -1423,7 +1423,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               })}
                               className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                             />
-                          </div>
+                          </div> */}
                         </div>
                         <div className="flex items-end gap-2 mt-2">
                           <button

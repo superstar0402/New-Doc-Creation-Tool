@@ -44,7 +44,7 @@ const convertFormattedContentToTextRuns = (formattedContent: FormattedContent[] 
     if (item.style?.bold) textRunOptions.bold = true;
     if (item.style?.italic) textRunOptions.italics = true;
     if (item.style?.underline) textRunOptions.underline = {};
-    if (item.style?.color) textRunOptions.color = item.style.color;
+    // if (item.style?.color) textRunOptions.color = item.style.color;
     if (item.style?.fontFamily) textRunOptions.font = item.style.fontFamily;
     if (item.style?.fontSize) {
       // Convert fontSize to docx size (in half-points)
@@ -79,7 +79,7 @@ const convertFormattedContentToHTML = (formattedContent: FormattedContent[] | un
     
     if (item.style?.color || item.style?.fontSize || item.style?.fontFamily) {
       const style = [] as string[];
-      if (item.style?.color) style.push(`color: ${item.style.color}`);
+      // if (item.style?.color) style.push(`color: ${item.style.color}`);
       if (item.style?.fontFamily) style.push(`font-family: ${item.style.fontFamily}`);
       if (item.style?.fontSize) {
         const sizeMap: { [key: string]: string } = {
@@ -123,7 +123,7 @@ const buildInlineStyleFromFormatting = (fmt?: TextFormatting): string => {
   if (!fmt) return '';
   const style: string[] = [];
   if (fmt.fontFamily) style.push(`font-family: ${fmt.fontFamily}`);
-  if (fmt.color) style.push(`color: ${fmt.color}`);
+  // if (fmt.color) style.push(`color: ${fmt.color}`);
   if (fmt.bold) style.push('font-weight: 700');
   if (fmt.italic) style.push('font-style: italic');
   if (fmt.underline) style.push('text-decoration: underline');
@@ -152,8 +152,8 @@ function App() {
     projectOverview: '',
     technicalOverview: '',
     pricingTable: [],
-    hardwareComponents: '',
-    servicesComponents: '',
+    hardwareComponents: [],
+    servicesComponents: [],
     headerText: '',
     footerText: ''
   });
@@ -240,15 +240,23 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
       });
     });
 
-    if (projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable.length > 0) {
+    if (projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) {
       content += `\n## Pricing & Components\n\n`;
       
-      if (projectInfo.hardwareComponents) {
-        content += `### Hardware Components\n\n${projectInfo.hardwareComponents}\n\n`;
+      if (projectInfo.hardwareComponents.length > 0) {
+        content += `### Hardware Components\n\n`;
+        projectInfo.hardwareComponents.forEach(item => {
+          content += `${convertFormattedContentToPlainText([item])}\n`;
+        });
+        content += `\n`;
       }
       
-      if (projectInfo.servicesComponents) {
-        content += `### Services Components\n\n${projectInfo.servicesComponents}\n\n`;
+      if (projectInfo.servicesComponents.length > 0) {
+        content += `### Services Components\n\n`;
+        projectInfo.servicesComponents.forEach(item => {
+          content += `${convertFormattedContentToPlainText([item])}\n`;
+        });
+        content += `\n`;
       }
       
       if (projectInfo.pricingTable.length > 0) {
@@ -346,19 +354,31 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                 </div>`;
               }).join('')}
 
-              ${(projectInfo.hardwareComponents || projectInfo.servicesComponents || projectInfo.pricingTable.length > 0) ? `
+              ${(projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) ? `
               <div style="margin-bottom: 20px;">
                 <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Pricing & Components</h2>
-                ${projectInfo.hardwareComponents ? `
+                ${projectInfo.hardwareComponents.length > 0 ? `
                 <div style="margin-bottom: 15px;">
                   <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Hardware Components</h3>
-                  <p style="margin: 5px 0;">${projectInfo.hardwareComponents}</p>
+                  <div style="margin: 5px 0;">
+                    ${projectInfo.hardwareComponents.map(item => `
+                      <div style="margin: 2px 0;">
+                        • ${convertFormattedContentToHTML([item])}
+                      </div>
+                    `).join('')}
+                  </div>
                 </div>
                 ` : ''}
-                ${projectInfo.servicesComponents ? `
+                ${projectInfo.servicesComponents.length > 0 ? `
                 <div style="margin-bottom: 15px;">
                   <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Services Components</h3>
-                  <p style="margin: 5px 0;">${projectInfo.servicesComponents}</p>
+                  <div style="margin: 5px 0;">
+                    ${projectInfo.servicesComponents.map(item => `
+                      <div style="margin: 2px 0;">
+                        • ${convertFormattedContentToHTML([item])}
+                      </div>
+                    `).join('')}
+                  </div>
                 </div>
                 ` : ''}
                 ${projectInfo.pricingTable.length > 0 ? `
@@ -494,7 +514,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               if (block.titleFormatting?.bold) titleOptions.bold = true;
               if (block.titleFormatting?.italic) titleOptions.italics = true;
               if (block.titleFormatting?.underline) titleOptions.underline = {};
-              if (block.titleFormatting?.color) titleOptions.color = block.titleFormatting.color;
+              if (block.titleFormatting?.color) titleOptions.color = block.titleFormatting.color;  
               if (block.titleFormatting?.fontFamily) titleOptions.font = block.titleFormatting.fontFamily;
               if (block.titleFormatting?.fontSize) {
                 const sizeMap: { [key: string]: number } = { xs: 16, sm: 20, base: 24, lg: 28, xl: 32, '2xl': 36, '3xl': 40 };
@@ -538,22 +558,28 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             });
             
             // Pricing Components
-            if (projectInfo.hardwareComponents) {
+            if (projectInfo.hardwareComponents.length > 0) {
               paragraphs.push(new Paragraph({
                 children: [new TextRun({ text: "Hardware Components", bold: true })]
               }));
-              paragraphs.push(new Paragraph({
-                children: [new TextRun({ text: projectInfo.hardwareComponents })]
-              }));
+              projectInfo.hardwareComponents.forEach(item => {
+                const textRuns = convertFormattedContentToTextRuns([item]);
+                paragraphs.push(new Paragraph({
+                  children: textRuns
+                }));
+              });
             }
             
-            if (projectInfo.servicesComponents) {
+            if (projectInfo.servicesComponents.length > 0) {
               paragraphs.push(new Paragraph({
                 children: [new TextRun({ text: "Services Components", bold: true })]
               }));
-              paragraphs.push(new Paragraph({
-                children: [new TextRun({ text: projectInfo.servicesComponents })]
-              }));
+              projectInfo.servicesComponents.forEach(item => {
+                const textRuns = convertFormattedContentToTextRuns([item]);
+                paragraphs.push(new Paragraph({
+                  children: textRuns
+                }));
+              });
             }
             
             if (projectInfo.pricingTable.length > 0) {
@@ -708,44 +734,222 @@ Generated on ${formatDate(new Date().toISOString().split('T')[0])}
           }
           break;
 
-        case 'gdocs':
-          // Use the same styled HTML as PDF for better fidelity in Google Docs import
-          const gdocsHtml = `
+                case 'gdocs':
+          try {
+            console.log('Starting Google Docs generation...');
+            
+            // Generate HTML optimized for Google Docs import
+            const gdocsHtml = `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <title>${selectedDocumentType}</title>
+  <style>
+    body { 
+      font-family: 'Arial', sans-serif; 
+      line-height: 1.6; 
+      margin: 40px; 
+      color: #333;
+    }
+    h1 { 
+      color: #2563eb; 
+      font-size: 24px; 
+      font-weight: bold; 
+      margin-bottom: 20px;
+    }
+    h2 { 
+      color: #1e40af; 
+      font-size: 18px; 
+      font-weight: bold; 
+      margin: 20px 0 10px 0;
+    }
+    h3 { 
+      color: #1e3a8a; 
+      font-size: 16px; 
+      font-weight: bold; 
+      margin: 15px 0 8px 0;
+    }
+    p { 
+      margin: 8px 0; 
+    }
+    .header-info {
+      margin-bottom: 20px;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .content-block {
+      margin-bottom: 15px;
+    }
+    .header-option {
+      font-style: italic; 
+      color: #6b7280; 
+      font-size: 12px; 
+      margin: 5px 0;
+    }
+    .footer-option {
+      font-style: italic; 
+      color: #6b7280; 
+      font-size: 12px; 
+      margin: 5px 0;
+    }
+    table {
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 10px; 
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #e2e8f0; 
+      padding: 6px; 
+      text-align: left;
+    }
+    th {
+      background-color: #f8fafc;
+    }
+    .total-row {
+      background-color: #f8fafc; 
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center; 
+      margin-top: 40px; 
+      padding-top: 20px; 
+      border-top: 1px solid #e2e8f0; 
+      color: #64748b; 
+      font-size: 12px;
+    }
+  </style>
 </head>
 <body>
-  <h1>${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
-  ${Object.entries(selectedBlocks.reduce((acc, block) => {
-    if (!acc[block.category]) acc[block.category] = [];
-    acc[block.category].push(block);
-    return acc;
-  }, {} as Record<string, TextBlock[]>)).map(([category, blocks]) => `
-  <h2>${category}</h2>
-  ${blocks.map(block => {
+  <div class="header-info">
+    <h1>${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
+    <p><strong>Customer:</strong> ${projectInfo.customerName || 'N/A'}</p>
+    <p><strong>Project:</strong> ${projectInfo.projectName || 'N/A'}</p>
+    ${projectInfo.startDate ? `<p><strong>Start Date:</strong> ${formatDate(projectInfo.startDate)}</p>` : ''}
+  </div>
+
+  <div class="section">
+    <h2>Project Overview</h2>
+    <p>${projectInfo.projectOverview || 'No project overview provided.'}</p>
+  </div>
+
+  <div class="section">
+    <h2>Technical Overview</h2>
+    <p>${projectInfo.technicalOverview || 'No technical overview provided.'}</p>
+  </div>
+
+  ${selectedBlocks.map((block, index) => {
     const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
     const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
-    const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.25rem;">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</div>` : '';
-    const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</div>` : '';
+    const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<p class="header-option">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</p>` : '';
+    const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<p class="footer-option">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</p>` : '';
     const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
       ? convertFormattedContentToHTML(block.formattedContent)
       : block.content.replace(/\n/g, '<br>');
     return `
-    <div>
-      <h4 style="${titleStyle}">${block.title}</h4>
+    <div class="content-block">
+      <p><span style="${titleStyle}"><strong>${index + 1}. ${block.title}</strong></span></p>
       ${headerHTML}
-      <div style="${contentStyle}">${contentHTML}</div>
+      <p style="${contentStyle}">${contentHTML}</p>
       ${footerHTML}
     </div>`;
   }).join('')}
-  `).join('')}
+
+  ${(projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) ? `
+  <div class="section">
+    <h2>Pricing & Components</h2>
+    ${projectInfo.hardwareComponents.length > 0 ? `
+    <div class="content-block">
+      <h3>Hardware Components</h3>
+      <div>
+        ${projectInfo.hardwareComponents.map(item => `
+          <p>• ${convertFormattedContentToHTML([item])}</p>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+    ${projectInfo.servicesComponents.length > 0 ? `
+    <div class="content-block">
+      <h3>Services Components</h3>
+      <div>
+        ${projectInfo.servicesComponents.map(item => `
+          <p>• ${convertFormattedContentToHTML([item])}</p>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+    ${projectInfo.pricingTable.length > 0 ? `
+    <div class="content-block">
+      <h3>Pricing Structure</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Description</th>
+            <th style="text-align: right;">Price ($)</th>
+            <th style="text-align: right;">Extended ($)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${projectInfo.pricingTable.map(item => `
+            <tr>
+              <td>${item.item || 'N/A'}</td>
+              <td>${item.quantity}</td>
+              <td>${item.description || 'N/A'}</td>
+              <td style="text-align: right;">$${item.price.toFixed(2)}</td>
+              <td style="text-align: right;">$${item.extendedPrice.toFixed(2)}</td>
+            </tr>
+          `).join('')}
+          <tr class="total-row">
+            <td colspan="4" style="text-align: right;">Total:</td>
+            <td style="text-align: right;">$${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    ` : ''}
+  </div>
+  ` : ''}
+
+  <div class="footer">
+    <p><em>Generated on ${formatDate(new Date().toISOString().split('T')[0])}</em></p>
+  </div>
 </body>
 </html>`;
-          downloadFile(gdocsHtml, `${baseFilename}.html`, 'text/html');
-          alert('HTML file generated for Google Docs. Open Google Docs, File -> Open -> Upload this HTML.');
+
+            // Create a .gdoc file (which is actually a text file with a Google Docs URL)
+            const gdocContent = `{"url": "https://docs.google.com/document/d/placeholder", "doc_id": "placeholder"}`;
+            
+            // Save as .gdoc file
+            downloadFile(gdocContent, `${baseFilename}.gdoc`, 'application/vnd.google-apps.document');
+            
+            // Also save the HTML version for easy import
+            downloadFile(gdocsHtml, `${baseFilename}_for_import.html`, 'text/html');
+            
+            // Provide instructions for creating Google Doc
+//             const instructions = `
+// Google Docs file generated successfully!
+
+// To create a Google Doc:
+// 1. Open Google Docs (docs.google.com)
+// 2. Click "File" → "Open"
+// 3. Click "Upload" tab
+// 4. Drag and drop the "${baseFilename}_for_import.html" file
+// 5. Google Docs will convert it to a native Google Doc format
+
+// The .gdoc file is also saved for reference.
+//             `;
+            
+            // alert(instructions);
+            console.log('Google Docs files generated successfully');
+            
+          } catch (error) {
+            console.error('Error generating Google Docs file:', error);
+            alert('Error generating Google Docs file. Please try again.');
+          }
           break;
 
         default:

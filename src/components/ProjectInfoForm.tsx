@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Calendar, User, Briefcase, Building, MapPin, Phone, Mail, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { ProjectInfo, PricingItem } from '../types';
+import { ProjectInfo, PricingItem, FormattedContent } from '../types';
+import { PricingComponents } from './PricingComponents';
 
 // Utility function to format date consistently in MM/DD/YYYY format
 const formatDate = (dateString: string): string => {
@@ -226,7 +227,7 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
     }
   }, [projectInfo.startDate]);
 
-  const handleInputChange = (field: keyof ProjectInfo, value: string) => {
+  const handleInputChange = (field: keyof ProjectInfo, value: string | FormattedContent[]) => {
     onInfoChange({
       ...projectInfo,
       [field]: value
@@ -579,33 +580,12 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
         </div>
         
         <div className="p-6 space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Hardware Components
-              </label>
-              <textarea
-                value={projectInfo.hardwareComponents}
-                onChange={(e) => handleInputChange('hardwareComponents', e.target.value)}
-                rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-                placeholder="List hardware requirements, specifications, and quantities..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Services Components
-              </label>
-              <textarea
-                value={projectInfo.servicesComponents}
-                onChange={(e) => handleInputChange('servicesComponents', e.target.value)}
-                rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
-                placeholder="List service offerings, consulting hours, and support packages..."
-              />
-            </div>
-          </div>
+          <PricingComponents
+            hardwareComponents={projectInfo.hardwareComponents}
+            servicesComponents={projectInfo.servicesComponents}
+            onHardwareComponentsChange={(components) => handleInputChange('hardwareComponents', components)}
+            onServicesComponentsChange={(components) => handleInputChange('servicesComponents', components)}
+          />
 
           <div>
             <div className="flex justify-between items-center mb-4">

@@ -22,8 +22,8 @@ export interface ProjectInfo {
   projectOverview: string;
   technicalOverview: string;
   pricingTable: PricingItem[];
-  hardwareComponents: string;
-  servicesComponents: string;
+  hardwareComponents: FormattedContent[];
+  servicesComponents: FormattedContent[];
   headerText: string;
   footerText: string;
 }
@@ -34,7 +34,6 @@ export interface TextFormatting {
   bold: boolean;
   italic: boolean;
   underline: boolean;
-  color: string;
 }
 
 export interface TextBlock {
@@ -57,7 +56,6 @@ export interface FormattedContent {
     italic?: boolean;
     underline?: boolean;
     fontSize?: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl';
-    color?: string;
     fontFamily?: string;
   };
 }

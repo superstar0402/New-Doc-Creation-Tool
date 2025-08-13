@@ -34,13 +34,13 @@ export const textBlocks: TextBlock[] = [
     content: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting key deliverables, timeline, and expected outcomes. Our approach focuses on delivering measurable business value while ensuring seamless integration with existing systems.',
     formattedContent: [
       { text: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting ', style: { fontSize: 'base', fontFamily: 'Inter' } },
-      { text: 'key deliverables', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Inter' } },
+      { text: 'key deliverables', style: { bold: true, fontSize: 'lg', fontFamily: 'Inter' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Inter' } },
-      { text: 'timeline', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Inter' } },
+      { text: 'timeline', style: { bold: true, fontSize: 'lg', fontFamily: 'Inter' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Inter' } },
-      { text: 'expected outcomes', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Inter' } },
+      { text: 'expected outcomes', style: { bold: true, fontSize: 'lg', fontFamily: 'Inter' } },
       { text: '. Our approach focuses on delivering ', style: { fontSize: 'base', fontFamily: 'Inter' } },
-      { text: 'measurable business value', style: { italic: true, underline: true, fontSize: 'base', color: '#059669', fontFamily: 'Inter' } },
+      { text: 'measurable business value', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Inter' } },
       { text: ' while ensuring seamless integration with existing systems.', style: { fontSize: 'base', fontFamily: 'Inter' } }
     ],
     category: 'Executive',
@@ -50,16 +50,14 @@ export const textBlocks: TextBlock[] = [
       fontSize: '2xl',
       bold: true,
       italic: false,
-      underline: false,
-      color: '#1e40af'
+      underline: false
     },
     contentFormatting: {
       fontFamily: 'Inter',
       fontSize: 'base',
       bold: false,
       italic: false,
-      underline: false,
-      color: '#374151'
+      underline: false
     }
   },
   
@@ -69,15 +67,15 @@ export const textBlocks: TextBlock[] = [
     content: 'The technical specification outlines the detailed requirements, architecture, and implementation approach for the proposed solution. This includes system requirements, data flow diagrams, security protocols, and performance benchmarks that ensure optimal system performance.',
     formattedContent: [
       { text: 'The technical specification outlines the detailed requirements, architecture, and implementation approach for the proposed solution. This includes ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
-      { text: 'system requirements', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Roboto' } },
+      { text: 'system requirements', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
-      { text: 'data flow diagrams', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Roboto' } },
+      { text: 'data flow diagrams', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
-      { text: 'security protocols', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Roboto' } },
+      { text: 'security protocols', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
-      { text: 'performance benchmarks', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Roboto' } },
+      { text: 'performance benchmarks', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto' } },
       { text: ' that ensure ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
-      { text: 'optimal system performance', style: { italic: true, underline: true, fontSize: 'base', color: '#7c3aed', fontFamily: 'Roboto' } },
+      { text: 'optimal system performance', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Roboto' } },
       { text: '.', style: { fontSize: 'base', fontFamily: 'Roboto' } }
     ],
     category: 'Technical',
@@ -87,16 +85,14 @@ export const textBlocks: TextBlock[] = [
       fontSize: 'xl',
       bold: true,
       italic: true,
-      underline: false,
-      color: '#dc2626'
+      underline: false
     },
     contentFormatting: {
       fontFamily: 'Roboto',
       fontSize: 'sm',
       bold: false,
       italic: false,
-      underline: false,
-      color: '#4b5563'
+      underline: false
     }
   },
   
@@ -106,15 +102,15 @@ export const textBlocks: TextBlock[] = [
     content: 'Our project timeline is structured in phases to ensure systematic delivery and quality control. Phase 1 focuses on discovery and planning, Phase 2 on development and testing, and Phase 3 on deployment and knowledge transfer. Each phase includes milestone reviews and stakeholder sign-offs.',
     formattedContent: [
       { text: 'Our project timeline is structured in phases to ensure systematic delivery and quality control. ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
-      { text: 'Phase 1', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Open Sans' } },
+      { text: 'Phase 1', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans' } },
       { text: ' focuses on discovery and planning, ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
-      { text: 'Phase 2', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Open Sans' } },
+      { text: 'Phase 2', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans' } },
       { text: ' on development and testing, and ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
-      { text: 'Phase 3', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Open Sans' } },
+      { text: 'Phase 3', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans' } },
       { text: ' on deployment and knowledge transfer. Each phase includes ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
-      { text: 'milestone reviews', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Open Sans' } },
+      { text: 'milestone reviews', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Open Sans' } },
       { text: ' and ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
-      { text: 'stakeholder sign-offs', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Open Sans' } },
+      { text: 'stakeholder sign-offs', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Open Sans' } },
       { text: '.', style: { fontSize: 'base', fontFamily: 'Open Sans' } }
     ],
     category: 'Timeline',
@@ -124,16 +120,14 @@ export const textBlocks: TextBlock[] = [
       fontSize: 'lg',
       bold: true,
       italic: false,
-      underline: true,
-      color: '#059669'
+      underline: true
     },
     contentFormatting: {
       fontFamily: 'Open Sans',
       fontSize: 'base',
       bold: false,
       italic: false,
-      underline: false,
-      color: '#6b7280'
+      underline: false
     }
   },
   
@@ -143,17 +137,17 @@ export const textBlocks: TextBlock[] = [
     content: 'The comprehensive cost analysis includes all direct and indirect costs associated with the project implementation. This covers labor costs, software licensing, hardware requirements, training expenses, and ongoing maintenance. We provide detailed breakdowns with transparent pricing and flexible payment terms.',
     formattedContent: [
       { text: 'The comprehensive cost analysis includes all direct and indirect costs associated with the project implementation. This covers ', style: { fontSize: 'base', fontFamily: 'Lato' } },
-      { text: 'labor costs', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Lato' } },
+      { text: 'labor costs', style: { bold: true, fontSize: 'lg', fontFamily: 'Lato' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Lato' } },
-      { text: 'software licensing', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Lato' } },
+      { text: 'software licensing', style: { bold: true, fontSize: 'lg', fontFamily: 'Lato' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Lato' } },
-      { text: 'hardware requirements', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Lato' } },
+      { text: 'hardware requirements', style: { bold: true, fontSize: 'lg', fontFamily: 'Lato' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Lato' } },
-      { text: 'training expenses', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Lato' } },
+      { text: 'training expenses', style: { bold: true, fontSize: 'lg', fontFamily: 'Lato' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Lato' } },
-      { text: 'ongoing maintenance', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Lato' } },
+      { text: 'ongoing maintenance', style: { bold: true, fontSize: 'lg', fontFamily: 'Lato' } },
       { text: '. We provide ', style: { fontSize: 'base', fontFamily: 'Lato' } },
-      { text: 'detailed breakdowns', style: { italic: true, underline: true, fontSize: 'base', color: '#dc2626', fontFamily: 'Lato' } },
+      { text: 'detailed breakdowns', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Lato' } },
       { text: ' with transparent pricing and flexible payment terms.', style: { fontSize: 'base', fontFamily: 'Lato' } }
     ],
     category: 'Financial',
@@ -164,7 +158,7 @@ export const textBlocks: TextBlock[] = [
       bold: true,
       italic: true,
       underline: true,
-      color: '#7c3aed'
+      // color: '#7c3aed'
     },
     contentFormatting: {
       fontFamily: 'Lato',
@@ -172,7 +166,7 @@ export const textBlocks: TextBlock[] = [
       bold: false,
       italic: false,
       underline: false,
-      color: '#374151'
+      // color: '#374151'
     }
   },
   
@@ -182,17 +176,17 @@ export const textBlocks: TextBlock[] = [
     content: 'Our quality assurance framework ensures that all deliverables meet the highest standards of excellence. This includes comprehensive testing protocols, code reviews, security audits, and performance validation. We maintain strict quality gates throughout the development lifecycle to guarantee successful project delivery.',
     formattedContent: [
       { text: 'Our quality assurance framework ensures that all deliverables meet the highest standards of excellence. This includes ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
-      { text: 'comprehensive testing protocols', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Poppins' } },
+      { text: 'comprehensive testing protocols', style: { bold: true, fontSize: 'lg', fontFamily: 'Poppins' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
-      { text: 'code reviews', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Poppins' } },
+      { text: 'code reviews', style: { bold: true, fontSize: 'lg', fontFamily: 'Poppins' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
-      { text: 'security audits', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Poppins' } },
+      { text: 'security audits', style: { bold: true, fontSize: 'lg', fontFamily: 'Poppins' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
-      { text: 'performance validation', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Poppins' } },
+      { text: 'performance validation', style: { bold: true, fontSize: 'lg', fontFamily: 'Poppins' } },
       { text: '. We maintain ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
-      { text: 'strict quality gates', style: { italic: true, underline: true, fontSize: 'base', color: '#059669', fontFamily: 'Poppins' } },
+      { text: 'strict quality gates', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Poppins' } },
       { text: ' throughout the development lifecycle to guarantee ', style: { fontSize: 'base', fontFamily: 'Poppins' } },
-      { text: 'successful project delivery', style: { italic: true, underline: true, fontSize: 'base', color: '#059669', fontFamily: 'Poppins' } },
+      { text: 'successful project delivery', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Poppins' } },
       { text: '.', style: { fontSize: 'base', fontFamily: 'Poppins' } }
     ],
     category: 'Quality',
@@ -202,16 +196,14 @@ export const textBlocks: TextBlock[] = [
       fontSize: '2xl',
       bold: true,
       italic: false,
-      underline: false,
-      color: '#f59e0b'
+      underline: false
     },
     contentFormatting: {
       fontFamily: 'Poppins',
       fontSize: 'sm',
       bold: false,
       italic: false,
-      underline: false,
-      color: '#5b5b5b'
+      underline: false
     }
   },
   
@@ -221,17 +213,17 @@ export const textBlocks: TextBlock[] = [
     content: 'This comprehensive risk assessment identifies potential project risks and mitigation strategies. We evaluate technical risks, resource constraints, timeline dependencies, and external factors that may impact project success. Each risk is categorized by probability and impact, with detailed contingency plans developed for high-priority items.',
     formattedContent: [
       { text: 'This comprehensive risk assessment identifies potential project risks and mitigation strategies. We evaluate ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
-      { text: 'technical risks', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Montserrat' } },
+      { text: 'technical risks', style: { bold: true, fontSize: 'lg', fontFamily: 'Montserrat' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
-      { text: 'resource constraints', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Montserrat' } },
+      { text: 'resource constraints', style: { bold: true, fontSize: 'lg', fontFamily: 'Montserrat' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
-      { text: 'timeline dependencies', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Montserrat' } },
+      { text: 'timeline dependencies', style: { bold: true, fontSize: 'lg', fontFamily: 'Montserrat' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
-      { text: 'external factors', style: { bold: true, fontSize: 'lg', color: '#dc2626', fontFamily: 'Montserrat' } },
+      { text: 'external factors', style: { bold: true, fontSize: 'lg', fontFamily: 'Montserrat' } },
       { text: ' that may impact project success. Each risk is categorized by ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
-      { text: 'probability and impact', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Montserrat' } },
+      { text: 'probability and impact', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Montserrat' } },
       { text: ', with detailed ', style: { fontSize: 'base', fontFamily: 'Montserrat' } },
-      { text: 'contingency plans', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Montserrat' } },
+      { text: 'contingency plans', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Montserrat' } },
       { text: ' developed for high-priority items.', style: { fontSize: 'base', fontFamily: 'Montserrat' } }
     ],
     category: 'Risk',
@@ -241,16 +233,14 @@ export const textBlocks: TextBlock[] = [
       fontSize: 'xl',
       bold: true,
       italic: false,
-      underline: true,
-      color: '#dc2626'
+      underline: true
     },
     contentFormatting: {
       fontFamily: 'Montserrat',
       fontSize: 'base',
       bold: false,
       italic: false,
-      underline: false,
-      color: '#4b5563'
+      underline: false
     }
   },
   
@@ -260,17 +250,17 @@ export const textBlocks: TextBlock[] = [
     content: 'Our communication strategy ensures effective stakeholder engagement throughout the project lifecycle. This includes regular status updates, milestone reporting, issue escalation procedures, and change management communications. We establish clear communication channels, frequency schedules, and escalation matrices to maintain transparency and alignment.',
     formattedContent: [
       { text: 'Our communication strategy ensures effective stakeholder engagement throughout the project lifecycle. This includes ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
-      { text: 'regular status updates', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Nunito' } },
+      { text: 'regular status updates', style: { bold: true, fontSize: 'lg', fontFamily: 'Nunito' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
-      { text: 'milestone reporting', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Nunito' } },
+      { text: 'milestone reporting', style: { bold: true, fontSize: 'lg', fontFamily: 'Nunito' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
-      { text: 'issue escalation procedures', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Nunito' } },
+      { text: 'issue escalation procedures', style: { bold: true, fontSize: 'lg', fontFamily: 'Nunito' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
-      { text: 'change management communications', style: { bold: true, fontSize: 'lg', color: '#2563eb', fontFamily: 'Nunito' } },
+      { text: 'change management communications', style: { bold: true, fontSize: 'lg', fontFamily: 'Nunito' } },
       { text: '. We establish ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
-      { text: 'clear communication channels', style: { italic: true, underline: true, fontSize: 'base', color: '#059669', fontFamily: 'Nunito' } },
+      { text: 'clear communication channels', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Nunito' } },
       { text: ', frequency schedules, and escalation matrices to maintain ', style: { fontSize: 'base', fontFamily: 'Nunito' } },
-      { text: 'transparency and alignment', style: { italic: true, underline: true, fontSize: 'base', color: '#059669', fontFamily: 'Nunito' } },
+      { text: 'transparency and alignment', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Nunito' } },
       { text: '.', style: { fontSize: 'base', fontFamily: 'Nunito' } }
     ],
     category: 'Communication',
@@ -281,7 +271,7 @@ export const textBlocks: TextBlock[] = [
       bold: true,
       italic: true,
       underline: false,
-      color: '#2563eb'
+      // color: '#2563eb'
     },
     contentFormatting: {
       fontFamily: 'Nunito',
@@ -289,7 +279,7 @@ export const textBlocks: TextBlock[] = [
       bold: false,
       italic: false,
       underline: false,
-      color: '#374151'
+      // color: '#374151'
     }
   },
   
@@ -299,17 +289,17 @@ export const textBlocks: TextBlock[] = [
     content: 'Comprehensive training and support services ensure successful system adoption and user proficiency. Our training program includes user documentation, hands-on workshops, video tutorials, and ongoing support through helpdesk services. We provide role-based training modules, certification programs, and continuous learning resources to maximize user productivity.',
     formattedContent: [
       { text: 'Comprehensive training and support services ensure successful system adoption and user proficiency. Our training program includes ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
-      { text: 'user documentation', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Source Sans Pro' } },
+      { text: 'user documentation', style: { bold: true, fontSize: 'lg',  fontFamily: 'Source Sans Pro' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
-      { text: 'hands-on workshops', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Source Sans Pro' } },
+      { text: 'hands-on workshops', style: { bold: true, fontSize: 'lg',  fontFamily: 'Source Sans Pro' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
-      { text: 'video tutorials', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Source Sans Pro' } },
+      { text: 'video tutorials', style: { bold: true, fontSize: 'lg',  fontFamily: 'Source Sans Pro' } },
       { text: ', and ongoing support through ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
-      { text: 'helpdesk services', style: { bold: true, fontSize: 'lg', color: '#7c3aed', fontFamily: 'Source Sans Pro' } },
+      { text: 'helpdesk services', style: { bold: true, fontSize: 'lg',  fontFamily: 'Source Sans Pro' } },
       { text: '. We provide ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
-      { text: 'role-based training modules', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Source Sans Pro' } },
+      { text: 'role-based training modules', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Source Sans Pro' } },
       { text: ', certification programs, and continuous learning resources to maximize ', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } },
-      { text: 'user productivity', style: { italic: true, underline: true, fontSize: 'base', color: '#f59e0b', fontFamily: 'Source Sans Pro' } },
+      { text: 'user productivity', style: { italic: true, underline: true, fontSize: 'base',  fontFamily: 'Source Sans Pro' } },
       { text: '.', style: { fontSize: 'base', fontFamily: 'Source Sans Pro' } }
     ],
     category: 'Training',
@@ -320,7 +310,7 @@ export const textBlocks: TextBlock[] = [
       bold: true,
       italic: false,
       underline: true,
-      color: '#7c3aed'
+      
     },
     contentFormatting: {
       fontFamily: 'Source Sans Pro',
@@ -328,7 +318,7 @@ export const textBlocks: TextBlock[] = [
       bold: false,
       italic: false,
       underline: false,
-      color: '#6b7280'
+     
     }
   },
   
@@ -338,17 +328,17 @@ export const textBlocks: TextBlock[] = [
     content: 'Our compliance and security framework ensures adherence to industry standards and regulatory requirements. This includes data protection measures, access controls, audit trails, and regular security assessments. We implement industry best practices for cybersecurity, privacy protection, and regulatory compliance to safeguard sensitive information and maintain trust.',
     formattedContent: [
       { text: 'Our compliance and security framework ensures adherence to industry standards and regulatory requirements. This includes ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
-      { text: 'data protection measures', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Ubuntu' } },
+      { text: 'data protection measures', style: { bold: true, fontSize: 'lg',  fontFamily: 'Ubuntu' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
-      { text: 'access controls', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Ubuntu' } },
+      { text: 'access controls', style: { bold: true, fontSize: 'lg',  fontFamily: 'Ubuntu' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
-      { text: 'audit trails', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Ubuntu' } },
+      { text: 'audit trails', style: { bold: true, fontSize: 'lg',  fontFamily: 'Ubuntu' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
-      { text: 'regular security assessments', style: { bold: true, fontSize: 'lg', color: '#059669', fontFamily: 'Ubuntu' } },
+      { text: 'regular security assessments', style: { bold: true, fontSize: 'lg', fontFamily: 'Ubuntu' } },
       { text: '. We implement ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
-      { text: 'industry best practices', style: { italic: true, underline: true, fontSize: 'base', color: '#dc2626', fontFamily: 'Ubuntu' } },
+      { text: 'industry best practices', style: { italic: true, underline: true, fontSize: 'base',  fontFamily: 'Ubuntu' } },
       { text: ' for cybersecurity, privacy protection, and regulatory compliance to safeguard ', style: { fontSize: 'base', fontFamily: 'Ubuntu' } },
-      { text: 'sensitive information', style: { italic: true, underline: true, fontSize: 'base', color: '#dc2626', fontFamily: 'Ubuntu' } },
+      { text: 'sensitive information', style: { italic: true, underline: true, fontSize: 'base',  fontFamily: 'Ubuntu' } },
       { text: ' and maintain trust.', style: { fontSize: 'base', fontFamily: 'Ubuntu' } }
     ],
     category: 'Compliance',
@@ -359,7 +349,7 @@ export const textBlocks: TextBlock[] = [
       bold: true,
       italic: true,
       underline: true,
-      color: '#059669'
+     
     },
     contentFormatting: {
       fontFamily: 'Ubuntu',
@@ -367,7 +357,7 @@ export const textBlocks: TextBlock[] = [
       bold: false,
       italic: false,
       underline: false,
-      color: '#374151'
+    
     }
   },
   
@@ -377,17 +367,17 @@ export const textBlocks: TextBlock[] = [
     content: 'Key performance indicators and success metrics provide measurable outcomes for project evaluation and continuous improvement. We establish baseline measurements, target thresholds, and monitoring mechanisms to track progress and identify optimization opportunities. Regular performance reviews and data analysis ensure alignment with business objectives and drive strategic decision-making.',
     formattedContent: [
       { text: 'Key performance indicators and success metrics provide measurable outcomes for project evaluation and continuous improvement. We establish ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
-      { text: 'baseline measurements', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Work Sans' } },
+      { text: 'baseline measurements', style: { bold: true, fontSize: 'lg', fontFamily: 'Work Sans' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
-      { text: 'target thresholds', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Work Sans' } },
+      { text: 'target thresholds', style: { bold: true, fontSize: 'lg',  fontFamily: 'Work Sans' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
-      { text: 'monitoring mechanisms', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Work Sans' } },
+      { text: 'monitoring mechanisms', style: { bold: true, fontSize: 'lg',  fontFamily: 'Work Sans' } },
       { text: ' to track progress and identify ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
-      { text: 'optimization opportunities', style: { bold: true, fontSize: 'lg', color: '#f59e0b', fontFamily: 'Work Sans' } },
+      { text: 'optimization opportunities', style: { bold: true, fontSize: 'lg',  fontFamily: 'Work Sans' } },
       { text: '. Regular ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
-      { text: 'performance reviews', style: { italic: true, underline: true, fontSize: 'base', color: '#7c3aed', fontFamily: 'Work Sans' } },
+      { text: 'performance reviews', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Work Sans' } },
       { text: ' and data analysis ensure alignment with ', style: { fontSize: 'base', fontFamily: 'Work Sans' } },
-      { text: 'business objectives', style: { italic: true, underline: true, fontSize: 'base', color: '#7c3aed', fontFamily: 'Work Sans' } },
+      { text: 'business objectives', style: { italic: true, underline: true, fontSize: 'base',  fontFamily: 'Work Sans' } },
       { text: ' and drive strategic decision-making.', style: { fontSize: 'base', fontFamily: 'Work Sans' } }
     ],
     category: 'Metrics',
@@ -398,7 +388,7 @@ export const textBlocks: TextBlock[] = [
       bold: true,
       italic: false,
       underline: false,
-      color: '#f59e0b'
+      // color: '#f59e0b'
     },
     contentFormatting: {
       fontFamily: 'Work Sans',
@@ -406,7 +396,7 @@ export const textBlocks: TextBlock[] = [
       bold: false,
       italic: false,
       underline: false,
-      color: '#5b5b5b'
+      // color: '#5b5b5b'
     }
   }
 ];
