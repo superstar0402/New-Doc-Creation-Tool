@@ -406,23 +406,41 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
                   Customer Logo
                 </label>
                 <div className="relative">
-                  <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-primary-50 hover:to-primary-100 hover:border-primary-300 transition-all duration-300 group">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
-                        <Upload className="w-6 h-6 text-white" />
+                  {projectInfo.customerLogo ? (
+                    <div className="relative">
+                      <div className="w-full h-40 border-2 border-gray-300 rounded-xl overflow-hidden bg-white">
+                        <img
+                          src={URL.createObjectURL(projectInfo.customerLogo)}
+                          alt="Customer Logo"
+                          className="w-full h-full object-contain p-2"
+                        />
                       </div>
-                      <p className="text-sm text-gray-600 font-medium">
-                        {projectInfo.customerLogo ? projectInfo.customerLogo.name : 'Click to upload logo'}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 10MB</p>
+                      <button
+                        type="button"
+                        onClick={() => onInfoChange({ ...projectInfo, customerLogo: undefined })}
+                        className="absolute top-2 right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors duration-200"
+                        title="Remove logo"
+                      >
+                        <span className="text-sm font-bold">×</span>
+                      </button>
                     </div>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
-                  </label>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-primary-50 hover:to-primary-100 hover:border-primary-300 transition-all duration-300 group">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                          <Upload className="w-6 h-6 text-white" />
+                        </div>
+                        <p className="text-sm text-gray-600 font-medium">Click to upload logo</p>
+                        <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 10MB</p>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, Header, Footer } from 'docx';
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, Header, Footer, ImageRun } from 'docx';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -77,9 +77,9 @@ const convertFormattedContentToHTML = (formattedContent: FormattedContent[] | un
     if (item.style?.italic) html = `<em>${html}</em>`;
     if (item.style?.underline) html = `<u>${html}</u>`;
     
-    if (item.style?.color || item.style?.fontSize || item.style?.fontFamily) {
+    if (item.style?.fontSize || item.style?.fontFamily) {
       const style = [] as string[];
-      // if (item.style?.color) style.push(`color: ${item.style.color}`);
+      // Note: color property is not available in the current interface
       if (item.style?.fontFamily) style.push(`font-family: ${item.style.fontFamily}`);
       if (item.style?.fontSize) {
         const sizeMap: { [key: string]: string } = {
@@ -320,7 +320,12 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             
             // Build the HTML content for PDF - matching Word document format
             const htmlContent = `
-              <div style="margin-bottom: 20px;">
+              <div style="margin-bottom: 20px; text-align: center;">
+                ${projectInfo.customerLogo ? `
+                  <div style="margin-bottom: 15px;">
+                    <img src="${URL.createObjectURL(projectInfo.customerLogo)}" alt="Customer Logo" style="max-width: 120px; max-height: 120px; object-fit: contain;" />
+                  </div>
+                ` : ''}
                 <h1 style="color: #2563eb; margin: 0 0 15px 0; font-size: 24px; font-weight: bold;">${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
                 <p style="margin: 5px 0;">Customer: ${projectInfo.customerName || 'N/A'}</p>
                 <p style="margin: 5px 0;">Project: ${projectInfo.projectName || 'N/A'}</p>
@@ -481,6 +486,84 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               children: [new TextRun({ text: selectedDocumentType.toUpperCase().replace('-', ' '), bold: true })]
             }));
             
+            // Customer Logo (if available)
+            if (projectInfo.customerLogo) {
+              console.log('Customer logo found:', projectInfo.customerLogo.name, projectInfo.customerLogo.type, projectInfo.customerLogo.size);
+              
+              // Check if the image format is supported
+              const supportedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp'];
+              if (!supportedFormats.includes(projectInfo.customerLogo.type)) {
+                console.warn('Unsupported image format:', projectInfo.customerLogo.type);
+              }
+              
+              try {
+                // Convert the logo file to Uint8Array for embedding
+                const arrayBuffer = await projectInfo.customerLogo.arrayBuffer();
+                const uint8Array = new Uint8Array(arrayBuffer);
+                console.log('Logo converted to Uint8Array, size:', uint8Array.length);
+                
+                // Create image element to get dimensions
+                const img = new Image();
+                const imgPromise = new Promise<void>((resolve, reject) => {
+                  img.onload = () => resolve();
+                  img.onerror = () => reject(new Error('Failed to load image'));
+                });
+                
+                img.src = URL.createObjectURL(projectInfo.customerLogo);
+                await imgPromise;
+                
+                // Calculate aspect ratio to maintain proportions
+                const aspectRatio = img.width / img.height;
+                const maxWidth = 200;
+                const maxHeight = 200;
+                let width = maxWidth;
+                let height = maxHeight;
+                
+                if (aspectRatio > 1) {
+                  // Landscape image
+                  height = maxWidth / aspectRatio;
+                } else {
+                  // Portrait image
+                  width = maxHeight * aspectRatio;
+                }
+                
+                // Add the image to the document
+                const imageParagraph = new Paragraph({
+                  children: [
+                    new ImageRun({
+                      data: uint8Array,
+                      transformation: {
+                        width: Math.round(width),
+                        height: Math.round(height),
+                      }
+                    }),
+                  ],
+                  alignment: AlignmentType.CENTER,
+                });
+                paragraphs.push(imageParagraph);
+                console.log('Logo paragraph added to document with dimensions:', width, 'x', height);
+                
+                // Clean up the object URL
+                URL.revokeObjectURL(img.src);
+              } catch (error) {
+                console.error('Could not embed customer logo in DOCX:', error);
+                console.error('Error details:', error);
+                
+                // Add a text-based fallback indicating the logo was included
+                paragraphs.push(new Paragraph({
+                  children: [new TextRun({ 
+                    text: `[Customer Logo: ${projectInfo.customerLogo.name}]`, 
+                    bold: true,
+                    color: '666666'
+                  })],
+                  alignment: AlignmentType.CENTER,
+                }));
+                console.log('Added text fallback for logo');
+              }
+            } else {
+              console.log('No customer logo found');
+            }
+            
             // Customer and Project info
             paragraphs.push(new Paragraph({
               children: [new TextRun({ text: `Customer: ${projectInfo.customerName || 'N/A'}` })]
@@ -514,7 +597,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               if (block.titleFormatting?.bold) titleOptions.bold = true;
               if (block.titleFormatting?.italic) titleOptions.italics = true;
               if (block.titleFormatting?.underline) titleOptions.underline = {};
-              if (block.titleFormatting?.color) titleOptions.color = block.titleFormatting.color;  
+              // if (block.titleFormatting?.color) titleOptions.color = block.titleFormatting.color;  
               if (block.titleFormatting?.fontFamily) titleOptions.font = block.titleFormatting.fontFamily;
               if (block.titleFormatting?.fontSize) {
                 const sizeMap: { [key: string]: number } = { xs: 16, sm: 20, base: 24, lg: 28, xl: 32, '2xl': 36, '3xl': 40 };
@@ -540,7 +623,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                 if (block.contentFormatting?.bold) contentOptions.bold = true;
                 if (block.contentFormatting?.italic) contentOptions.italics = true;
                 if (block.contentFormatting?.underline) contentOptions.underline = {};
-                if (block.contentFormatting?.color) contentOptions.color = block.contentFormatting.color;
+                // if (block.contentFormatting?.color) contentOptions.color = block.contentFormatting.color;
                 if (block.contentFormatting?.fontFamily) contentOptions.font = block.contentFormatting.fontFamily;
                 if (block.contentFormatting?.fontSize) {
                   const sizeMap: { [key: string]: number } = { xs: 16, sm: 20, base: 24, lg: 28, xl: 32, '2xl': 36, '3xl': 40 };
@@ -656,6 +739,10 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             });
 
             console.log('Creating DOCX blob...');
+            console.log('Document structure:', {
+              paragraphs: paragraphs.length,
+              hasLogo: projectInfo.customerLogo ? true : false
+            });
             const blob = await Packer.toBlob(doc);
             console.log('DOCX blob created, size:', blob.size);
             
