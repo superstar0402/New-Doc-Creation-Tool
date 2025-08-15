@@ -34,6 +34,7 @@ export interface TextFormatting {
   bold: boolean;
   italic: boolean;
   underline: boolean;
+  color?: string;
 }
 
 export interface TextBlock {
@@ -57,6 +58,7 @@ export interface FormattedContent {
     underline?: boolean;
     fontSize?: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl';
     fontFamily?: string;
+    color?: string;
   };
 }
 

@@ -47,7 +47,7 @@ const renderFormattedContent = (formattedContent: FormattedContent[] | undefined
         if (item.style?.bold) className.push('font-bold');
         if (item.style?.italic) className.push('italic');
         if (item.style?.underline) className.push('underline');
-        // Note: color property is not available in the current TextFormatting interface
+        if (item.style?.color) style.color = item.style.color;
         return (
           <span key={idx} className={className.join(' ')} style={style}>{item.text}</span>
         );
@@ -327,6 +327,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                               fontWeight: block.titleFormatting?.bold ? '700' as const : undefined,
                               fontStyle: block.titleFormatting?.italic ? 'italic' : undefined,
                               textDecoration: block.titleFormatting?.underline ? 'underline' : undefined,
+                              color: block.titleFormatting?.color,
                             };
                             const titleSizeClass = (() => {
                               switch (block.titleFormatting?.fontSize) {
@@ -358,6 +359,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                               fontWeight: block.contentFormatting?.bold ? '700' as const : undefined,
                               fontStyle: block.contentFormatting?.italic ? 'italic' : undefined,
                               textDecoration: block.contentFormatting?.underline ? 'underline' : undefined,
+                              color: block.contentFormatting?.color,
                             };
                             const contentSizeClass = (() => {
                               switch (block.contentFormatting?.fontSize) {

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Search, Plus, Edit, Trash2, Check, X, Grid, List, Star, Upload } from 'lucide-react';
-import { TextBlock, FormattedContent } from '../types';
+import { TextBlock, FormattedContent, TextFormatting } from '../types';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
@@ -72,9 +72,9 @@ const renderFormattedContent = (formattedContent: FormattedContent[] | undefined
     }
 
     // Apply color
-    // if (item.style?.color) {
-    //   style.color = item.style.color;
-    // }
+    if (item.style?.color) {
+      style.color = item.style.color;
+    }
 
     // const textContent = maxLength && currentLength + item.text.length > maxLength 
     //   ? item.text.substring(0, maxLength - currentLength)
@@ -130,14 +130,24 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isAddingBlock, setIsAddingBlock] = useState(false);
   // Update newBlock state to include headerOptions, footerOptions, and formatting options
-  const [newBlock, setNewBlock] = useState({ 
+  const [newBlock, setNewBlock] = useState<{
+    title: string;
+    content: string;
+    category: string;
+    headerOptions: string[];
+    footerOptions: string[];
+    maintainFormatting: boolean;
+    formattedContent: FormattedContent[] | undefined;
+    titleFormatting: TextFormatting;
+    contentFormatting: TextFormatting;
+  }>({ 
     title: '', 
     content: '', 
     category: 'Custom', 
     headerOptions: ['', ''], 
     footerOptions: ['', ''],
     maintainFormatting: false,
-    formattedContent: undefined as FormattedContent[] | undefined,
+    formattedContent: undefined,
     titleFormatting: {
       fontFamily: 'Arial',
       fontSize: 'base',
@@ -152,7 +162,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
       bold: false,
       italic: false,
       underline: false,
-      // color: '#000000'
+      color: undefined
     }
   });
   
@@ -188,7 +198,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
           bold: firstStyle.bold || false,
           italic: firstStyle.italic || false,
           underline: firstStyle.underline || false,
-          // color: firstStyle.color || '#000000'
+          color: firstStyle.color || undefined
         }
       });
     }
@@ -1104,6 +1114,90 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             Underline
                           </button>
                         </div>
+                        
+                        {/* Color Controls */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Text Color</label>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                contentFormatting: { ...newBlock.contentFormatting, color: '#000000' }
+                              })}
+                              disabled={newBlock.maintainFormatting}
+                              className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                                newBlock.maintainFormatting 
+                                  ? 'bg-gray-300 cursor-not-allowed' 
+                                  : newBlock.contentFormatting.color === '#000000'
+                                  ? 'bg-black border-blue-500' 
+                                  : 'bg-black border-gray-300 hover:border-gray-400'
+                              }`}
+                              title="Black"
+                            />
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                contentFormatting: { ...newBlock.contentFormatting, color: '#ffffff' }
+                              })}
+                              disabled={newBlock.maintainFormatting}
+                              className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                                newBlock.maintainFormatting 
+                                  ? 'bg-gray-300 cursor-not-allowed' 
+                                  : newBlock.contentFormatting.color === '#ffffff'
+                                  ? 'bg-white border-blue-500' 
+                                  : 'bg-white border-gray-300 hover:border-gray-400'
+                              }`}
+                              title="White"
+                            />
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                contentFormatting: { ...newBlock.contentFormatting, color: '#dc2626' }
+                              })}
+                              disabled={newBlock.maintainFormatting}
+                              className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                                newBlock.maintainFormatting 
+                                  ? 'bg-gray-300 cursor-not-allowed' 
+                                  : newBlock.contentFormatting.color === '#dc2626'
+                                  ? 'bg-red-600 border-blue-500' 
+                                  : 'bg-red-600 border-gray-300 hover:border-gray-400'
+                              }`}
+                              title="Red"
+                            />
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                contentFormatting: { ...newBlock.contentFormatting, color: '#6b7280' }
+                              })}
+                              disabled={newBlock.maintainFormatting}
+                              className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                                newBlock.maintainFormatting 
+                                  ? 'bg-gray-300 cursor-not-allowed' 
+                                  : newBlock.contentFormatting.color === '#6b7280'
+                                  ? 'bg-gray-500 border-blue-500' 
+                                  : 'bg-gray-500 border-gray-300 hover:border-gray-400'
+                              }`}
+                              title="Gray"
+                            />
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                contentFormatting: { ...newBlock.contentFormatting, color: undefined }
+                              })}
+                              disabled={newBlock.maintainFormatting}
+                              className={`px-2 py-1 text-xs rounded border transition-all ${
+                                newBlock.maintainFormatting 
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                  : !newBlock.contentFormatting.color
+                                  ? 'bg-blue-500 text-white border-blue-500' 
+                                  : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300'
+                              }`}
+                              title="Default"
+                            >
+                              Default
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1311,18 +1405,73 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               <option value="3xl">3XL</option>
                             </select>
                           </div>
-                          {/* <div>
+                          <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
-                            <input
-                              type="color"
-                              value={editBlock.titleFormatting?.color || '#000000'}
-                              onChange={(e) => setEditBlock({
-                                ...editBlock,
-                                titleFormatting: { ...editBlock.titleFormatting!, color: e.target.value }
-                              })}
-                              className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
-                            />
-                          </div> */}
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => setEditBlock({
+                                  ...editBlock,
+                                  titleFormatting: { ...editBlock.titleFormatting!, color: '#000000' }
+                                })}
+                                className={`w-6 h-6 rounded border-2 transition-all ${
+                                  editBlock.titleFormatting?.color === '#000000'
+                                    ? 'bg-black border-blue-500' 
+                                    : 'bg-black border-gray-300 hover:border-gray-400'
+                                }`}
+                                title="Black"
+                              />
+                              <button
+                                onClick={() => setEditBlock({
+                                  ...editBlock,
+                                  titleFormatting: { ...editBlock.titleFormatting!, color: '#ffffff' }
+                                })}
+                                className={`w-6 h-6 rounded border-2 transition-all ${
+                                  editBlock.titleFormatting?.color === '#ffffff'
+                                    ? 'bg-white border-blue-500' 
+                                    : 'bg-white border-gray-300 hover:border-gray-400'
+                                }`}
+                                title="White"
+                              />
+                              <button
+                                onClick={() => setEditBlock({
+                                  ...editBlock,
+                                  titleFormatting: { ...editBlock.titleFormatting!, color: '#dc2626' }
+                                })}
+                                className={`w-6 h-6 rounded border-2 transition-all ${
+                                  editBlock.titleFormatting?.color === '#dc2626'
+                                    ? 'bg-red-600 border-blue-500' 
+                                    : 'bg-red-600 border-gray-300 hover:border-gray-400'
+                                }`}
+                                title="Red"
+                              />
+                              <button
+                                onClick={() => setEditBlock({
+                                  ...editBlock,
+                                  titleFormatting: { ...editBlock.titleFormatting!, color: '#6b7280' }
+                                })}
+                                className={`w-6 h-6 rounded border-2 transition-all ${
+                                  editBlock.titleFormatting?.color === '#6b7280'
+                                    ? 'bg-gray-500 border-blue-500' 
+                                    : 'bg-gray-500 border-gray-300 hover:border-gray-400'
+                                }`}
+                                title="Gray"
+                              />
+                              <button
+                                onClick={() => setEditBlock({
+                                  ...editBlock,
+                                  titleFormatting: { ...editBlock.titleFormatting!, color: undefined }
+                                })}
+                                className={`px-2 py-1 text-xs rounded border transition-all ${
+                                  !editBlock.titleFormatting?.color
+                                    ? 'bg-blue-500 text-white border-blue-500' 
+                                    : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300'
+                                }`}
+                                title="Default"
+                              >
+                                D
+                              </button>
+                            </div>
+                          </div>
                         </div>
                         <div className="flex items-end gap-2 mt-2">
                           <button
@@ -1412,18 +1561,73 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               <option value="3xl">3XL</option>
                             </select>
                           </div>
-                          {/* <div>
+                          <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
-                            <input
-                              type="color"
-                              value={editBlock.contentFormatting?.color || '#000000'}
-                              onChange={(e) => setEditBlock({
-                                ...editBlock,
-                                contentFormatting: { ...editBlock.contentFormatting!, color: e.target.value }
-                              })}
-                              className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
-                            />
-                          </div> */}
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => setEditBlock({
+                                  ...editBlock,
+                                  contentFormatting: { ...editBlock.contentFormatting!, color: '#000000' }
+                                })}
+                                className={`w-6 h-6 rounded border-2 transition-all ${
+                                  editBlock.contentFormatting?.color === '#000000'
+                                    ? 'bg-black border-blue-500' 
+                                    : 'bg-black border-gray-300 hover:border-gray-400'
+                                }`}
+                                title="Black"
+                              />
+                              <button
+                                onClick={() => setEditBlock({
+                                  ...editBlock,
+                                  contentFormatting: { ...editBlock.contentFormatting!, color: '#ffffff' }
+                                })}
+                                className={`w-6 h-6 rounded border-2 transition-all ${
+                                  editBlock.contentFormatting?.color === '#ffffff'
+                                    ? 'bg-white border-blue-500' 
+                                    : 'bg-white border-gray-300 hover:border-gray-400'
+                                }`}
+                                title="White"
+                              />
+                              <button
+                                onClick={() => setEditBlock({
+                                  ...editBlock,
+                                  contentFormatting: { ...editBlock.contentFormatting!, color: '#dc2626' }
+                                })}
+                                className={`w-6 h-6 rounded border-2 transition-all ${
+                                  editBlock.contentFormatting?.color === '#dc2626'
+                                    ? 'bg-red-600 border-blue-500' 
+                                    : 'bg-red-600 border-gray-300 hover:border-gray-400'
+                                }`}
+                                title="Red"
+                              />
+                              <button
+                                onClick={() => setEditBlock({
+                                  ...editBlock,
+                                  contentFormatting: { ...editBlock.contentFormatting!, color: '#6b7280' }
+                                })}
+                                className={`w-6 h-6 rounded border-2 transition-all ${
+                                  editBlock.contentFormatting?.color === '#6b7280'
+                                    ? 'bg-gray-500 border-blue-500' 
+                                    : 'bg-gray-500 border-gray-300 hover:border-gray-400'
+                                }`}
+                                title="Gray"
+                              />
+                              <button
+                                onClick={() => setEditBlock({
+                                  ...editBlock,
+                                  contentFormatting: { ...editBlock.contentFormatting!, color: undefined }
+                                })}
+                                className={`px-2 py-1 text-xs rounded border transition-all ${
+                                  !editBlock.contentFormatting?.color
+                                    ? 'bg-blue-500 text-white border-blue-500' 
+                                    : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300'
+                                }`}
+                                title="Default"
+                              >
+                                D
+                              </button>
+                            </div>
+                          </div>
                         </div>
                         <div className="flex items-end gap-2 mt-2">
                           <button

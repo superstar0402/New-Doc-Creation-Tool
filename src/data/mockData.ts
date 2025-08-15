@@ -34,11 +34,11 @@ export const textBlocks: TextBlock[] = [
     content: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting key deliverables, timeline, and expected outcomes. Our approach focuses on delivering measurable business value while ensuring seamless integration with existing systems.',
     formattedContent: [
       { text: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting ',         style: { fontSize: 'base', fontFamily: 'Arial' } },
-      { text: 'key deliverables', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
+      { text: 'key deliverables', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial', color: '#dc2626' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Arial' } },
-      { text: 'timeline', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
+      { text: 'timeline', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial', color: '#6b7280' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Arial' } },
-      { text: 'expected outcomes', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
+      { text: 'expected outcomes', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial', color: '#dc2626' } },
       { text: '. Our approach focuses on delivering ', style: { fontSize: 'base', fontFamily: 'Arial' } },
       { text: 'measurable business value', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Arial' } },
       { text: ' while ensuring seamless integration with existing systems.', style: { fontSize: 'base', fontFamily: 'Arial' } }
@@ -50,7 +50,8 @@ export const textBlocks: TextBlock[] = [
       fontSize: '2xl',
       bold: true,
       italic: false,
-      underline: false
+      underline: false,
+      color: '#dc2626'
     },
     contentFormatting: {
       fontFamily: 'Arial',
@@ -67,9 +68,9 @@ export const textBlocks: TextBlock[] = [
     content: 'The technical specification outlines the detailed requirements, architecture, and implementation approach for the proposed solution. This includes system requirements, data flow diagrams, security protocols, and performance benchmarks that ensure optimal system performance.',
     formattedContent: [
       { text: 'The technical specification outlines the detailed requirements, architecture, and implementation approach for the proposed solution. This includes ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
-      { text: 'system requirements', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto' } },
+      { text: 'system requirements', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto', color: '#6b7280' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
-      { text: 'data flow diagrams', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto' } },
+      { text: 'data flow diagrams', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto', color: '#dc2626' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
       { text: 'security protocols', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
@@ -85,14 +86,16 @@ export const textBlocks: TextBlock[] = [
       fontSize: 'xl',
       bold: true,
       italic: true,
-      underline: false
+      underline: false,
+      color: '#6b7280'
     },
     contentFormatting: {
       fontFamily: 'Roboto',
       fontSize: 'sm',
       bold: false,
       italic: false,
-      underline: false
+      underline: false,
+      color: '#6b7280'
     }
   },
   
@@ -102,9 +105,9 @@ export const textBlocks: TextBlock[] = [
     content: 'Our project timeline is structured in phases to ensure systematic delivery and quality control. Phase 1 focuses on discovery and planning, Phase 2 on development and testing, and Phase 3 on deployment and knowledge transfer. Each phase includes milestone reviews and stakeholder sign-offs.',
     formattedContent: [
       { text: 'Our project timeline is structured in phases to ensure systematic delivery and quality control. ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
-      { text: 'Phase 1', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans' } },
+      { text: 'Phase 1', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans', color: '#dc2626' } },
       { text: ' focuses on discovery and planning, ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
-      { text: 'Phase 2', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans' } },
+      { text: 'Phase 2', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans', color: '#6b7280' } },
       { text: ' on development and testing, and ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
       { text: 'Phase 3', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans' } },
       { text: ' on deployment and knowledge transfer. Each phase includes ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
@@ -120,7 +123,8 @@ export const textBlocks: TextBlock[] = [
       fontSize: 'lg',
       bold: true,
       italic: false,
-      underline: true
+      underline: true,
+      color: '#dc2626'
     },
     contentFormatting: {
       fontFamily: 'Open Sans',

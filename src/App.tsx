@@ -44,7 +44,7 @@ const convertFormattedContentToTextRuns = (formattedContent: FormattedContent[] 
     if (item.style?.bold) textRunOptions.bold = true;
     if (item.style?.italic) textRunOptions.italics = true;
     if (item.style?.underline) textRunOptions.underline = {};
-    // if (item.style?.color) textRunOptions.color = item.style.color;
+    if (item.style?.color) textRunOptions.color = item.style.color;
     if (item.style?.fontFamily) textRunOptions.font = item.style.fontFamily;
     if (item.style?.fontSize) {
       // Convert fontSize to docx size (in half-points)
@@ -123,7 +123,7 @@ const buildInlineStyleFromFormatting = (fmt?: TextFormatting): string => {
   if (!fmt) return '';
   const style: string[] = [];
   if (fmt.fontFamily) style.push(`font-family: ${fmt.fontFamily}`);
-  // if (fmt.color) style.push(`color: ${fmt.color}`);
+  if (fmt.color) style.push(`color: ${fmt.color}`);
   if (fmt.bold) style.push('font-weight: 700');
   if (fmt.italic) style.push('font-style: italic');
   if (fmt.underline) style.push('text-decoration: underline');
@@ -597,7 +597,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               if (block.titleFormatting?.bold) titleOptions.bold = true;
               if (block.titleFormatting?.italic) titleOptions.italics = true;
               if (block.titleFormatting?.underline) titleOptions.underline = {};
-              // if (block.titleFormatting?.color) titleOptions.color = block.titleFormatting.color;  
+              if (block.titleFormatting?.color) titleOptions.color = block.titleFormatting.color;  
               if (block.titleFormatting?.fontFamily) titleOptions.font = block.titleFormatting.fontFamily;
               if (block.titleFormatting?.fontSize) {
                 const sizeMap: { [key: string]: number } = { xs: 16, sm: 20, base: 24, lg: 28, xl: 32, '2xl': 36, '3xl': 40 };
@@ -623,7 +623,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                 if (block.contentFormatting?.bold) contentOptions.bold = true;
                 if (block.contentFormatting?.italic) contentOptions.italics = true;
                 if (block.contentFormatting?.underline) contentOptions.underline = {};
-                // if (block.contentFormatting?.color) contentOptions.color = block.contentFormatting.color;
+                if (block.contentFormatting?.color) contentOptions.color = block.contentFormatting.color;
                 if (block.contentFormatting?.fontFamily) contentOptions.font = block.contentFormatting.fontFamily;
                 if (block.contentFormatting?.fontSize) {
                   const sizeMap: { [key: string]: number } = { xs: 16, sm: 20, base: 24, lg: 28, xl: 32, '2xl': 36, '3xl': 40 };
