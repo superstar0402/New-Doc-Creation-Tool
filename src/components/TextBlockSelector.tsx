@@ -139,7 +139,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
     maintainFormatting: false,
     formattedContent: undefined as FormattedContent[] | undefined,
     titleFormatting: {
-      fontFamily: 'Inter',
+      fontFamily: 'Arial',
       fontSize: 'base',
       bold: false,
       italic: false,
@@ -147,7 +147,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
       color: '#000000'
     },
     contentFormatting: {
-      fontFamily: 'Inter',
+      fontFamily: 'Arial',
       fontSize: 'base',
       bold: false,
       italic: false,
@@ -167,15 +167,15 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
       // Map common font families to our available options
       const mapFontFamily = (fontFamily: string) => {
         const font = fontFamily.toLowerCase();
-        if (font.includes('arial') || font.includes('helvetica')) return 'Inter';
-        if (font.includes('times') || font.includes('serif')) return 'Inter';
-        if (font.includes('courier') || font.includes('mono')) return 'Inter';
+        if (font.includes('arial') || font.includes('helvetica')) return 'Arial';
+        if (font.includes('times') || font.includes('serif')) return 'Arial';
+        if (font.includes('courier') || font.includes('mono')) return 'Arial';
         if (font.includes('montserrat')) return 'Montserrat';
         if (font.includes('nunito')) return 'Nunito';
         if (font.includes('source') && font.includes('sans')) return 'Source Sans Pro';
         if (font.includes('ubuntu')) return 'Ubuntu';
         if (font.includes('work') && font.includes('sans')) return 'Work Sans';
-        return 'Inter'; // Default fallback
+        return 'Arial'; // Default fallback
       };
       
       setNewBlock({
@@ -183,7 +183,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         content: newBlock.content, // Keep existing content
         formattedContent: formattedContent, // Store the formatted content
         contentFormatting: {
-          fontFamily: firstStyle.fontFamily ? mapFontFamily(firstStyle.fontFamily) : 'Inter',
+          fontFamily: firstStyle.fontFamily ? mapFontFamily(firstStyle.fontFamily) : 'Arial',
           fontSize: firstStyle.fontSize || 'base',
           bold: firstStyle.bold || false,
           italic: firstStyle.italic || false,
@@ -245,7 +245,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         maintainFormatting: false,
         formattedContent: undefined,
         titleFormatting: {
-          fontFamily: 'Inter',
+          fontFamily: 'Arial',
           fontSize: 'base',
           bold: false,
           italic: false,
@@ -253,7 +253,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
           color: '#000000'
         },
         contentFormatting: {
-          fontFamily: 'Inter',
+          fontFamily: 'Arial',
           fontSize: 'base',
           bold: false,
           italic: false,
@@ -322,7 +322,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
       headerOptions: block.headerOptions && block.headerOptions.length === 2 ? block.headerOptions : [block.headerOptions?.[0] || '', block.headerOptions?.[1] || ''],
       footerOptions: block.footerOptions && block.footerOptions.length === 2 ? block.footerOptions : [block.footerOptions?.[0] || '', block.footerOptions?.[1] || ''],
       titleFormatting: block.titleFormatting || {
-        fontFamily: 'Inter',
+        fontFamily: 'Arial',
         fontSize: 'base',
         bold: false,
         italic: false,
@@ -330,7 +330,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         // color: '#000000'
       },
       contentFormatting: block.contentFormatting || {
-        fontFamily: 'Inter',
+        fontFamily: 'Arial',
         fontSize: 'base',
         bold: false,
         italic: false,
@@ -511,7 +511,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             })}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
                           >
-                            <option value="Inter">Inter</option>
+                            <option value="Arial">Arial</option>
                             <option value="Roboto">Roboto</option>
                             <option value="Open Sans">Open Sans</option>
                             {/* <option value="Lato">Lato</option>
@@ -1000,7 +1000,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               newBlock.maintainFormatting ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                           >
-                            <option value="Inter">Inter</option>
+                            <option value="Arial">Arial</option>
                             <option value="Roboto">Roboto</option>
                             <option value="Open Sans">Open Sans</option>
                             {/* <option value="Lato">Lato</option>
@@ -1270,14 +1270,14 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                           <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">Font Family</label>
                             <select
-                              value={editBlock.titleFormatting?.fontFamily || 'Inter'}
+                              value={editBlock.titleFormatting?.fontFamily || 'Arial'}
                               onChange={(e) => setEditBlock({
                                 ...editBlock,
                                 titleFormatting: { ...editBlock.titleFormatting!, fontFamily: e.target.value }
                               })}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
                             >
-                              <option value="Inter">Inter</option>
+                              <option value="Arial">Arial</option>
                               <option value="Roboto">Roboto</option>
                               <option value="Open Sans">Open Sans</option>
                               {/* <option value="Lato">Lato</option>
@@ -1371,14 +1371,14 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                           <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">Font Family</label>
                             <select
-                              value={editBlock.contentFormatting?.fontFamily || 'Inter'}
+                              value={editBlock.contentFormatting?.fontFamily || 'Arial'}
                               onChange={(e) => setEditBlock({
                                 ...editBlock,
                                 contentFormatting: { ...editBlock.contentFormatting!, fontFamily: e.target.value }
                               })}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-sm"
                             >
-                              <option value="Inter">Inter</option>
+                              <option value="Arial">Arial</option>
                               <option value="Roboto">Roboto</option>
                               <option value="Open Sans">Open Sans</option>
                               {/* <option value="Lato">Lato</option>

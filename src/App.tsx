@@ -368,7 +368,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                   <div style="margin: 5px 0;">
                     ${projectInfo.hardwareComponents.map(item => `
                       <div style="margin: 2px 0;">
-                        • ${convertFormattedContentToHTML([item])}
+                        ${convertFormattedContentToHTML([item])}
                       </div>
                     `).join('')}
                   </div>
@@ -380,7 +380,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                   <div style="margin: 5px 0;">
                     ${projectInfo.servicesComponents.map(item => `
                       <div style="margin: 2px 0;">
-                        • ${convertFormattedContentToHTML([item])}
+                        ${convertFormattedContentToHTML([item])}
                       </div>
                     `).join('')}
                   </div>
@@ -952,7 +952,7 @@ Generated on ${formatDate(new Date().toISOString().split('T')[0])}
       <h3>Hardware Components</h3>
       <div>
         ${projectInfo.hardwareComponents.map(item => `
-          <p>• ${convertFormattedContentToHTML([item])}</p>
+          <p>${convertFormattedContentToHTML([item])}</p>
         `).join('')}
       </div>
     </div>
@@ -962,7 +962,7 @@ Generated on ${formatDate(new Date().toISOString().split('T')[0])}
       <h3>Services Components</h3>
       <div>
         ${projectInfo.servicesComponents.map(item => `
-          <p>• ${convertFormattedContentToHTML([item])}</p>
+          <p>${convertFormattedContentToHTML([item])}</p>
         `).join('')}
       </div>
     </div>

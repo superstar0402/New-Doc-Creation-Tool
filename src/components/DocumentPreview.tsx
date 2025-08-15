@@ -400,7 +400,6 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                           <div className="text-gray-700 leading-relaxed space-y-2">
                             {projectInfo.hardwareComponents.map((item, index) => (
                               <div key={index} className="flex items-start">
-                                <span className="mr-2">•</span>
                                 <div>{renderFormattedContent([item])}</div>
                               </div>
                             ))}
@@ -414,7 +413,6 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                           <div className="text-gray-700 leading-relaxed space-y-2">
                             {projectInfo.servicesComponents.map((item, index) => (
                               <div key={index} className="flex items-start">
-                                <span className="mr-2">•</span>
                                 <div>{renderFormattedContent([item])}</div>
                               </div>
                             ))}

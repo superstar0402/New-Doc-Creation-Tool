@@ -33,27 +33,27 @@ export const textBlocks: TextBlock[] = [
     title: 'Executive Summary Template',
     content: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting key deliverables, timeline, and expected outcomes. Our approach focuses on delivering measurable business value while ensuring seamless integration with existing systems.',
     formattedContent: [
-      { text: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting ', style: { fontSize: 'base', fontFamily: 'Inter' } },
-      { text: 'key deliverables', style: { bold: true, fontSize: 'lg', fontFamily: 'Inter' } },
-      { text: ', ', style: { fontSize: 'base', fontFamily: 'Inter' } },
-      { text: 'timeline', style: { bold: true, fontSize: 'lg', fontFamily: 'Inter' } },
-      { text: ', and ', style: { fontSize: 'base', fontFamily: 'Inter' } },
-      { text: 'expected outcomes', style: { bold: true, fontSize: 'lg', fontFamily: 'Inter' } },
-      { text: '. Our approach focuses on delivering ', style: { fontSize: 'base', fontFamily: 'Inter' } },
-      { text: 'measurable business value', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Inter' } },
-      { text: ' while ensuring seamless integration with existing systems.', style: { fontSize: 'base', fontFamily: 'Inter' } }
+      { text: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting ',         style: { fontSize: 'base', fontFamily: 'Arial' } },
+      { text: 'key deliverables', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
+      { text: ', ', style: { fontSize: 'base', fontFamily: 'Arial' } },
+      { text: 'timeline', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
+      { text: ', and ', style: { fontSize: 'base', fontFamily: 'Arial' } },
+      { text: 'expected outcomes', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
+      { text: '. Our approach focuses on delivering ', style: { fontSize: 'base', fontFamily: 'Arial' } },
+      { text: 'measurable business value', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Arial' } },
+      { text: ' while ensuring seamless integration with existing systems.', style: { fontSize: 'base', fontFamily: 'Arial' } }
     ],
     category: 'Executive',
     isSelected: false,
     titleFormatting: {
-      fontFamily: 'Inter',
+      fontFamily: 'Arial',
       fontSize: '2xl',
       bold: true,
       italic: false,
       underline: false
     },
     contentFormatting: {
-      fontFamily: 'Inter',
+      fontFamily: 'Arial',
       fontSize: 'base',
       bold: false,
       italic: false,
@@ -410,7 +410,7 @@ export const documentTemplates: DocumentTemplate[] = [
     footerContent: 'Confidential and Proprietary',
     styles: {
       primaryColor: '#2563eb',
-      fontFamily: 'Inter',
+      fontFamily: 'Arial',
       headerHeight: '80px',
       footerHeight: '40px'
     }
@@ -423,7 +423,7 @@ export const documentTemplates: DocumentTemplate[] = [
     footerContent: 'Page {{pageNumber}} of {{totalPages}} | Confidential',
     styles: {
       primaryColor: '#1e40af',
-      fontFamily: 'Inter',
+      fontFamily: 'Arial',
       headerHeight: '100px',
       footerHeight: '60px'
     }
