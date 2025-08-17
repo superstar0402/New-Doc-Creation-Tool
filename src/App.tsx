@@ -405,12 +405,12 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                   <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Pricing Structure</h3>
                   <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; font-family: ${tableFontFamily}, sans-serif;">
                     <thead>
-                      <tr style="background-color: #f8fafc;">
-                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left; font-family: ${tableFontFamily}, sans-serif;">Item</th>
-                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left; font-family: ${tableFontFamily}, sans-serif;">Quantity</th>
-                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left; font-family: ${tableFontFamily}, sans-serif;">Description</th>
-                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: right; font-family: ${tableFontFamily}, sans-serif;">Price ($)</th>
-                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: right; font-family: ${tableFontFamily}, sans-serif;">Extended Price ($)</th>
+                      <tr style="background-color: #dc2626;">
+                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left; font-family: ${tableFontFamily}, sans-serif; color: white;">Item</th>
+                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left; font-family: ${tableFontFamily}, sans-serif; color: white;">Quantity</th>
+                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left; font-family: ${tableFontFamily}, sans-serif; color: white;">Description</th>
+                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: right; font-family: ${tableFontFamily}, sans-serif; color: white;">Price ($)</th>
+                        <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: right; font-family: ${tableFontFamily}, sans-serif; color: white;">Extended Price ($)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -423,12 +423,12 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                           <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: right; font-family: ${tableFontFamily}, sans-serif;">$${item.extendedPrice.toFixed(2)}</td>
                         </tr>
                       `).join('')}
-                      <tr style="background-color: #f8fafc; font-weight: bold;">
-                        <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: left; font-family: ${tableFontFamily}, sans-serif;">Total:</td>
-                        <td style="border: 1px solid #e2e8f0; padding: 6px; font-family: ${tableFontFamily}, sans-serif;"></td>
-                        <td style="border: 1px solid #e2e8f0; padding: 6px; font-family: ${tableFontFamily}, sans-serif;"></td>
-                        <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: right; font-family: ${tableFontFamily}, sans-serif;"></td>
-                        <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: right; font-family: ${tableFontFamily}, sans-serif;">$${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}</td>
+                      <tr style="background-color: #dc2626; font-weight: bold;">
+                        <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: left; font-family: ${tableFontFamily}, sans-serif; color: white;">Total:</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 6px; font-family: ${tableFontFamily}, sans-serif; color: white;"></td>
+                        <td style="border: 1px solid #e2e8f0; padding: 6px; font-family: ${tableFontFamily}, sans-serif; color: white;"></td>
+                        <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: right; font-family: ${tableFontFamily}, sans-serif; color: white;"></td>
+                        <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: right; font-family: ${tableFontFamily}, sans-serif; color: white;">$${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -707,11 +707,26 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               // Header row
               const headerRow = new TableRow({
                 children: [
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Item", bold: true, font: tableFontFamily })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Quantity", bold: true, font: tableFontFamily })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Description", bold: true, font: tableFontFamily })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Price ($)", bold: true, font: tableFontFamily })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Extended Price ($)", bold: true, font: tableFontFamily })] })] })
+                  new TableCell({ 
+                    children: [new Paragraph({ children: [new TextRun({ text: "Item", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                    shading: { fill: "DC2626" }
+                  }),
+                  new TableCell({ 
+                    children: [new Paragraph({ children: [new TextRun({ text: "Quantity", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                    shading: { fill: "DC2626" }
+                  }),
+                  new TableCell({ 
+                    children: [new Paragraph({ children: [new TextRun({ text: "Description", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                    shading: { fill: "DC2626" }
+                  }),
+                  new TableCell({ 
+                    children: [new Paragraph({ children: [new TextRun({ text: "Price ($)", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                    shading: { fill: "DC2626" }
+                  }),
+                  new TableCell({ 
+                    children: [new Paragraph({ children: [new TextRun({ text: "Extended Price ($)", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                    shading: { fill: "DC2626" }
+                  })
                 ]
               });
               tableRows.push(headerRow);
@@ -734,11 +749,26 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               const total = projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0);
               const totalRow = new TableRow({
                 children: [
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Total", bold: true, font: tableFontFamily })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${total.toFixed(2)}`, bold: true, font: tableFontFamily })] })] })
+                  new TableCell({ 
+                    children: [new Paragraph({ children: [new TextRun({ text: "Total", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                    shading: { fill: "DC2626" }
+                  }),
+                  new TableCell({ 
+                    children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily, color: "FFFFFF" })] })],
+                    shading: { fill: "DC2626" }
+                  }),
+                  new TableCell({ 
+                    children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily, color: "FFFFFF" })] })],
+                    shading: { fill: "DC2626" }
+                  }),
+                  new TableCell({ 
+                    children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily, color: "FFFFFF" })] })],
+                    shading: { fill: "DC2626" }
+                  }),
+                  new TableCell({ 
+                    children: [new Paragraph({ children: [new TextRun({ text: `$${total.toFixed(2)}`, bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                    shading: { fill: "DC2626" }
+                  })
                 ]
               });
               tableRows.push(totalRow);
