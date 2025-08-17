@@ -538,7 +538,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                       }
                     }),
                   ],
-                  alignment: AlignmentType.CENTER,
+                  alignment: AlignmentType.LEFT,
                 });
                 paragraphs.push(imageParagraph);
                 console.log('Logo paragraph added to document with dimensions:', width, 'x', height);
