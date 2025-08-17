@@ -326,10 +326,10 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                     <img src="${URL.createObjectURL(projectInfo.customerLogo)}" alt="Customer Logo" style="max-width: 120px; max-height: 120px; object-fit: contain;" />
                   </div>
                 ` : ''}
-                <h1 style="color: #2563eb; margin: 0 0 15px 0; font-size: 24px; font-weight: bold;">${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
-                <p style="margin: 5px 0;">Customer: ${projectInfo.customerName || 'N/A'}</p>
-                <p style="margin: 5px 0;">Project: ${projectInfo.projectName || 'N/A'}</p>
-                ${projectInfo.startDate ? `<p style="margin: 5px 0;">Start Date: ${formatDate(projectInfo.startDate)}</p>` : ''}
+                <h1 style="color: #2563eb; margin: 0 0 15px 0; font-size: 24px; font-weight: bold; text-align: left;">${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
+                <p style="margin: 5px 0; text-align: left;">Customer: ${projectInfo.customerName || 'N/A'}</p>
+                <p style="margin: 5px 0; text-align: left;">Project: ${projectInfo.projectName || 'N/A'}</p>
+                ${projectInfo.startDate ? `<p style="margin: 5px 0; text-align: left;">Start Date: ${formatDate(projectInfo.startDate)}</p>` : ''}
               </div>
 
               <div style="margin-bottom: 20px;">
