@@ -318,6 +318,20 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             tempDiv.style.lineHeight = '1.6';
             tempDiv.style.color = 'black';
             
+            // Get font family from first selected block for PDF table
+            const getTableFontFamily = () => {
+              if (selectedBlocks.length > 0) {
+                const firstBlock = selectedBlocks[0];
+                // Try to get font family from content formatting first, then title formatting
+                return firstBlock.contentFormatting?.fontFamily || 
+                       firstBlock.titleFormatting?.fontFamily || 
+                       'Arial';
+              }
+              return 'Arial';
+            };
+            
+            const tableFontFamily = getTableFontFamily();
+            
             // Build the HTML content for PDF - matching Word document format
             const htmlContent = `
               <div style="margin-bottom: 20px; text-align: center;">
@@ -352,7 +366,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                   : block.content.replace(/\n/g, '<br>');
                 return `
                 <div style="margin-bottom: 15px;">
-                  <p style="margin: 5px 0;"><span style="${titleStyle}">${index + 1}. ${block.title}</span></p>
+                  <p style="margin: 5px 0;"><span style="${titleStyle}">${block.title}</span></p>
                   ${headerHTML}
                   <p style="margin: 5px 0; ${contentStyle}">${contentHTML}</p>
                   ${footerHTML}
@@ -389,7 +403,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                 ${projectInfo.pricingTable.length > 0 ? `
                 <div style="margin-bottom: 15px;">
                   <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Pricing Structure</h3>
-                  <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px;">
+                  <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; font-family: ${tableFontFamily}, sans-serif;">
                     <thead>
                       <tr style="background-color: #f8fafc;">
                         <th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left;">Item</th>
@@ -410,7 +424,10 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                         </tr>
                       `).join('')}
                       <tr style="background-color: #f8fafc; font-weight: bold;">
-                        <td colspan="4" style="border: 1px solid #e2e8f0; padding: 6px; text-align: right;">Total:</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: left;">Total:</td>
+                        <td style="border: 1px solid #e2e8f0; padding: 6px;"></td>
+                        <td style="border: 1px solid #e2e8f0; padding: 6px;"></td>
+                        <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: right;"></td>
                         <td style="border: 1px solid #e2e8f0; padding: 6px; text-align: right;">$${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}</td>
                       </tr>
                     </tbody>
@@ -592,7 +609,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             // Content Blocks
             selectedBlocks.forEach((block, index) => {
               // Title with formatting
-              const titleRuns: TextRun[] = [new TextRun({ text: `${index + 1}. ` })];
+              const titleRuns: TextRun[] = [];
               const titleOptions: any = { text: block.title };
               if (block.titleFormatting?.bold) titleOptions.bold = true;
               if (block.titleFormatting?.italic) titleOptions.italics = true;
@@ -670,17 +687,31 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                 children: [new TextRun({ text: "Pricing Structure", bold: true })]
               }));
               
+              // Get font family from first selected block
+              const getTableFontFamily = () => {
+                if (selectedBlocks.length > 0) {
+                  const firstBlock = selectedBlocks[0];
+                  // Try to get font family from content formatting first, then title formatting
+                  return firstBlock.contentFormatting?.fontFamily || 
+                         firstBlock.titleFormatting?.fontFamily || 
+                         'Arial';
+                }
+                return 'Arial';
+              };
+              
+              const tableFontFamily = getTableFontFamily();
+              
               // Create pricing table
               const tableRows = [];
               
               // Header row
               const headerRow = new TableRow({
                 children: [
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Item", bold: true })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Quantity", bold: true })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Description", bold: true })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Price ($)", bold: true })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Extended Price ($)", bold: true })] })] })
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Item", bold: true, font: tableFontFamily })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Quantity", bold: true, font: tableFontFamily })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Description", bold: true, font: tableFontFamily })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Price ($)", bold: true, font: tableFontFamily })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Extended Price ($)", bold: true, font: tableFontFamily })] })] })
                 ]
               });
               tableRows.push(headerRow);
@@ -689,11 +720,11 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               projectInfo.pricingTable.forEach(item => {
                 const dataRow = new TableRow({
                   children: [
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.item || 'N/A' })] })] }),
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.quantity.toString() })] })] }),
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.description || 'N/A' })] })] }),
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${item.price.toFixed(2)}` })] })] }),
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${item.extendedPrice.toFixed(2)}` })] })] })
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.item || 'N/A', font: tableFontFamily })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.quantity.toString(), font: tableFontFamily })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.description || 'N/A', font: tableFontFamily })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${item.price.toFixed(2)}`, font: tableFontFamily })] })] }),
+                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${item.extendedPrice.toFixed(2)}`, font: tableFontFamily })] })] })
                   ]
                 });
                 tableRows.push(dataRow);
@@ -703,11 +734,11 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               const total = projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0);
               const totalRow = new TableRow({
                 children: [
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Total", bold: true })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "" })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "" })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "" })] })] }),
-                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${total.toFixed(2)}`, bold: true })] })] })
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Total", bold: true, font: tableFontFamily })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily })] })] }),
+                  new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${total.toFixed(2)}`, bold: true, font: tableFontFamily })] })] })
                 ]
               });
               tableRows.push(totalRow);
@@ -775,7 +806,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
 
 CONTENT BLOCKS
 ${selectedBlocks.map((block, index) => `
-${index + 1}. ${block.title}
+${block.title}
 ${block.headerOptions && block.headerOptions.some(opt => opt) ? `Header: ${block.headerOptions.filter(Boolean).join(' | ')}` : ''}
 ${block.formattedContent && block.formattedContent.length > 0 
   ? block.formattedContent.map(item => item.text).join('')
@@ -824,6 +855,20 @@ Generated on ${formatDate(new Date().toISOString().split('T')[0])}
                 case 'gdocs':
           try {
             console.log('Starting Google Docs generation...');
+            
+            // Get font family from first selected block for Google Docs table
+            const getTableFontFamily = () => {
+              if (selectedBlocks.length > 0) {
+                const firstBlock = selectedBlocks[0];
+                // Try to get font family from content formatting first, then title formatting
+                return firstBlock.contentFormatting?.fontFamily || 
+                       firstBlock.titleFormatting?.fontFamily || 
+                       'Arial';
+              }
+              return 'Arial';
+            };
+            
+            const tableFontFamily = getTableFontFamily();
             
             // Generate HTML optimized for Google Docs import
             const gdocsHtml = `
@@ -937,7 +982,7 @@ Generated on ${formatDate(new Date().toISOString().split('T')[0])}
       : block.content.replace(/\n/g, '<br>');
     return `
     <div class="content-block">
-      <p><span style="${titleStyle}"><strong>${index + 1}. ${block.title}</strong></span></p>
+      <p><span style="${titleStyle}"><strong>${block.title}</strong></span></p>
       ${headerHTML}
       <p style="${contentStyle}">${contentHTML}</p>
       ${footerHTML}
@@ -970,7 +1015,7 @@ Generated on ${formatDate(new Date().toISOString().split('T')[0])}
     ${projectInfo.pricingTable.length > 0 ? `
     <div class="content-block">
       <h3>Pricing Structure</h3>
-      <table>
+      <table style="font-family: ${tableFontFamily}, sans-serif;">
         <thead>
           <tr>
             <th>Item</th>
