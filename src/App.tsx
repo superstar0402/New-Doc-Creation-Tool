@@ -333,24 +333,24 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
 
             // Build the HTML content for PDF - matching Word document format
             const htmlContent = `
-              <div style="margin-bottom: 20px; text-align: center;">
+              <div style="margin-bottom: 0px; text-align: center;">
                 ${projectInfo.customerLogo ? `
-                  <div style="margin-bottom: 15px;">
+                  <div style="margin-bottom: 0px;">
                     <img src="${URL.createObjectURL(projectInfo.customerLogo)}" alt="Customer Logo" style="max-width: 120px; max-height: 120px; object-fit: contain;" />
                   </div>
                 ` : ''}
-                <h1 style="color: #2563eb; margin: 0 0 15px 0; font-size: 24px; font-weight: bold; text-align: left;">${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
-                <p style="margin: 5px 0; text-align: left;">Customer: ${projectInfo.customerName || 'N/A'}</p>
-                <p style="margin: 5px 0; text-align: left;">Project: ${projectInfo.projectName || 'N/A'}</p>
-                ${projectInfo.startDate ? `<p style="margin: 5px 0; text-align: left;">Start Date: ${formatDate(projectInfo.startDate)}</p>` : ''}
+                <h1 style="color: #2563eb; margin: 0 0 0 0; font-size: 24px; font-weight: bold; text-align: left;">${selectedDocumentType.toUpperCase().replace('-', ' ')}</h1>
+                <p style="margin: 0 0; text-align: left;">Customer: ${projectInfo.customerName || 'N/A'}</p>
+                <p style="margin: 0 0; text-align: left;">Project: ${projectInfo.projectName || 'N/A'}</p>
+                ${projectInfo.startDate ? `<p style="margin: 0 0; text-align: left  ;">Start Date: ${formatDate(projectInfo.startDate)}</p>` : ''}
               </div>
 
-              <div style="margin-bottom: 20px;">
-                <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Project Overview</h2>
+              <div style="margin-bottom: 0px;">
+                <h2 style="color: #1e40af; margin: 0 0 0 0; font-size: 18px; font-weight: bold;">Project Overview</h2>
                 <p style="margin: 5px 0;">${projectInfo.projectOverview || 'No project overview provided.'}</p>
               </div>
 
-              <div style="margin-bottom: 20px;">
+              <div style="margin-bottom: 0px;">
                 <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Technical Overview</h2>
                 <p style="margin: 5px 0;">${projectInfo.technicalOverview || 'No technical overview provided.'}</p>
               </div>
@@ -364,7 +364,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                   ? convertFormattedContentToHTML(block.formattedContent)
                   : block.content.replace(/\n/g, '<br>');
                 return `
-                <div style="margin-bottom: 15px;">
+                <div style="margin-bottom: 0px;">
                   <p style="margin: 5px 0;"><span style="${titleStyle}">${block.title}</span></p>
                   ${headerHTML}
                   <p style="margin: 5px 0; ${contentStyle}">${contentHTML}</p>
@@ -373,7 +373,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               }).join('')}
 
               ${(projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) ? `
-              <div style="margin-bottom: 20px;">
+              <div style="margin-bottom: 0px;">
                 <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Pricing & Components</h2>
                 ${projectInfo.hardwareComponents.length > 0 ? `
                 <div style="margin-bottom: 15px;">
@@ -451,13 +451,13 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             // Step 4: Use html2pdf to convert HTML to PDF and get Blob
             const pdfBlob = await html2pdf()
               .set({
-                margin: 20,
+                margin: 15,
                 filename: fileName.replace(/\.docx$/i, '.pdf'),
                 html2canvas: {
                   scale: 2,
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                pagebreak: { mode: ['avoid-all', 'css'], avoid: ['tr', 'h2', 'h3', 'div', 'p'] }
               })
               .from(htmlContent)
               .toPdf()
