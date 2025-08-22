@@ -1539,7 +1539,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               }`}
                               title="Gray"
                             />
-                            <button
+                            {/* <button
                               onClick={() => setNewBlock({
                                 ...newBlock,
                                 contentFormatting: { ...newBlock.contentFormatting, color: undefined }
@@ -1555,7 +1555,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               title="Default"
                             >
                               Default
-                            </button>
+                            </button> */}
                           </div>
                         </div>
                       </div>

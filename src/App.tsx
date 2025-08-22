@@ -651,83 +651,8 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               }
             }));
 
-            // Customer Logo (if available)
-            if (projectInfo.customerLogo) {
-              console.log('Customer logo found:', projectInfo.customerLogo.name, projectInfo.customerLogo.type, projectInfo.customerLogo.size);
-
-              // Check if the image format is supported
-              const supportedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp'];
-              if (!supportedFormats.includes(projectInfo.customerLogo.type)) {
-                console.warn('Unsupported image format:', projectInfo.customerLogo.type);
-              }
-
-              try {
-                // Convert the logo file to Uint8Array for embedding
-                const arrayBuffer = await projectInfo.customerLogo.arrayBuffer();
-                const uint8Array = new Uint8Array(arrayBuffer);
-                console.log('Logo converted to Uint8Array, size:', uint8Array.length);
-
-                // Create image element to get dimensions
-                const img = new Image();
-                const imgPromise = new Promise<void>((resolve, reject) => {
-                  img.onload = () => resolve();
-                  img.onerror = () => reject(new Error('Failed to load image'));
-                });
-
-                img.src = URL.createObjectURL(projectInfo.customerLogo);
-                await imgPromise;
-
-                // Calculate aspect ratio to maintain proportions
-                const aspectRatio = img.width / img.height;
-                const maxWidth = 200;
-                const maxHeight = 200;
-                let width = maxWidth;
-                let height = maxHeight;
-
-                if (aspectRatio > 1) {
-                  // Landscape image
-                  height = maxWidth / aspectRatio;
-                } else {
-                  // Portrait image
-                  width = maxHeight * aspectRatio;
-                }
-
-                // Add the image to the document
-                const imageParagraph = new Paragraph({
-                  children: [
-                    new ImageRun({
-                      data: uint8Array,
-                      transformation: {
-                        width: Math.round(width),
-                        height: Math.round(height),
-                      }
-                    }),
-                  ],
-                  alignment: AlignmentType.LEFT,
-                });
-                paragraphs.push(imageParagraph);
-                console.log('Logo paragraph added to document with dimensions:', width, 'x', height);
-
-                // Clean up the object URL
-                URL.revokeObjectURL(img.src);
-              } catch (error) {
-                console.error('Could not embed customer logo in DOCX:', error);
-                console.error('Error details:', error);
-
-                // Add a text-based fallback indicating the logo was included
-                paragraphs.push(new Paragraph({
-                  children: [new TextRun({
-                    text: `[Customer Logo: ${projectInfo.customerLogo.name}]`,
-                    bold: true,
-                    color: '666666'
-                  })],
-                  alignment: AlignmentType.CENTER,
-                }));
-                console.log('Added text fallback for logo');
-              }
-            } else {
-              console.log('No customer logo found');
-            }
+            // Customer Logo is now handled in the header
+            console.log('Customer logo will be added to header if available');
 
             // Customer and Project info
             paragraphs.push(new Paragraph({
@@ -981,11 +906,78 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             //   children: [new TextRun({ text: `Generated on ${formatDate(new Date().toISOString().split('T')[0])}`, italics: true })]
             // }));
 
+            // Create header with logo and text
+            let headerChildren = [];
+            
+            // Add logo to header if available
+            if (projectInfo.customerLogo) {
+              try {
+                const arrayBuffer = await projectInfo.customerLogo.arrayBuffer();
+                const uint8Array = new Uint8Array(arrayBuffer);
+                
+                // Create image element to get dimensions
+                const img = new Image();
+                const imgPromise = new Promise<void>((resolve, reject) => {
+                  img.onload = () => resolve();
+                  img.onerror = () => reject(new Error('Failed to load image'));
+                });
+
+                img.src = URL.createObjectURL(projectInfo.customerLogo);
+                await imgPromise;
+
+                // Calculate dimensions for header logo (smaller than body logo)
+                const aspectRatio = img.width / img.height;
+                const maxWidth = 100; // Smaller for header
+                const maxHeight = 50;  // Smaller for header
+                let width = maxWidth;
+                let height = maxHeight;
+
+                if (aspectRatio > 1) {
+                  // Landscape image
+                  height = maxWidth / aspectRatio;
+                } else {
+                  // Portrait image
+                  width = maxHeight * aspectRatio;
+                }
+
+                // Create header paragraph with logo
+                const headerLogoParagraph = new Paragraph({
+                  children: [
+                    new ImageRun({
+                      data: uint8Array,
+                      transformation: {
+                        width: Math.round(width),
+                        height: Math.round(height),
+                      }
+                    }),
+                  ],
+                  alignment: AlignmentType.LEFT,
+                });
+                
+                headerChildren.push(headerLogoParagraph);
+                console.log('Logo added to header with dimensions:', width, 'x', height);
+                
+                // Clean up the object URL
+                URL.revokeObjectURL(img.src);
+              } catch (error) {
+                console.error('Could not embed customer logo in header:', error);
+              }
+            }
+            
+            // Add header text if available
+            if (projectInfo.headerText) {
+              const headerTextParagraph = new Paragraph({
+                children: [new TextRun({ text: projectInfo.headerText, size: 18, color: '666666' })],
+                alignment: AlignmentType.RIGHT,
+              });
+              headerChildren.push(headerTextParagraph);
+            }
+            
             // Create document with header/footer if provided
             const doc = new Document({
               sections: [{
                 properties: {},
-                headers: projectInfo.headerText ? { default: new Header({ children: [new Paragraph({ children: [new TextRun({ text: projectInfo.headerText, size: 18, color: '666666' })] })] }) } : undefined,
+                headers: headerChildren.length > 0 ? { default: new Header({ children: headerChildren }) } : undefined,
                 // footers: projectInfo.footerText ? { default: new Footer({ children: [new Paragraph({ children: [new TextRun({ text: `Generated on ${formatDate(new Date().toISOString().split('T')[0])}`, size: 18, color: '666666' })] })] }) } : undefined,
                 children: paragraphs
               }]
@@ -1039,10 +1031,78 @@ ${block.footerOptions && block.footerOptions.some(opt => opt) ? `Footer: ${block
 Generated on ${formatDate(new Date().toISOString().split('T')[0])}
 `;
 
+            // Create header with logo for fallback document
+            let fallbackHeaderChildren = [];
+            
+            // Add logo to fallback header if available
+            if (projectInfo.customerLogo) {
+              try {
+                const arrayBuffer = await projectInfo.customerLogo.arrayBuffer();
+                const uint8Array = new Uint8Array(arrayBuffer);
+                
+                // Create image element to get dimensions
+                const img = new Image();
+                const imgPromise = new Promise<void>((resolve, reject) => {
+                  img.onload = () => resolve();
+                  img.onerror = () => reject(new Error('Failed to load image'));
+                });
+
+                img.src = URL.createObjectURL(projectInfo.customerLogo);
+                await imgPromise;
+
+                // Calculate dimensions for header logo (smaller than body logo)
+                const aspectRatio = img.width / img.height;
+                const maxWidth = 100; // Smaller for header
+                const maxHeight = 50;  // Smaller for header
+                let width = maxWidth;
+                let height = maxHeight;
+
+                if (aspectRatio > 1) {
+                  // Landscape image
+                  height = maxWidth / aspectRatio;
+                } else {
+                  // Portrait image
+                  width = maxHeight * aspectRatio;
+                }
+
+                // Create header paragraph with logo
+                const headerLogoParagraph = new Paragraph({
+                  children: [
+                    new ImageRun({
+                      data: uint8Array,
+                      transformation: {
+                        width: Math.round(width),
+                        height: Math.round(height),
+                      }
+                    }),
+                  ],
+                  alignment: AlignmentType.LEFT,
+                });
+                
+                fallbackHeaderChildren.push(headerLogoParagraph);
+                console.log('Logo added to fallback header with dimensions:', width, 'x', height);
+                
+                // Clean up the object URL
+                URL.revokeObjectURL(img.src);
+              } catch (error) {
+                console.error('Could not embed customer logo in fallback header:', error);
+              }
+            }
+            
+            // Add header text if available
+            if (projectInfo.headerText) {
+              const headerTextParagraph = new Paragraph({
+                children: [new TextRun({ text: projectInfo.headerText, size: 18, color: '666666' })],
+                alignment: AlignmentType.RIGHT,
+              });
+              fallbackHeaderChildren.push(headerTextParagraph);
+            }
+            
             // Create a simple DOCX as fallback with proper heading styles
             const fallbackDoc = new Document({
               sections: [{
                 properties: {},
+                headers: fallbackHeaderChildren.length > 0 ? { default: new Header({ children: fallbackHeaderChildren }) } : undefined,
                 children: [
                   new Paragraph({
                     text: selectedDocumentType.toUpperCase().replace('-', ' '),
