@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, Header, Footer, ImageRun } from 'docx';
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, Header, Footer, ImageRun, HeadingLevel } from 'docx';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import mammoth from 'mammoth';
@@ -641,9 +641,14 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             // Create paragraphs array
             const paragraphs = [];
 
-            // Title
+            // Title - H1 Heading
             paragraphs.push(new Paragraph({
-              children: [new TextRun({ text: selectedDocumentType.toUpperCase().replace('-', ' '), bold: true })]
+              text: selectedDocumentType.toUpperCase().replace('-', ' '),
+              heading: HeadingLevel.HEADING_1,
+              spacing: {
+                after: 200,
+                before: 200
+              }
             }));
 
             // Customer Logo (if available)
@@ -733,25 +738,47 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               children: [new TextRun({ text: `Project: ${projectInfo.projectName || 'N/A'}` })]
             }));
 
-            // Project Overview
+            // Project Overview - H2 Heading
             paragraphs.push(new Paragraph({
-              children: [new TextRun({ text: "Project Overview", bold: true })]
+              text: "Project Overview",
+              heading: HeadingLevel.HEADING_2,
+              spacing: {
+                after: 200,
+                before: 400
+              }
             }));
             paragraphs.push(new Paragraph({
               children: [new TextRun({ text: projectInfo.projectOverview || 'No project overview provided.' })]
             }));
 
-            // Technical Overview
+            // Technical Overview - H2 Heading
             paragraphs.push(new Paragraph({
-              children: [new TextRun({ text: "Technical Overview", bold: true })]
+              text: "Technical Overview",
+              heading: HeadingLevel.HEADING_2,
+              spacing: {
+                after: 200,
+                before: 400
+              }
             }));
             paragraphs.push(new Paragraph({
               children: [new TextRun({ text: projectInfo.technicalOverview || 'No technical overview provided.' })]
             }));
 
+            // Content Blocks Section - H2 Heading
+            if (selectedBlocks.length > 0) {
+              paragraphs.push(new Paragraph({
+                text: "Content Sections",
+                heading: HeadingLevel.HEADING_2,
+                spacing: {
+                  after: 200,
+                  before: 400
+                }
+              }));
+            }
+
             // Content Blocks
             selectedBlocks.forEach((block, index) => {
-              // Title with formatting
+              // Title with H3 Heading and formatting
               const titleRuns: TextRun[] = [];
               const titleOptions: any = { text: block.title };
               if (block.titleFormatting?.bold) titleOptions.bold = true;
@@ -764,7 +791,14 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                 titleOptions.size = sizeMap[block.titleFormatting.fontSize] || 24;
               }
               titleRuns.push(new TextRun(titleOptions));
-              paragraphs.push(new Paragraph({ children: titleRuns }));
+              paragraphs.push(new Paragraph({ 
+                children: titleRuns,
+                heading: HeadingLevel.HEADING_3,
+                spacing: {
+                  after: 200,
+                  before: 300
+                }
+              }));
 
               // Header options
               if (block.headerOptions && block.headerOptions.some(opt => opt)) {
@@ -803,7 +837,12 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             // Pricing Components
             if (projectInfo.hardwareComponents.length > 0) {
               paragraphs.push(new Paragraph({
-                children: [new TextRun({ text: "Hardware Components", bold: true })]
+                text: "Hardware Components",
+                heading: HeadingLevel.HEADING_2,
+                spacing: {
+                  after: 200,
+                  before: 400
+                }
               }));
               projectInfo.hardwareComponents.forEach(item => {
                 const textRuns = convertFormattedContentToTextRuns([item]);
@@ -815,7 +854,12 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
 
             if (projectInfo.servicesComponents.length > 0) {
               paragraphs.push(new Paragraph({
-                children: [new TextRun({ text: "Services Components", bold: true })]
+                text: "Services Components",
+                heading: HeadingLevel.HEADING_2,
+                spacing: {
+                  after: 200,
+                  before: 400
+                }
               }));
               projectInfo.servicesComponents.forEach(item => {
                 const textRuns = convertFormattedContentToTextRuns([item]);
@@ -827,7 +871,12 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
 
             if (projectInfo.pricingTable.length > 0) {
               paragraphs.push(new Paragraph({
-                children: [new TextRun({ text: "Pricing Structure", bold: true })]
+                text: "Pricing Structure",
+                heading: HeadingLevel.HEADING_2,
+                spacing: {
+                  after: 200,
+                  before: 400
+                }
               }));
 
               // Get font family from first selected block
@@ -990,19 +1039,32 @@ ${block.footerOptions && block.footerOptions.some(opt => opt) ? `Footer: ${block
 Generated on ${formatDate(new Date().toISOString().split('T')[0])}
 `;
 
-            // Create a simple DOCX as fallback
+            // Create a simple DOCX as fallback with proper heading styles
             const fallbackDoc = new Document({
               sections: [{
                 properties: {},
                 children: [
                   new Paragraph({
-                    children: [new TextRun({ text: selectedDocumentType.toUpperCase().replace('-', ' '), bold: true })]
+                    text: selectedDocumentType.toUpperCase().replace('-', ' '),
+                    heading: HeadingLevel.HEADING_1,
+                    spacing: {
+                      after: 200,
+                      before: 200
+                    }
                   }),
                   new Paragraph({
                     children: [new TextRun({ text: `Customer: ${projectInfo.customerName || 'N/A'}` })]
                   }),
                   new Paragraph({
                     children: [new TextRun({ text: `Project: ${projectInfo.projectName || 'N/A'}` })]
+                  }),
+                  new Paragraph({
+                    text: "Project Overview",
+                    heading: HeadingLevel.HEADING_2,
+                    spacing: {
+                      after: 200,
+                      before: 400
+                    }
                   }),
                   new Paragraph({
                     children: [new TextRun({ text: projectInfo.projectOverview || 'No project overview provided.' })]

@@ -184,6 +184,50 @@ export const PricingComponents: React.FC<PricingComponentsProps> = ({
             <Underline className="w-4 h-4" />
           </button>
           
+          {/* Heading Controls for Individual Items */}
+          <button
+            onClick={() => updateBulletFormatting(type, index, { 
+              fontSize: item.style?.fontSize === '3xl' ? 'base' : '3xl',
+              bold: item.style?.fontSize === '3xl' ? false : true
+            })}
+            className={`px-2 py-1 rounded text-xs font-medium transition-all ${
+              item.style?.fontSize === '3xl' 
+                ? 'bg-purple-500 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+            title="Heading 1"
+          >
+            H1
+          </button>
+          <button
+            onClick={() => updateBulletFormatting(type, index, { 
+              fontSize: item.style?.fontSize === '2xl' ? 'base' : '2xl',
+              bold: item.style?.fontSize === '2xl' ? false : true
+            })}
+            className={`px-2 py-1 rounded text-xs font-medium transition-all ${
+              item.style?.fontSize === '2xl' 
+                ? 'bg-purple-500 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+            title="Heading 2"
+          >
+            H2
+          </button>
+          <button
+            onClick={() => updateBulletFormatting(type, index, { 
+              fontSize: item.style?.fontSize === 'xl' ? 'base' : 'xl',
+              bold: item.style?.fontSize === 'xl' ? false : true
+            })}
+            className={`px-2 py-1 rounded text-xs font-medium transition-all ${
+              item.style?.fontSize === 'xl' 
+                ? 'bg-purple-500 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+            title="Heading 3"
+          >
+            H3
+          </button>
+          
           <select
             value={item.style?.fontFamily || 'Arial'}
             onChange={(e) => updateBulletFormatting(type, index, { fontFamily: e.target.value })}
@@ -297,6 +341,55 @@ export const PricingComponents: React.FC<PricingComponentsProps> = ({
               title="Underline"
             >
               <Underline className="w-4 h-4" />
+            </button>
+          </div>
+          
+          {/* Heading Controls */}
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => setSelectedFormatting({ 
+                ...selectedFormatting, 
+                fontSize: selectedFormatting.fontSize === '3xl' ? 'base' : '3xl',
+                bold: selectedFormatting.fontSize === '3xl' ? false : true
+              })}
+              className={`px-3 py-2 rounded text-sm font-medium transition-all ${
+                selectedFormatting.fontSize === '3xl' 
+                  ? 'bg-purple-500 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+              title="Heading 1"
+            >
+              H1
+            </button>
+            <button
+              onClick={() => setSelectedFormatting({ 
+                ...selectedFormatting, 
+                fontSize: selectedFormatting.fontSize === '2xl' ? 'base' : '2xl',
+                bold: selectedFormatting.fontSize === '2xl' ? false : true
+              })}
+              className={`px-3 py-2 rounded text-sm font-medium transition-all ${
+                selectedFormatting.fontSize === '2xl' 
+                  ? 'bg-purple-500 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+              title="Heading 2"
+            >
+              H2
+            </button>
+            <button
+              onClick={() => setSelectedFormatting({ 
+                ...selectedFormatting, 
+                fontSize: selectedFormatting.fontSize === 'xl' ? 'base' : 'xl',
+                bold: selectedFormatting.fontSize === 'xl' ? false : true
+              })}
+              className={`px-3 py-2 rounded text-sm font-medium transition-all ${
+                selectedFormatting.fontSize === 'xl' 
+                  ? 'bg-purple-500 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+              title="Heading 3"
+            >
+              H3
             </button>
           </div>
           

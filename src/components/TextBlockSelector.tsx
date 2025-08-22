@@ -655,6 +655,64 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             Underline
                           </button>
                         </div>
+                        
+                        {/* Heading Controls */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Heading Style</label>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                titleFormatting: { 
+                                  ...newBlock.titleFormatting, 
+                                  fontSize: newBlock.titleFormatting.fontSize === '3xl' ? 'base' : '3xl',
+                                  bold: newBlock.titleFormatting.fontSize === '3xl' ? false : true
+                                }
+                              })}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                newBlock.titleFormatting.fontSize === '3xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H1
+                            </button>
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                titleFormatting: { 
+                                  ...newBlock.titleFormatting, 
+                                  fontSize: newBlock.titleFormatting.fontSize === '2xl' ? 'base' : '2xl',
+                                  bold: newBlock.titleFormatting.fontSize === '2xl' ? false : true
+                                }
+                              })}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                newBlock.titleFormatting.fontSize === '2xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H2
+                            </button>
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                titleFormatting: { 
+                                  ...newBlock.titleFormatting, 
+                                  fontSize: newBlock.titleFormatting.fontSize === 'xl' ? 'base' : 'xl',
+                                  bold: newBlock.titleFormatting.fontSize === 'xl' ? false : true
+                                }
+                              })}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                newBlock.titleFormatting.fontSize === 'xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H3
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div className="space-y-3">
@@ -1232,6 +1290,73 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                           </button>
                         </div>
                         
+                        {/* Heading Controls for Content */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Heading Style</label>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                contentFormatting: { 
+                                  ...newBlock.contentFormatting, 
+                                  fontSize: newBlock.contentFormatting.fontSize === '3xl' ? 'base' : '3xl',
+                                  bold: newBlock.contentFormatting.fontSize === '3xl' ? false : true
+                                }
+                              })}
+                              disabled={newBlock.maintainFormatting}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                newBlock.maintainFormatting 
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                  : newBlock.contentFormatting.fontSize === '3xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H1
+                            </button>
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                contentFormatting: { 
+                                  ...newBlock.contentFormatting, 
+                                  fontSize: newBlock.contentFormatting.fontSize === '2xl' ? 'base' : '2xl',
+                                  bold: newBlock.contentFormatting.fontSize === '2xl' ? false : true
+                                }
+                              })}
+                              disabled={newBlock.maintainFormatting}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                newBlock.maintainFormatting 
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                  : newBlock.contentFormatting.fontSize === '2xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H2
+                            </button>
+                            <button
+                              onClick={() => setNewBlock({
+                                ...newBlock,
+                                contentFormatting: { 
+                                  ...newBlock.contentFormatting, 
+                                  fontSize: newBlock.contentFormatting.fontSize === 'xl' ? 'base' : 'xl',
+                                  bold: newBlock.contentFormatting.fontSize === 'xl' ? false : true
+                                }
+                              })}
+                              disabled={newBlock.maintainFormatting}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                newBlock.maintainFormatting 
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                  : newBlock.contentFormatting.fontSize === 'xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H3
+                            </button>
+                          </div>
+                        </div>
+                        
                         {/* Color Controls */}
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-2">Text Color</label>
@@ -1699,6 +1824,64 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             Underline
                           </button>
                         </div>
+                        
+                        {/* Heading Controls for Edit */}
+                        <div className="mt-3">
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Heading Style</label>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setEditBlock({
+                                ...editBlock,
+                                titleFormatting: { 
+                                  ...editBlock.titleFormatting!, 
+                                  fontSize: editBlock.titleFormatting?.fontSize === '3xl' ? 'base' : '3xl',
+                                  bold: editBlock.titleFormatting?.fontSize === '3xl' ? false : true
+                                }
+                              })}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                editBlock.titleFormatting?.fontSize === '3xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H1
+                            </button>
+                            <button
+                              onClick={() => setEditBlock({
+                                ...editBlock,
+                                titleFormatting: { 
+                                  ...editBlock.titleFormatting!, 
+                                  fontSize: editBlock.titleFormatting?.fontSize === '2xl' ? 'base' : '2xl',
+                                  bold: editBlock.titleFormatting?.fontSize === '2xl' ? false : true
+                                }
+                              })}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                editBlock.titleFormatting?.fontSize === '2xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H2
+                            </button>
+                            <button
+                              onClick={() => setEditBlock({
+                                ...editBlock,
+                                titleFormatting: { 
+                                  ...editBlock.titleFormatting!, 
+                                  fontSize: editBlock.titleFormatting?.fontSize === 'xl' ? 'base' : 'xl',
+                                  bold: editBlock.titleFormatting?.fontSize === 'xl' ? false : true
+                                }
+                              })}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                editBlock.titleFormatting?.fontSize === 'xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H3
+                            </button>
+                          </div>
+                        </div>
                       </div>
 
                       {/* Content Formatting */}
@@ -1854,6 +2037,64 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                           >
                             Underline
                           </button>
+                        </div>
+                        
+                        {/* Heading Controls for Content Edit */}
+                        <div className="mt-3">
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Heading Style</label>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setEditBlock({
+                                ...editBlock,
+                                contentFormatting: { 
+                                  ...editBlock.contentFormatting!, 
+                                  fontSize: editBlock.contentFormatting?.fontSize === '3xl' ? 'base' : '3xl',
+                                  bold: editBlock.contentFormatting?.fontSize === '3xl' ? false : true
+                                }
+                              })}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                editBlock.contentFormatting?.fontSize === '3xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H1
+                            </button>
+                            <button
+                              onClick={() => setEditBlock({
+                                ...editBlock,
+                                contentFormatting: { 
+                                  ...editBlock.contentFormatting!, 
+                                  fontSize: editBlock.contentFormatting?.fontSize === '2xl' ? 'base' : '2xl',
+                                  bold: editBlock.contentFormatting?.fontSize === '2xl' ? false : true
+                                }
+                              })}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                editBlock.contentFormatting?.fontSize === '2xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H2
+                            </button>
+                            <button
+                              onClick={() => setEditBlock({
+                                ...editBlock,
+                                contentFormatting: { 
+                                  ...editBlock.contentFormatting!, 
+                                  fontSize: editBlock.contentFormatting?.fontSize === 'xl' ? 'base' : 'xl',
+                                  bold: editBlock.contentFormatting?.fontSize === 'xl' ? false : true
+                                }
+                              })}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                editBlock.contentFormatting?.fontSize === 'xl' 
+                                  ? 'bg-purple-500 text-white' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                            >
+                              H3
+                            </button>
+                          </div>
                         </div>
                       </div>
 
