@@ -76,24 +76,66 @@ const renderFormattedContent = (formattedContent: FormattedContent[] | undefined
       style.color = item.style.color;
     }
 
-    // const textContent = maxLength && currentLength + item.text.length > maxLength 
-    //   ? item.text.substring(0, maxLength - currentLength)
-    //   : item.text;
+    // Apply font family
+    if (item.style?.fontFamily) {
+      style.fontFamily = item.style.fontFamily;
+    }
 
-    // elements.push(
-    //   <span
-    //     key={`${currentLength}-${item.text.substring(0, 10)}`}
-    //     className={className.join(' ')}
-    //     style={style}
-    //   >
-    //     {textContent}
-    //   </span>
-    // );
+    // Process text content with line breaks and lists
+    const textContent = maxLength && currentLength + item.text.length > maxLength 
+      ? item.text.substring(0, maxLength - currentLength)
+      : item.text;
 
-    // currentLength += item.text.length;
-    // if (maxLength && currentLength >= maxLength) {
-    //   break;
-    // }
+    // Split text by newlines to handle line breaks and lists
+    const lines = textContent.split('\n');
+    const lineElements: React.ReactNode[] = [];
+
+    lines.forEach((line, lineIndex) => {
+      if (line.trim() === '') {
+        lineElements.push(<br key={`br-${lineIndex}`} />);
+      } else if (line.trim().startsWith('•')) {
+        // Bulleted list item
+        lineElements.push(
+          <div key={`bullet-${lineIndex}`} className="flex items-start ml-4">
+            <span className="mr-2 text-gray-600">•</span>
+            <span className={className.join(' ')} style={style}>
+              {line.trim().substring(1).trim()}
+            </span>
+          </div>
+        );
+      } else if (/^\d+\./.test(line.trim())) {
+        // Numbered list item
+        const match = line.trim().match(/^(\d+)\.\s*(.*)/);
+        if (match) {
+          lineElements.push(
+            <div key={`numbered-${lineIndex}`} className="flex items-start ml-4">
+              <span className="mr-2 text-gray-600 font-medium">{match[1]}.</span>
+              <span className={className.join(' ')} style={style}>
+                {match[2]}
+              </span>
+            </div>
+          );
+        }
+      } else {
+        // Regular text line
+        lineElements.push(
+          <span key={`text-${lineIndex}`} className={className.join(' ')} style={style}>
+            {line}
+          </span>
+        );
+      }
+    });
+
+    elements.push(
+      <span key={`${currentLength}-${item.text.substring(0, 10)}`}>
+        {lineElements}
+      </span>
+    );
+
+    currentLength += item.text.length;
+    if (maxLength && currentLength >= maxLength) {
+      break;
+    }
   }
 
   return <>{elements}</>;
@@ -126,6 +168,9 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
   textBlocks,
   onBlocksChange
 }) => {
+  // Refs for textareas
+  const newBlockTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const editBlockTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isAddingBlock, setIsAddingBlock] = useState(false);
@@ -613,7 +658,79 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                       </div>
                     </div>
                     <div className="space-y-3">
+                      {/* List Formatting Toolbar for New Block */}
+                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                        <span className="text-xs font-medium text-gray-600 mr-2">Lists:</span>
+                        <button
+                          onClick={() => {
+                            const textarea = newBlockTextareaRef.current;
+                            if (textarea) {
+                              const start = textarea.selectionStart;
+                              const end = textarea.selectionEnd;
+                              const selectedText = newBlock.content?.substring(start, end) || '';
+                              const bulletText = selectedText ? selectedText.split('\n').map(line => `• ${line}`).join('\n') : '• ';
+                              const newContent = newBlock.content?.substring(0, start) + bulletText + newBlock.content?.substring(end);
+                              setNewBlock({ ...newBlock, content: newContent });
+                              // Set cursor position after the inserted text
+                              setTimeout(() => {
+                                textarea.focus();
+                                textarea.setSelectionRange(start + bulletText.length, start + bulletText.length);
+                              }, 0);
+                            }
+                          }}
+                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-xs font-medium flex items-center gap-1"
+                          title="Add bulleted list"
+                        >
+                          <span>•</span>
+                          Bullet List
+                        </button>
+                        <button
+                          onClick={() => {
+                            const textarea = newBlockTextareaRef.current;
+                            if (textarea) {
+                              const start = textarea.selectionStart;
+                              const end = textarea.selectionEnd;
+                              const selectedText = newBlock.content?.substring(start, end) || '';
+                              const lines = selectedText ? selectedText.split('\n') : [''];
+                              const numberedText = lines.map((line, index) => `${index + 1}. ${line}`).join('\n');
+                              const newContent = newBlock.content?.substring(0, start) + numberedText + newBlock.content?.substring(end);
+                              setNewBlock({ ...newBlock, content: newContent });
+                              // Set cursor position after the inserted text
+                              setTimeout(() => {
+                                textarea.focus();
+                                textarea.setSelectionRange(start + numberedText.length, start + numberedText.length);
+                              }, 0);
+                            }
+                          }}
+                          className="px-3 py-1 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors text-xs font-medium flex items-center gap-1"
+                          title="Add numbered list"
+                        >
+                          <span>1.</span>
+                          Numbered List
+                        </button>
+                        <button
+                          onClick={() => {
+                            const textarea = newBlockTextareaRef.current;
+                            if (textarea) {
+                              const start = textarea.selectionStart;
+                              const newContent = newBlock.content?.substring(0, start) + '\n' + newBlock.content?.substring(start);
+                              setNewBlock({ ...newBlock, content: newContent });
+                              // Set cursor position after the newline
+                              setTimeout(() => {
+                                textarea.focus();
+                                textarea.setSelectionRange(start + 1, start + 1);
+                              }, 0);
+                            }
+                          }}
+                          className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-xs font-medium"
+                          title="Add line break"
+                        >
+                          ↵ Line Break
+                        </button>
+                      </div>
+                      
                       <textarea
+                        ref={newBlockTextareaRef}
                         placeholder="Block content"
                         value={newBlock.content}
                         onChange={(e) => setNewBlock({ ...newBlock, content: e.target.value })}
@@ -1286,13 +1403,87 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         onChange={e => setEditBlock({ ...editBlock, title: e.target.value })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
                       />
-                      <textarea
-                        placeholder="Block content"
-                        value={editBlock.content || ''}
-                        onChange={e => setEditBlock({ ...editBlock, content: e.target.value })}
-                        rows={6}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
-                      />
+                      <div className="space-y-2">
+                        {/* List Formatting Toolbar */}
+                        <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                          <span className="text-xs font-medium text-gray-600 mr-2">Lists:</span>
+                          <button
+                            onClick={() => {
+                              const textarea = editBlockTextareaRef.current;
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const end = textarea.selectionEnd;
+                                const selectedText = editBlock.content?.substring(start, end) || '';
+                                const bulletText = selectedText ? selectedText.split('\n').map(line => `• ${line}`).join('\n') : '• ';
+                                const newContent = editBlock.content?.substring(0, start) + bulletText + editBlock.content?.substring(end);
+                                setEditBlock({ ...editBlock, content: newContent });
+                                // Set cursor position after the inserted text
+                                setTimeout(() => {
+                                  textarea.focus();
+                                  textarea.setSelectionRange(start + bulletText.length, start + bulletText.length);
+                                }, 0);
+                              }
+                            }}
+                            className="px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-xs font-medium flex items-center gap-1"
+                            title="Add bulleted list"
+                          >
+                            <span>•</span>
+                            Bullet List
+                          </button>
+                          <button
+                            onClick={() => {
+                              const textarea = editBlockTextareaRef.current;
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const end = textarea.selectionEnd;
+                                const selectedText = editBlock.content?.substring(start, end) || '';
+                                const lines = selectedText ? selectedText.split('\n') : [''];
+                                const numberedText = lines.map((line, index) => `${index + 1}. ${line}`).join('\n');
+                                const newContent = editBlock.content?.substring(0, start) + numberedText + editBlock.content?.substring(end);
+                                setEditBlock({ ...editBlock, content: newContent });
+                                // Set cursor position after the inserted text
+                                setTimeout(() => {
+                                  textarea.focus();
+                                  textarea.setSelectionRange(start + numberedText.length, start + numberedText.length);
+                                }, 0);
+                              }
+                            }}
+                            className="px-3 py-1 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors text-xs font-medium flex items-center gap-1"
+                            title="Add numbered list"
+                          >
+                            <span>1.</span>
+                            Numbered List
+                          </button>
+                          <button
+                            onClick={() => {
+                              const textarea = editBlockTextareaRef.current;
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const newContent = editBlock.content?.substring(0, start) + '\n' + editBlock.content?.substring(start);
+                                setEditBlock({ ...editBlock, content: newContent });
+                                // Set cursor position after the newline
+                                setTimeout(() => {
+                                  textarea.focus();
+                                  textarea.setSelectionRange(start + 1, start + 1);
+                                }, 0);
+                              }
+                            }}
+                            className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-xs font-medium"
+                            title="Add line break"
+                          >
+                            ↵ Line Break
+                          </button>
+                        </div>
+                        
+                        <textarea
+                          ref={editBlockTextareaRef}
+                          placeholder="Block content"
+                          value={editBlock.content || ''}
+                          onChange={e => setEditBlock({ ...editBlock, content: e.target.value })}
+                          rows={6}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white resize-none"
+                        />
+                      </div>
                       <div className="flex items-center gap-2">
                         <input
                           type="file"

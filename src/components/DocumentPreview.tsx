@@ -28,11 +28,13 @@ const renderFormattedContent = (formattedContent: FormattedContent[] | undefined
   if (!formattedContent || formattedContent.length === 0) {
     return null;
   }
+  
   return (
     <>
       {formattedContent.map((item, idx) => {
         const style: React.CSSProperties = {};
         const className: string[] = [];
+        
         if (item.style?.fontSize) {
           switch (item.style.fontSize) {
             case 'xs': className.push('text-xs'); break;
@@ -44,12 +46,57 @@ const renderFormattedContent = (formattedContent: FormattedContent[] | undefined
             case '3xl': className.push('text-3xl'); break;
           }
         }
+        
         if (item.style?.bold) className.push('font-bold');
         if (item.style?.italic) className.push('italic');
         if (item.style?.underline) className.push('underline');
         if (item.style?.color) style.color = item.style.color;
+        if (item.style?.fontFamily) style.fontFamily = item.style.fontFamily;
+
+        // Process text content with line breaks and lists
+        const lines = item.text.split('\n');
+        const lineElements: React.ReactNode[] = [];
+
+        lines.forEach((line, lineIndex) => {
+          if (line.trim() === '') {
+            lineElements.push(<br key={`br-${idx}-${lineIndex}`} />);
+          } else if (line.trim().startsWith('•')) {
+            // Bulleted list item
+            lineElements.push(
+              <div key={`bullet-${idx}-${lineIndex}`} className="flex items-start ml-4 mb-1">
+                <span className="mr-2 text-gray-600">•</span>
+                <span className={className.join(' ')} style={style}>
+                  {line.trim().substring(1).trim()}
+                </span>
+              </div>
+            );
+          } else if (/^\d+\./.test(line.trim())) {
+            // Numbered list item
+            const match = line.trim().match(/^(\d+)\.\s*(.*)/);
+            if (match) {
+              lineElements.push(
+                <div key={`numbered-${idx}-${lineIndex}`} className="flex items-start ml-4 mb-1">
+                  <span className="mr-2 text-gray-600 font-medium">{match[1]}.</span>
+                  <span className={className.join(' ')} style={style}>
+                    {match[2]}
+                  </span>
+                </div>
+              );
+            }
+          } else {
+            // Regular text line
+            lineElements.push(
+              <span key={`text-${idx}-${lineIndex}`} className={className.join(' ')} style={style}>
+                {line}
+              </span>
+            );
+          }
+        });
+
         return (
-          <span key={idx} className={className.join(' ')} style={style}>{item.text}</span>
+          <span key={idx}>
+            {lineElements}
+          </span>
         );
       })}
     </>

@@ -74,14 +74,51 @@ const convertFormattedContentToHTML = (formattedContent: FormattedContent[] | un
   return formattedContent.map((item) => {
     let html = item.text;
 
-    if (item.style?.bold) html = `<strong>${html}</strong>`;
-    if (item.style?.italic) html = `<em>${html}</em>`;
-    if (item.style?.underline) html = `<u>${html}</u>`;
+    // Process text content with line breaks and lists
+    const lines = html.split('\n');
+    const processedLines = lines.map((line) => {
+      let processedLine = line;
 
-    if (item.style?.fontSize || item.style?.fontFamily) {
+      if (item.style?.bold) processedLine = `<strong>${processedLine}</strong>`;
+      if (item.style?.italic) processedLine = `<em>${processedLine}</em>`;
+      if (item.style?.underline) processedLine = `<u>${processedLine}</u>`;
+
+      // Handle bulleted lists
+      if (line.trim().startsWith('•')) {
+        processedLine = `<li>${line.trim().substring(1).trim()}</li>`;
+      }
+      // Handle numbered lists
+      else if (/^\d+\./.test(line.trim())) {
+        const match = line.trim().match(/^(\d+)\.\s*(.*)/);
+        if (match) {
+          processedLine = `<li>${match[2]}</li>`;
+        }
+      }
+      // Handle empty lines
+      else if (line.trim() === '') {
+        processedLine = '<br/>';
+      }
+
+      return processedLine;
+    });
+
+    html = processedLines.join('');
+
+    // Wrap in appropriate list tags if content contains list items
+    if (html.includes('<li>')) {
+      // Check if it's a numbered list (contains numbers followed by dots)
+      const hasNumberedItems = /\d+\./.test(item.text);
+      if (hasNumberedItems) {
+        html = `<ol>${html}</ol>`;
+      } else {
+        html = `<ul>${html}</ul>`;
+      }
+    }
+
+    if (item.style?.fontSize || item.style?.fontFamily || item.style?.color) {
       const style = [] as string[];
-      // Note: color property is not available in the current interface
       if (item.style?.fontFamily) style.push(`font-family: ${item.style.fontFamily}`);
+      if (item.style?.color) style.push(`color: ${item.style.color}`);
       if (item.style?.fontSize) {
         const sizeMap: { [key: string]: string } = {
           'xs': '0.75rem',
@@ -110,10 +147,20 @@ const convertFormattedContentToPlainText = (formattedContent: FormattedContent[]
   return formattedContent.map((item) => {
     let text = item.text;
 
-    // Add formatting indicators for plain text
-    if (item.style?.bold) text = `**${text}**`;
-    if (item.style?.italic) text = `*${text}*`;
-    if (item.style?.underline) text = `_${text}_`;
+    // Process text content with line breaks and lists
+    const lines = text.split('\n');
+    const processedLines = lines.map((line) => {
+      let processedLine = line;
+
+      // Add formatting indicators for plain text
+      if (item.style?.bold) processedLine = `**${processedLine}**`;
+      if (item.style?.italic) processedLine = `*${processedLine}*`;
+      if (item.style?.underline) processedLine = `_${processedLine}_`;
+
+      return processedLine;
+    });
+
+    text = processedLines.join('\n');
 
     return text;
   }).join('');
