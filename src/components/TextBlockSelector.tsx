@@ -713,6 +713,60 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             </button>
                           </div>
                         </div>
+                        
+                        {/* Indentation Controls */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Indentation</label>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                const textarea = newBlockTextareaRef.current;
+                                if (textarea && textarea.selectionStart !== null && textarea.selectionEnd !== null) {
+                                  const start = textarea.selectionStart;
+                                  const end = textarea.selectionEnd;
+                                  const selectedText = newBlock.content?.substring(start, end) || '';
+                                  const lines = selectedText ? selectedText.split('\n') : [''];
+                                  const indentedText = lines.map(line => `    ${line}`).join('\n');
+                                  const newContent = newBlock.content?.substring(0, start) + indentedText + newBlock.content?.substring(end);
+                                  setNewBlock({ ...newBlock, content: newContent });
+                                  setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start + indentedText.length, start + indentedText.length);
+                                  }, 0);
+                                }
+                              }}
+                              className="px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              title="Increase Indentation"
+                            >
+                              Indent
+                            </button>
+                            {/* <button
+                              onClick={() => {
+                                const textarea = newBlockTextareaRef.current;
+                                if (textarea && textarea.selectionStart !== null && textarea.selectionEnd !== null) {
+                                  const start = textarea.selectionStart;
+                                  const end = textarea.selectionEnd;
+                                  const selectedText = newBlock.content?.substring(start, end) || '';
+                                  const lines = selectedText ? selectedText.split('\n') : [''];
+                                  const unindentedText = lines.map(line => {
+                                    // Remove up to 4 spaces from the beginning of each line
+                                    return line.replace(/^    /, '');
+                                  }).join('\n');
+                                  const newContent = newBlock.content?.substring(0, start) + unindentedText + newBlock.content?.substring(end);
+                                  setNewBlock({ ...newBlock, content: newContent });
+                                  setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start + unindentedText.length, start + unindentedText.length);
+                                  }, 0);
+                                }
+                              }}
+                              className="px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              title="Decrease Indentation"
+                            >
+                              Outdent
+                            </button> */}
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div className="space-y-3">
@@ -1357,6 +1411,70 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                           </div>
                         </div>
                         
+                        {/* Indentation Controls for Content */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Indentation</label>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                const textarea = newBlockTextareaRef.current;
+                                if (textarea && textarea.selectionStart !== null && textarea.selectionEnd !== null) {
+                                  const start = textarea.selectionStart;
+                                  const end = textarea.selectionEnd;
+                                  const selectedText = newBlock.content?.substring(start, end) || '';
+                                  const lines = selectedText ? selectedText.split('\n') : [''];
+                                  const indentedText = lines.map(line => `    ${line}`).join('\n');
+                                  const newContent = newBlock.content?.substring(0, start) + indentedText + newBlock.content?.substring(end);
+                                  setNewBlock({ ...newBlock, content: newContent });
+                                  setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start + indentedText.length, start + indentedText.length);
+                                  }, 0);
+                                }
+                              }}
+                              disabled={newBlock.maintainFormatting}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                newBlock.maintainFormatting 
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                              title="Increase Indentation"
+                            >
+                              Indent
+                            </button>
+                            {/* <button
+                              onClick={() => {
+                                const textarea = newBlockTextareaRef.current;
+                                if (textarea && textarea.selectionStart !== null && textarea.selectionEnd !== null) {
+                                  const start = textarea.selectionStart;
+                                  const end = textarea.selectionEnd;
+                                  const selectedText = newBlock.content?.substring(start, end) || '';
+                                  const lines = selectedText ? selectedText.split('\n') : [''];
+                                  const unindentedText = lines.map(line => {
+                                    // Remove up to 4 spaces from the beginning of each line
+                                    return line.replace(/^    /, '');
+                                  }).join('\n');
+                                  const newContent = newBlock.content?.substring(0, start) + unindentedText + newBlock.content?.substring(end);
+                                  setNewBlock({ ...newBlock, content: newContent });
+                                  setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start + unindentedText.length, start + unindentedText.length);
+                                  }, 0);
+                                }
+                              }}
+                              disabled={newBlock.maintainFormatting}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                newBlock.maintainFormatting 
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              }`}
+                              title="Decrease Indentation"
+                            >
+                              Outdent
+                            </button> */}
+                          </div>
+                        </div>
+                        
                         {/* Color Controls */}
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-2">Text Color</label>
@@ -1882,6 +2000,60 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             </button>
                           </div>
                         </div>
+                        
+                        {/* Indentation Controls for Edit Title */}
+                        <div className="mt-3">
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Indentation</label>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                const input = document.querySelector('input[placeholder="Block title"]') as HTMLInputElement;
+                                if (input && input.selectionStart !== null && input.selectionEnd !== null) {
+                                  const start = input.selectionStart;
+                                  const end = input.selectionEnd;
+                                  const selectedText = editBlock.title?.substring(start, end) || '';
+                                  const lines = selectedText ? selectedText.split('\n') : [''];
+                                  const indentedText = lines.map(line => `    ${line}`).join('\n');
+                                  const newTitle = editBlock.title?.substring(0, start) + indentedText + editBlock.title?.substring(end);
+                                  setEditBlock({ ...editBlock, title: newTitle });
+                                  setTimeout(() => {
+                                    input.focus();
+                                    input.setSelectionRange(start + indentedText.length, start + indentedText.length);
+                                  }, 0);
+                                }
+                              }}
+                              className="px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              title="Increase Indentation"
+                            >
+                              Indent
+                            </button>
+                            {/* <button
+                              onClick={() => {
+                                const input = document.querySelector('input[placeholder="Block title"]') as HTMLInputElement;
+                                if (input && input.selectionStart !== null && input.selectionEnd !== null) {
+                                  const start = input.selectionStart;
+                                  const end = input.selectionEnd;
+                                  const selectedText = editBlock.title?.substring(start, end) || '';
+                                  const lines = selectedText ? selectedText.split('\n') : [''];
+                                  const unindentedText = lines.map(line => {
+                                    // Remove up to 4 spaces from the beginning of each line
+                                    return line.replace(/^    /, '');
+                                  }).join('\n');
+                                  const newTitle = editBlock.title?.substring(0, start) + unindentedText + editBlock.title?.substring(end);
+                                  setEditBlock({ ...editBlock, title: newTitle });
+                                  setTimeout(() => {
+                                    input.focus();
+                                    input.setSelectionRange(start + unindentedText.length, start + unindentedText.length);
+                                  }, 0);
+                                }
+                              }}
+                              className="px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              title="Decrease Indentation"
+                            >
+                              Outdent
+                            </button> */}
+                          </div>
+                        </div>
                       </div>
 
                       {/* Content Formatting */}
@@ -2094,6 +2266,60 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             >
                               H3
                             </button>
+                          </div>
+                        </div>
+                        
+                        {/* Indentation Controls for Content Edit */}
+                        <div className="mt-3">
+                          <label className="block text-xs font-medium text-gray-700 mb-2">Indentation</label>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                const textarea = editBlockTextareaRef.current;
+                                if (textarea && textarea.selectionStart !== null && textarea.selectionEnd !== null) {
+                                  const start = textarea.selectionStart;
+                                  const end = textarea.selectionEnd;
+                                  const selectedText = editBlock.content?.substring(start, end) || '';
+                                  const lines = selectedText ? selectedText.split('\n') : [''];
+                                  const indentedText = lines.map(line => `    ${line}`).join('\n');
+                                  const newContent = editBlock.content?.substring(0, start) + indentedText + editBlock.content?.substring(end);
+                                  setEditBlock({ ...editBlock, content: newContent });
+                                  setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start + indentedText.length, start + indentedText.length);
+                                  }, 0);
+                                }
+                              }}
+                              className="px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              title="Increase Indentation"
+                            >
+                              Indent
+                            </button>
+                            {/* <button
+                              onClick={() => {
+                                const textarea = editBlockTextareaRef.current;
+                                if (textarea && textarea.selectionStart !== null && textarea.selectionEnd !== null) {
+                                  const start = textarea.selectionStart;
+                                  const end = textarea.selectionEnd;
+                                  const selectedText = editBlock.content?.substring(start, end) || '';
+                                  const lines = selectedText ? selectedText.split('\n') : [''];
+                                  const unindentedText = lines.map(line => {
+                                    // Remove up to 4 spaces from the beginning of each line
+                                    return line.replace(/^    /, '');
+                                  }).join('\n');
+                                  const newContent = editBlock.content?.substring(0, start) + unindentedText + editBlock.content?.substring(end);
+                                  setEditBlock({ ...editBlock, content: newContent });
+                                  setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start + unindentedText.length, start + unindentedText.length);
+                                  }, 0);
+                                }
+                              }}
+                              className="px-3 py-2 rounded-lg text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              title="Decrease Indentation"
+                            >
+                              Outdent
+                            </button> */}
                           </div>
                         </div>
                       </div>

@@ -393,6 +393,53 @@ export const PricingComponents: React.FC<PricingComponentsProps> = ({
             </button>
           </div>
           
+          {/* Indentation Controls */}
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => {
+                // Add indentation to the current text input if focused
+                const activeElement = document.activeElement as HTMLInputElement;
+                if (activeElement && activeElement.type === 'text') {
+                  const start = activeElement.selectionStart || 0;
+                  const end = activeElement.selectionEnd || 0;
+                  const selectedText = activeElement.value.substring(start, end);
+                  const lines = selectedText ? selectedText.split('\n') : [''];
+                  const indentedText = lines.map(line => `    ${line}`).join('\n');
+                  const newValue = activeElement.value.substring(0, start) + indentedText + activeElement.value.substring(end);
+                  activeElement.value = newValue;
+                  activeElement.setSelectionRange(start + indentedText.length, start + indentedText.length);
+                }
+              }}
+              className="px-3 py-2 rounded text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
+              title="Increase Indentation"
+            >
+              Indent
+            </button>
+            {/* <button
+              onClick={() => {
+                // Remove indentation from the current text input if focused
+                const activeElement = document.activeElement as HTMLInputElement;
+                if (activeElement && activeElement.type === 'text') {
+                  const start = activeElement.selectionStart || 0;
+                  const end = activeElement.selectionEnd || 0;
+                  const selectedText = activeElement.value.substring(start, end);
+                  const lines = selectedText ? selectedText.split('\n') : [''];
+                  const unindentedText = lines.map(line => {
+                    // Remove up to 4 spaces from the beginning of each line
+                    return line.replace(/^    /, '');
+                  }).join('\n');
+                  const newValue = activeElement.value.substring(0, start) + unindentedText + activeElement.value.substring(end);
+                  activeElement.value = newValue;
+                  activeElement.setSelectionRange(start + unindentedText.length, start + unindentedText.length);
+                }
+              }}
+              className="px-3 py-2 rounded text-sm font-medium transition-all bg-gray-200 text-gray-700 hover:bg-gray-300"
+              title="Decrease Indentation"
+            >
+              Outdent
+            </button> */}
+          </div>
+          
           <div className="flex items-center space-x-2">
             <label className="text-sm text-gray-600">Color:</label>
             <div className="flex gap-1">
