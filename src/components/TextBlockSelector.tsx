@@ -716,9 +716,9 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         
                         {/* Indentation Controls */}
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-2">Indentation</label>
+                          {/* <label className="block text-xs font-medium text-gray-700 mb-2">Indentation</label> */}
                           <div className="flex gap-2">
-                            <button
+                            {/* <button
                               onClick={() => {
                                 const textarea = newBlockTextareaRef.current;
                                 if (textarea && textarea.selectionStart !== null && textarea.selectionEnd !== null) {
@@ -739,7 +739,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               title="Increase Indentation"
                             >
                               Indent
-                            </button>
+                            </button> */}
                             {/* <button
                               onClick={() => {
                                 const textarea = newBlockTextareaRef.current;
@@ -1890,7 +1890,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                 }`}
                                 title="Gray"
                               />
-                              <button
+                              {/* <button
                                 onClick={() => setEditBlock({
                                   ...editBlock,
                                   titleFormatting: { ...editBlock.titleFormatting!, color: undefined }
@@ -1903,7 +1903,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                 title="Default"
                               >
                                 D
-                              </button>
+                              </button> */}
                             </div>
                           </div>
                         </div>
@@ -2003,9 +2003,9 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         
                         {/* Indentation Controls for Edit Title */}
                         <div className="mt-3">
-                          <label className="block text-xs font-medium text-gray-700 mb-2">Indentation</label>
+                          {/* <label className="block text-xs font-medium text-gray-700 mb-2">Indentation</label> */}
                           <div className="flex gap-2">
-                            <button
+                            {/* <button
                               onClick={() => {
                                 const input = document.querySelector('input[placeholder="Block title"]') as HTMLInputElement;
                                 if (input && input.selectionStart !== null && input.selectionEnd !== null) {
@@ -2026,7 +2026,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               title="Increase Indentation"
                             >
                               Indent
-                            </button>
+                            </button> */}
                             {/* <button
                               onClick={() => {
                                 const input = document.querySelector('input[placeholder="Block title"]') as HTMLInputElement;
@@ -2158,7 +2158,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                 }`}
                                 title="Gray"
                               />
-                              <button
+                              {/* <button
                                 onClick={() => setEditBlock({
                                   ...editBlock,
                                   contentFormatting: { ...editBlock.contentFormatting!, color: undefined }
@@ -2171,7 +2171,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                 title="Default"
                               >
                                 D
-                              </button>
+                              </button> */}
                             </div>
                           </div>
                         </div>
