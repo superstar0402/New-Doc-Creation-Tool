@@ -27,6 +27,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [selection, setSelection] = useState<{ start: number; end: number } | null>(null);
+  
+  // State to track current formatting settings
+  const [currentFormatting, setCurrentFormatting] = useState({
+    fontFamily: 'Arial',
+    fontSize: 'base',
+    color: '#000000'
+  });
 
   // Initialize editor content
   useEffect(() => {
@@ -41,12 +48,31 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       if (formattedContent && formattedContent.length > 0) {
         // Render formatted content
         renderFormattedContent();
+        
+        // Update current formatting from the first formatted item
+        if (formattedContent[0] && formattedContent[0].style) {
+          const style = formattedContent[0].style;
+          setCurrentFormatting({
+            fontFamily: style.fontFamily || 'Arial',
+            fontSize: style.fontSize || 'base',
+            color: style.color || '#000000'
+          });
+        }
       } else {
         // Set plain text
         editorRef.current.innerHTML = value.replace(/\n/g, '<br>');
       }
     }
   }, [value, formattedContent]);
+
+  // Update editor style when current formatting changes
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.style.fontFamily = currentFormatting.fontFamily;
+      editorRef.current.style.fontSize = getFormattingStyle('fontSize', currentFormatting.fontSize).replace('font-size: ', '');
+      editorRef.current.style.color = currentFormatting.color;
+    }
+  }, [currentFormatting]);
 
   // Add state to track if content should be cleared
   const [shouldClear, setShouldClear] = useState(false);
@@ -148,8 +174,29 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     selection.removeAllRanges();
     selection.addRange(range);
     
+    // Update current formatting state
+    if (format === 'fontFamily' && value) {
+      setCurrentFormatting(prev => ({ ...prev, fontFamily: value }));
+    } else if (format === 'fontSize' && value) {
+      setCurrentFormatting(prev => ({ ...prev, fontSize: value }));
+    } else if (format === 'color' && value) {
+      setCurrentFormatting(prev => ({ ...prev, color: value }));
+    }
+    
     // Trigger change
     handleContentChange();
+  };
+
+  // Function to handle formatting toolbar changes
+  const handleFormattingChange = (format: 'fontFamily' | 'fontSize' | 'color', value: string) => {
+    // Update current formatting state
+    setCurrentFormatting(prev => ({ ...prev, [format]: value }));
+    
+    // Apply formatting to selected text if any
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+      applyFormatting(format, value);
+    }
   };
 
   const getFormattingStyle = (format: string, value?: string): string => {
@@ -186,6 +233,94 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const content = editorRef.current.innerText;
     const formattedContent = extractFormattedContent();
     onChange(content, formattedContent);
+    
+    // Apply current formatting to any new text that doesn't have formatting
+    setTimeout(() => {
+      ensureNewTextFormatting();
+    }, 0);
+  };
+
+  // Function to apply current formatting to new text
+  const applyCurrentFormattingToNewText = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    
+    // Check if the cursor is at the end of a span or at the beginning of content
+    const currentNode = range.startContainer;
+    const parentElement = currentNode.parentElement;
+    
+    // If we're inside a span, check if we're at the end
+    if (parentElement && parentElement.tagName === 'SPAN') {
+      const spanText = parentElement.textContent || '';
+      const offset = range.startOffset;
+      
+      // If we're at the end of the span, create a new span with current formatting
+      if (offset === spanText.length) {
+        const newSpan = document.createElement('span');
+        newSpan.style.cssText = getFormattingStyle('fontFamily', currentFormatting.fontFamily) + '; ' +
+                               getFormattingStyle('fontSize', currentFormatting.fontSize) + '; ' +
+                               getFormattingStyle('color', currentFormatting.color);
+        
+        // Move cursor to the new span
+        range.setStart(newSpan, 0);
+        range.setEnd(newSpan, 0);
+        
+        // Insert the new span after the current span
+        parentElement.parentNode?.insertBefore(newSpan, parentElement.nextSibling);
+        
+        // Update selection
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    } else {
+      // If we're not in a span, create a new span with current formatting
+      const newSpan = document.createElement('span');
+      newSpan.style.cssText = getFormattingStyle('fontFamily', currentFormatting.fontFamily) + '; ' +
+                             getFormattingStyle('fontSize', currentFormatting.fontSize) + '; ' +
+                             getFormattingStyle('color', currentFormatting.color);
+      
+      // Insert the new span at cursor position
+      range.insertNode(newSpan);
+      
+      // Move cursor inside the new span
+      range.setStart(newSpan, 0);
+      range.setEnd(newSpan, 0);
+      
+      // Update selection
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  };
+
+  // Function to ensure new text gets current formatting
+  const ensureNewTextFormatting = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    const currentNode = range.startContainer;
+    
+    // If the current node is a text node and its parent is the editor (not a span)
+    if (currentNode.nodeType === Node.TEXT_NODE && currentNode.parentNode === editorRef.current) {
+      // Create a span with current formatting and wrap the text
+      const span = document.createElement('span');
+      span.style.cssText = getFormattingStyle('fontFamily', currentFormatting.fontFamily) + '; ' +
+                          getFormattingStyle('fontSize', currentFormatting.fontSize) + '; ' +
+                          getFormattingStyle('color', currentFormatting.color);
+      
+      // Wrap the text node
+      currentNode.parentNode?.insertBefore(span, currentNode);
+      span.appendChild(currentNode);
+      
+      // Update selection to the end of the span
+      const newRange = document.createRange();
+      newRange.setStart(span, 1);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+    }
   };
 
   // Function to force clear content
@@ -266,6 +401,11 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       e.preventDefault();
       document.execCommand('insertLineBreak', false);
       handleContentChange();
+    } else if (e.key.length === 1) {
+      // For single character keys, apply current formatting
+      setTimeout(() => {
+        applyCurrentFormattingToNewText();
+      }, 0);
     }
   };
 
@@ -280,6 +420,46 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     return document.queryCommandState(format === 'bold' ? 'bold' : 
                                     format === 'italic' ? 'italic' : 
                                     format === 'underline' ? 'underline' : '');
+  };
+
+  // Function to update current formatting based on cursor position
+  const updateCurrentFormattingFromCursor = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    const currentNode = range.startContainer;
+    const parentElement = currentNode.parentElement;
+    
+    if (parentElement && parentElement.tagName === 'SPAN') {
+      const style = parentElement.style;
+      
+      // Update font family
+      if (style.fontFamily) {
+        const fontFamily = style.fontFamily.replace(/['"]/g, '').split(',')[0].trim();
+        setCurrentFormatting(prev => ({ ...prev, fontFamily }));
+      }
+      
+      // Update font size
+      if (style.fontSize) {
+        const fontSize = style.fontSize;
+        let fontSizeKey = 'base';
+        if (fontSize === '0.75rem') fontSizeKey = 'xs';
+        else if (fontSize === '0.875rem') fontSizeKey = 'sm';
+        else if (fontSize === '1rem') fontSizeKey = 'base';
+        else if (fontSize === '1.125rem') fontSizeKey = 'lg';
+        else if (fontSize === '1.25rem') fontSizeKey = 'xl';
+        else if (fontSize === '1.5rem') fontSizeKey = '2xl';
+        else if (fontSize === '1.875rem') fontSizeKey = '3xl';
+        
+        setCurrentFormatting(prev => ({ ...prev, fontSize: fontSizeKey }));
+      }
+      
+      // Update color
+      if (style.color) {
+        setCurrentFormatting(prev => ({ ...prev, color: style.color }));
+      }
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -410,7 +590,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <div className="toolbar-divider"></div>
         
         <select
-          onChange={(e) => applyFormatting('fontSize', e.target.value)}
+          value={currentFormatting.fontSize}
+          onChange={(e) => handleFormattingChange('fontSize', e.target.value)}
           className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           title="Font Size"
         >
@@ -424,7 +605,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         </select>
         
         <select
-          onChange={(e) => applyFormatting('fontFamily', e.target.value)}
+          value={currentFormatting.fontFamily}
+          onChange={(e) => handleFormattingChange('fontFamily', e.target.value)}
           className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           title="Font Family"
         >
@@ -437,13 +619,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           {['#000000', '#ffffff', '#dc2626', '#6b7280'].map((color) => (
             <button
               key={color}
-              onClick={() => applyFormatting('color', color)}
+              onClick={() => handleFormattingChange('color', color)}
               className={`${
                 color === '#000000' ? 'bg-black' :
                 color === '#ffffff' ? 'bg-white' :
                 color === '#dc2626' ? 'bg-red-600' :
                 'bg-gray-500'
-              }`}
+              } ${currentFormatting.color === color ? 'border-blue-500' : 'border-gray-300'}`}
               title={`Color: ${color}`}
             />
           ))}
@@ -493,11 +675,16 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         onInput={handleContentChange}
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
+        onMouseUp={updateCurrentFormattingFromCursor}
+        onKeyUp={updateCurrentFormattingFromCursor}
         data-placeholder={placeholder}
         style={{
           minHeight: `${rows * 1.5}rem`,
           direction: 'ltr',
-          textAlign: 'left'
+          textAlign: 'left',
+          fontFamily: currentFormatting.fontFamily,
+          fontSize: getFormattingStyle('fontSize', currentFormatting.fontSize).replace('font-size: ', ''),
+          color: currentFormatting.color
         }}
       />
     </div>
