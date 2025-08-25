@@ -111,3 +111,70 @@ button, input, textarea, select {
     background-position: 100% 50%;
   }
 }
+
+/* Rich Text Editor Styles */
+.rich-text-editor {
+  @apply relative;
+}
+
+.rich-text-editor [contenteditable] {
+  @apply min-h-[6rem] p-4 border border-gray-300 rounded-b-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none;
+  @apply text-sm leading-relaxed;
+}
+
+.rich-text-editor [contenteditable]:empty:before {
+  content: attr(data-placeholder);
+  @apply text-gray-400 pointer-events-none;
+}
+
+.rich-text-editor [contenteditable] span {
+  @apply inline;
+}
+
+.rich-text-editor [contenteditable] br {
+  @apply block;
+}
+
+/* Formatting toolbar styles */
+.rich-text-editor .formatting-toolbar {
+  @apply flex items-center gap-2 p-3 bg-gray-50 border border-gray-200 rounded-t-lg;
+}
+
+.rich-text-editor .formatting-toolbar button {
+  @apply p-2 rounded hover:bg-gray-200 transition-colors;
+}
+
+.rich-text-editor .formatting-toolbar button.active {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.rich-text-editor .formatting-toolbar button:not(.active) {
+  @apply text-gray-600;
+}
+
+/* Color picker styles */
+.rich-text-editor .color-picker {
+  @apply flex gap-1;
+}
+
+.rich-text-editor .color-picker button {
+  @apply w-6 h-6 rounded border-2 transition-all;
+}
+
+.rich-text-editor .color-picker button.active {
+  @apply border-blue-500;
+}
+
+.rich-text-editor .color-picker button:not(.active) {
+  @apply border-gray-300 hover:border-gray-400;
+}
+
+/* Font size and family selectors */
+.rich-text-editor select {
+  @apply px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+/* Divider */
+.rich-text-editor .toolbar-divider {
+  @apply w-px h-6 bg-gray-300 mx-2;
+}
