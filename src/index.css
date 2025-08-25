@@ -93,6 +93,20 @@ button, input, textarea, select {
   transition: all 0.2s ease-in-out;
 }
 
+/* Ensure all text inputs have left-to-right direction */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="search"], 
+input[type="url"], 
+input[type="tel"], 
+input[type="number"], 
+textarea,
+[contenteditable] {
+  text-align: left !important;
+  direction: ltr !important;  
+}
+
 /* Enhanced gradient text */
 .gradient-text {
   background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
@@ -120,6 +134,8 @@ button, input, textarea, select {
 .rich-text-editor [contenteditable] {
   @apply min-h-[6rem] p-4 border border-gray-300 rounded-b-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none;
   @apply text-sm leading-relaxed;
+  text-align: left !important;
+  direction: ltr !important;
 }
 
 .rich-text-editor [contenteditable]:empty:before {
@@ -129,6 +145,8 @@ button, input, textarea, select {
 
 .rich-text-editor [contenteditable] span {
   @apply inline;
+  text-align: left !important;
+  direction: ltr !important;
 }
 
 .rich-text-editor [contenteditable] br {

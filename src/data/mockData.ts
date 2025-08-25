@@ -72,7 +72,7 @@ export const textBlocks: TextBlock[] = [
     content: 'The technical specification outlines the detailed requirements, architecture, and implementation approach for the proposed solution. This includes system requirements, data flow diagrams, security protocols, and performance benchmarks that ensure optimal system performance.\n\nSystem Requirements:\n• Minimum 8GB RAM and 4-core processor\n• Windows 10/11 or Linux Ubuntu 20.04+\n• Network connectivity with 100Mbps bandwidth\n• Database: PostgreSQL 13+ or MySQL 8.0+\n\nArchitecture Components:\n1. Frontend: React.js with TypeScript\n2. Backend: Node.js with Express framework\n3. Database: Relational database with ORM\n4. Authentication: JWT-based security\n5. API: RESTful services with OpenAPI documentation',
     formattedContent: [
       { text: 'The technical specification outlines the detailed requirements, architecture, and implementation approach for the proposed solution. This includes ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
-      { text: 'system requirements', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto', color: '#6b7280' } },
+      { text: 'system requirements', style: { bold: true, fontSize: 'lg', fontFamily  : 'Roboto', color: '#6b7280' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Roboto' } },
       { text: 'data flow diagrams', style: { bold: true, fontSize: 'lg', fontFamily: 'Roboto', color: '#dc2626' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Roboto' } },

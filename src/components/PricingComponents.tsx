@@ -155,7 +155,10 @@ export const PricingComponents: React.FC<PricingComponentsProps> = ({
             value={item.text}
             onChange={(e) => updateBulletPoint(type, index, e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-300"
-            style={style}
+            style={{
+              ...style,
+              textAlign: 'left'
+            }}
           />
         </div>
         

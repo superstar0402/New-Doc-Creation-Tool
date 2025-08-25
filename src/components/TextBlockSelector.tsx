@@ -464,6 +464,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white/80 backdrop-blur-sm transition-all duration-300"
+                      style={{ textAlign: 'left' }}
                     />
                   </div>
                   
@@ -523,6 +524,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         value={newBlock.title}
                         onChange={(e) => setNewBlock({ ...newBlock, title: e.target.value })}
                         className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                        style={{ textAlign: 'left' }}
                       />
                       <select
                         value={newBlock.category}
@@ -1091,19 +1093,23 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                   
                                   // Update content formatting to match the first formatted element
                                   if (formattedContent.length > 0 && formattedContent[0].style) {
-                                    // Update both content and formatting
+                                    // Update both content and formatting - append new content to existing
+                                    const existingContent = newBlock.content || '';
+                                    const separator = existingContent && text ? '\n\n' : '';
                                     setNewBlock({
                                       ...newBlock,
-                                      content: text,
+                                      content: existingContent + separator + text,
                                       formattedContent: formattedContent // Store in newBlock state
                                     });
                                     // Apply the extracted formatting
                                     applyExtractedFormatting(formattedContent);
                                   } else {
-                                    // If no formatting found, just update the content
+                                    // If no formatting found, just update the content - append new content to existing
+                                    const existingContent = newBlock.content || '';
+                                    const separator = existingContent && text ? '\n\n' : '';
                                     setNewBlock({
                                       ...newBlock,
-                                      content: text,
+                                      content: existingContent + separator + text,
                                       formattedContent: formattedContent
                                     });
                                   }
@@ -1124,10 +1130,13 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             }
                             
                             // Only update if we haven't already updated the state above
+                            // Append new content to existing content instead of replacing it
                             if (!newBlock.maintainFormatting || !formattedContent || formattedContent.length === 0) {
+                              const existingContent = newBlock.content || '';
+                              const separator = existingContent && text ? '\n\n' : '';
                               setNewBlock({ 
                                 ...newBlock, 
-                                content: text
+                                content: existingContent + separator + text
                               });
                             }
                           }}
@@ -1233,6 +1242,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         value={editBlock.title}
                         onChange={e => setEditBlock({ ...editBlock, title: e.target.value })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                        style={{ textAlign: 'left' }}
                       />
                       <div className="space-y-2">
                         
@@ -1293,7 +1303,10 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               // TXT or fallback
                               text = await file.text();
                             }
-                            setEditBlock({ ...editBlock, content: text });
+                            // Append new content to existing content instead of replacing it
+                            const existingContent = editBlock.content || '';
+                            const separator = existingContent && text ? '\n\n' : '';
+                            setEditBlock({ ...editBlock, content: existingContent + separator + text });
                           }}
                         />
                         <label htmlFor="edit-block-upload" className="px-3 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-all text-xs">

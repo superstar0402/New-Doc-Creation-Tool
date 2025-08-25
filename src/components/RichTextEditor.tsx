@@ -1,6 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Bold, Italic, Underline, Type, Palette } from 'lucide-react';
+import { Bold, Italic, Underline, Type, Palette, Upload, Trash2 } from 'lucide-react';
 import { FormattedContent } from '../types';
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 interface RichTextEditorProps {
   value: string;
@@ -20,12 +24,20 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   rows = 6
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [selection, setSelection] = useState<{ start: number; end: number } | null>(null);
 
   // Initialize editor content
   useEffect(() => {
     if (editorRef.current) {
+      // If value is empty, clear the editor immediately
+      if (!value || value.trim() === '') {
+        editorRef.current.innerHTML = '';
+        editorRef.current.textContent = '';
+        return;
+      }
+      
       if (formattedContent && formattedContent.length > 0) {
         // Render formatted content
         renderFormattedContent();
@@ -35,6 +47,18 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       }
     }
   }, [value, formattedContent]);
+
+  // Add state to track if content should be cleared
+  const [shouldClear, setShouldClear] = useState(false);
+
+  // Effect to handle clearing
+  useEffect(() => {
+    if (shouldClear && editorRef.current) {
+      editorRef.current.innerHTML = '';
+      editorRef.current.textContent = '';
+      setShouldClear(false);
+    }
+  }, [shouldClear]);
 
   const renderFormattedContent = () => {
     if (!editorRef.current || !formattedContent) return;
@@ -62,6 +86,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         };
         style.push(`font-size: ${fontSizeMap[item.style.fontSize] || '1rem'}`);
       }
+
+      // Ensure text alignment is set
+      style.push('text-align: left');
 
       const styleAttr = style.length > 0 ? ` style="${style.join('; ')}"` : '';
       const text = item.text.replace(/\n/g, '<br>');
@@ -161,6 +188,27 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     onChange(content, formattedContent);
   };
 
+  // Function to force clear content
+  const forceClearContent = () => {
+    if (editorRef.current) {
+      // Clear the editor
+      editorRef.current.innerHTML = '';
+      editorRef.current.textContent = '';
+      
+      // Clear selection
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+      }
+      
+      // Notify parent immediately
+      onChange('', []);
+      
+      // Force focus
+      editorRef.current.focus();
+    }
+  };
+
   const extractFormattedContent = (): FormattedContent[] => {
     if (!editorRef.current) return [];
 
@@ -234,6 +282,105 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
                                     format === 'underline' ? 'underline' : '');
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    console.log('Uploading file:', file.name); // Debug log
+    
+    let text = '';
+    
+    if (file.type === 'application/pdf') {
+      // PDF: use PDF.js
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let pdfText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          pdfText += content.items.map((item: any) => item.str).join(' ') + '\n';
+        }
+        text = pdfText;
+      } catch (err) {
+        alert('PDF reading failed. Please use a .txt file or paste content manually.');
+        return;
+      }
+    } else if (file.name.endsWith('.docx')) {
+      // DOCX: use mammoth
+      try {
+        const mammoth = await import('mammoth');
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        text = result.value;
+      } catch (err) {
+        alert('DOCX reading failed. Please use a .txt file or paste content manually.');
+        return;
+      }
+    } else if (file.name.endsWith('.doc')) {
+      alert('DOC files are not supported. Please use DOCX, TXT, or PDF.');
+      return;
+    } else {
+      // TXT or fallback
+      text = await file.text();
+    }
+    
+    // Append the new content to existing content
+    if (editorRef.current) {
+      const currentContent = editorRef.current.innerHTML;
+      const newContent = text.replace(/\n/g, '<br>');
+      
+      // If there's existing content, add a line break before new content
+      if (currentContent && currentContent.trim() !== '') {
+        editorRef.current.innerHTML = currentContent + '<br>' + newContent;
+      } else {
+        // If no existing content, just set the new content
+        editorRef.current.innerHTML = newContent;
+      }
+      
+      handleContentChange();
+    }
+    
+    // Clear the file input to allow same file selection
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    
+    console.log('File upload completed, content appended'); // Debug log
+  };
+
+  const handleClearContent = () => {
+    console.log('Clear content button clicked'); // Debug log
+    
+    if (editorRef.current) {
+      // Method 1: Clear innerHTML
+      editorRef.current.innerHTML = '';
+      
+      // Method 2: Clear textContent
+      editorRef.current.textContent = '';
+      
+      // Method 3: Use document.execCommand to clear
+      document.execCommand('selectAll', false);
+      document.execCommand('delete', false);
+      
+      // Method 4: Clear any selection
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+      }
+      
+      // Trigger the change event to update the parent component
+      onChange('', []);
+      
+      // Ensure the editor maintains focus
+      editorRef.current.focus();
+      
+      console.log('Content cleared successfully'); // Debug log
+    } else {
+      console.log('Editor ref is null'); // Debug log
+    }
+  };
+
   return (
     <div className={`rich-text-editor ${className}`}>
       {/* Formatting Toolbar */}
@@ -301,6 +448,39 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             />
           ))}
         </div>
+        
+        <div className="toolbar-divider"></div>
+        
+        <input
+          type="file"
+          accept=".txt,.doc,.docx,.pdf"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+          style={{ display: 'none' }}
+          key={Date.now()} // Force re-render to allow same file selection
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-600"
+          title="Upload Content"
+        >
+          <Upload className="w-4 h-4" />
+        </button>
+        
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Clear button clicked');
+            forceClearContent();
+            console.log('Clear function executed');
+          }}
+          className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-600"
+          title="Clear Content"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
       </div>
       
       {/* Editor */}
@@ -315,9 +495,16 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         onPaste={handlePaste}
         data-placeholder={placeholder}
         style={{
-          minHeight: `${rows * 1.5}rem`
+          minHeight: `${rows * 1.5}rem`,
+          direction: 'ltr',
+          textAlign: 'left'
         }}
       />
     </div>
   );
 }; 
+
+
+
+
+

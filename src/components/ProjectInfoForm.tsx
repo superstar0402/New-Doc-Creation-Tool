@@ -537,6 +537,7 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
                   placeholder="Describe the project scope, objectives, and key deliverables..."
+                  style={{ textAlign: 'left' }}
                 />
               </div>
 
@@ -550,6 +551,7 @@ export const ProjectInfoForm: React.FC<ProjectInfoFormProps> = ({
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-gray-50 focus:bg-white resize-none"
                   placeholder="Provide technical details, approach, and implementation strategy..."
+                  style={{ textAlign: 'left' }}
                 />
               </div>
 
