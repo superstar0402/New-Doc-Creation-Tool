@@ -1093,23 +1093,25 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                   
                                   // Update content formatting to match the first formatted element
                                   if (formattedContent.length > 0 && formattedContent[0].style) {
-                                    // Update both content and formatting - append new content to existing
+                                    // Smart content handling: replace if cleared, append if has content
                                     const existingContent = newBlock.content || '';
-                                    const separator = existingContent && text ? '\n\n' : '';
+                                    const shouldReplace = !existingContent || existingContent.trim() === '';
+                                    const separator = !shouldReplace && existingContent && text ? '\n\n' : '';
                                     setNewBlock({
                                       ...newBlock,
-                                      content: existingContent + separator + text,
+                                      content: shouldReplace ? text : existingContent + separator + text,
                                       formattedContent: formattedContent // Store in newBlock state
                                     });
                                     // Apply the extracted formatting
                                     applyExtractedFormatting(formattedContent);
                                   } else {
-                                    // If no formatting found, just update the content - append new content to existing
+                                    // If no formatting found, just update the content - smart handling
                                     const existingContent = newBlock.content || '';
-                                    const separator = existingContent && text ? '\n\n' : '';
+                                    const shouldReplace = !existingContent || existingContent.trim() === '';
+                                    const separator = !shouldReplace && existingContent && text ? '\n\n' : '';
                                     setNewBlock({
                                       ...newBlock,
-                                      content: existingContent + separator + text,
+                                      content: shouldReplace ? text : existingContent + separator + text,
                                       formattedContent: formattedContent
                                     });
                                   }
@@ -1130,13 +1132,15 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                             }
                             
                             // Only update if we haven't already updated the state above
-                            // Append new content to existing content instead of replacing it
+                            // Smart content handling: replace if cleared, append if has content
                             if (!newBlock.maintainFormatting || !formattedContent || formattedContent.length === 0) {
                               const existingContent = newBlock.content || '';
-                              const separator = existingContent && text ? '\n\n' : '';
+                              const shouldReplace = !existingContent || existingContent.trim() === '';
+                              const separator = !shouldReplace && existingContent && text ? '\n\n' : '';
                               setNewBlock({ 
                                 ...newBlock, 
-                                content: existingContent + separator + text
+                                content: shouldReplace ? text : existingContent + separator + text,
+                                formattedContent: shouldReplace ? undefined : newBlock.formattedContent
                               });
                             }
                           }}
@@ -1145,7 +1149,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                           Upload Content
                         </label>
                         <button
-                          onClick={() => setNewBlock({ ...newBlock, content: '' })}
+                          onClick={() => setNewBlock({ ...newBlock, content: '', formattedContent: undefined })}
                           className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all text-xs"
                         >
                           Clear Content
@@ -1203,19 +1207,45 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                         <Check className="w-4 h-4" />
                         Add Block
                       </button>
-                      <button
-                        onClick={() => {
-                          setIsAddingBlock(false);
-                          // Reset file input
-                          if (addBlockFileInputRef.current) {
-                            addBlockFileInputRef.current.value = '';
-                          }
-                        }}
-                        className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 flex items-center gap-2"
-                      >
-                        <X className="w-4 h-4" />
-                        Cancel
-                      </button>
+                                              <button
+                          onClick={() => {
+                            setIsAddingBlock(false);
+                            // Reset newBlock to initial state
+                            setNewBlock({ 
+                              title: '', 
+                              content: '', 
+                              category: 'Custom', 
+                              headerOptions: ['', ''], 
+                              footerOptions: ['', ''],
+                              maintainFormatting: false,
+                              formattedContent: undefined,
+                              titleFormatting: {
+                                fontFamily: 'Arial',
+                                fontSize: 'base',
+                                bold: false,
+                                italic: false,
+                                underline: false,
+                                color: '#000000'
+                              },
+                              contentFormatting: {
+                                fontFamily: 'Arial',
+                                fontSize: 'base',
+                                bold: false,
+                                italic: false,
+                                underline: false,
+                                color: undefined
+                              }
+                            });
+                            // Reset file input
+                            if (addBlockFileInputRef.current) {
+                              addBlockFileInputRef.current.value = '';
+                            }
+                          }}
+                          className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 flex items-center gap-2"
+                        >
+                          <X className="w-4 h-4" />
+                          Cancel
+                        </button>
                     </div>
                   </div>
                 </div>
@@ -1303,17 +1333,22 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               // TXT or fallback
                               text = await file.text();
                             }
-                            // Append new content to existing content instead of replacing it
+                            // Smart content handling: replace if cleared, append if has content
                             const existingContent = editBlock.content || '';
-                            const separator = existingContent && text ? '\n\n' : '';
-                            setEditBlock({ ...editBlock, content: existingContent + separator + text });
+                            const shouldReplace = !existingContent || existingContent.trim() === '';
+                            const separator = !shouldReplace && existingContent && text ? '\n\n' : '';
+                            setEditBlock({ 
+                              ...editBlock, 
+                              content: shouldReplace ? text : existingContent + separator + text,
+                              formattedContent: shouldReplace ? undefined : editBlock.formattedContent
+                            });
                           }}
                         />
                         <label htmlFor="edit-block-upload" className="px-3 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-all text-xs">
                           Upload Content
                         </label>
                         <button
-                          onClick={() => setEditBlock({ ...editBlock, content: '' })}
+                          onClick={() => setEditBlock({ ...editBlock, content: '', formattedContent: undefined })}
                           className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all text-xs"
                         >
                           Clear Content

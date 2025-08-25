@@ -451,7 +451,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         
         <div className="toolbar-divider"></div>
         
-        <input
+        {/* <input
           type="file"
           accept=".txt,.doc,.docx,.pdf"
           ref={fileInputRef}
@@ -480,7 +480,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           title="Clear Content"
         >
           <Trash2 className="w-4 h-4" />
-        </button>
+        </button> */}
       </div>
       
       {/* Editor */}
