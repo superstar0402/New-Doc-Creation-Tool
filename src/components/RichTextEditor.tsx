@@ -615,7 +615,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <option value="Open Sans">Open Sans</option>
         </select>
         
-        <div className="color-picker">
+        {/* <div className="color-picker">
           {['#000000', '#ffffff', '#dc2626', '#6b7280'].map((color) => (
             <button
               key={color}
@@ -629,7 +629,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               title={`Color: ${color}`}
             />
           ))}
-        </div>
+        </div> */}
         
         <div className="toolbar-divider"></div>
         
@@ -680,7 +680,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         data-placeholder={placeholder}
         style={{
           minHeight: `${rows * 1.5}rem`,
-          direction: 'ltr',
+          direction: 'rtl',
           textAlign: 'left',
           fontFamily: currentFormatting.fontFamily,
           fontSize: getFormattingStyle('fontSize', currentFormatting.fontSize).replace('font-size: ', ''),
