@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Bold, Italic, Underline, Type, Palette, Upload, Trash2 } from 'lucide-react';
+import { Bold, Italic, Underline, Upload, Trash2 } from 'lucide-react';
 import { FormattedContent } from '../types';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -24,44 +24,92 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   rows = 6
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
-  const [selection, setSelection] = useState<{ start: number; end: number } | null>(null);
-  
-  // State to track current formatting settings
   const [currentFormatting, setCurrentFormatting] = useState({
     fontFamily: 'Arial',
     fontSize: 'base',
     color: '#000000'
   });
 
-  // Initialize editor content
-  useEffect(() => {
-    if (editorRef.current) {
-      // If value is empty, clear the editor immediately
-      if (!value || value.trim() === '') {
-        editorRef.current.innerHTML = '';
-        editorRef.current.textContent = '';
-        return;
-      }
-      
-      if (formattedContent && formattedContent.length > 0) {
-        // Render formatted content
-        renderFormattedContent();
-        
-        // Update current formatting from the first formatted item
-        if (formattedContent[0] && formattedContent[0].style) {
-          const style = formattedContent[0].style;
-          setCurrentFormatting({
-            fontFamily: style.fontFamily || 'Arial',
-            fontSize: style.fontSize || 'base',
-            color: style.color || '#000000'
-          });
+  // Save caret position as character offset
+  const saveCaretPosition = (element: HTMLElement): number | null => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+
+    const range = selection.getRangeAt(0);
+    const preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(element);
+    preCaretRange.setEnd(range.startContainer, range.startOffset);
+
+    return preCaretRange.toString().length;
+  };
+
+  // Restore caret position from character offset
+  const restoreCaretPosition = (element: HTMLElement, offset: number) => {
+    const range = document.createRange();
+    range.setStart(element, 0);
+    range.collapse(true);
+
+    let charIndex = 0;
+    const nodeStack: Node[] = [element];
+    let node: Node | undefined;
+    let found = false;
+
+    while (!found && (node = nodeStack.pop())) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const textLength = node.textContent?.length || 0;
+        if (charIndex + textLength >= offset) {
+          range.setStart(node, offset - charIndex);
+          range.collapse(true);
+          found = true;
         }
+        charIndex += textLength;
       } else {
-        // Set plain text
-        editorRef.current.innerHTML = value.replace(/\n/g, '<br>');
+        for (let i = node.childNodes.length - 1; i >= 0; i--) {
+          nodeStack.push(node.childNodes[i]);
+        }
       }
+    }
+
+    if (found) {
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    }
+  };
+
+  // Initialize editor content with caret preservation
+  useEffect(() => {
+    if (!editorRef.current) return;
+
+    // Save caret position before updating content
+    const caretPosition = saveCaretPosition(editorRef.current);
+
+    if (!value || value.trim() === '') {
+      editorRef.current.innerHTML = '';
+      editorRef.current.textContent = '';
+      return;
+    }
+
+    if (formattedContent && formattedContent.length > 0) {
+      renderFormattedContent();
+
+      // Update current formatting from first formatted item
+      if (formattedContent[0] && formattedContent[0].style) {
+        const style = formattedContent[0].style;
+        setCurrentFormatting({
+          fontFamily: style.fontFamily || 'Arial',
+          fontSize: style.fontSize || 'base',
+          color: style.color || '#000000'
+        });
+      }
+    } else {
+      editorRef.current.innerHTML = value.replace(/\n/g, '<br>');
+    }
+
+    // Restore caret position after DOM update
+    if (typeof caretPosition === 'number') {
+      restoreCaretPosition(editorRef.current, caretPosition);
     }
   }, [value, formattedContent]);
 
@@ -73,18 +121,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       editorRef.current.style.color = currentFormatting.color;
     }
   }, [currentFormatting]);
-
-  // Add state to track if content should be cleared
-  const [shouldClear, setShouldClear] = useState(false);
-
-  // Effect to handle clearing
-  useEffect(() => {
-    if (shouldClear && editorRef.current) {
-      editorRef.current.innerHTML = '';
-      editorRef.current.textContent = '';
-      setShouldClear(false);
-    }
-  }, [shouldClear]);
 
   const renderFormattedContent = () => {
     if (!editorRef.current || !formattedContent) return;
@@ -124,34 +160,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editorRef.current.innerHTML = html;
   };
 
-  const getSelection = () => {
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return null;
 
-    const range = selection.getRangeAt(0);
-    const start = getTextOffset(range.startContainer, range.startOffset);
-    const end = getTextOffset(range.endContainer, range.endOffset);
-    
-    return { start, end };
-  };
-
-  const getTextOffset = (node: Node, offset: number): number => {
-    let textOffset = 0;
-    const walker = document.createTreeWalker(
-      editorRef.current!,
-      NodeFilter.SHOW_TEXT,
-      null
-    );
-
-    let currentNode: Node | null;
-    while (currentNode = walker.nextNode()) {
-      if (currentNode === node) {
-        return textOffset + offset;
-      }
-      textOffset += currentNode.textContent?.length || 0;
-    }
-    return textOffset;
-  };
 
   const applyFormatting = (format: 'bold' | 'italic' | 'underline' | 'color' | 'fontSize' | 'fontFamily', value?: string) => {
     const selection = window.getSelection();
@@ -233,116 +242,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const content = editorRef.current.innerText;
     const formattedContent = extractFormattedContent();
     onChange(content, formattedContent);
-    
-    // Apply current formatting to any new text that doesn't have formatting
-    setTimeout(() => {
-      ensureNewTextFormatting();
-    }, 0);
   };
 
-  // Function to apply current formatting to new text
-  const applyCurrentFormattingToNewText = () => {
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
 
-    const range = selection.getRangeAt(0);
-    
-    // Check if the cursor is at the end of a span or at the beginning of content
-    const currentNode = range.startContainer;
-    const parentElement = currentNode.parentElement;
-    
-    // If we're inside a span, check if we're at the end
-    if (parentElement && parentElement.tagName === 'SPAN') {
-      const spanText = parentElement.textContent || '';
-      const offset = range.startOffset;
-      
-      // If we're at the end of the span, create a new span with current formatting
-      if (offset === spanText.length) {
-        const newSpan = document.createElement('span');
-        newSpan.style.cssText = getFormattingStyle('fontFamily', currentFormatting.fontFamily) + '; ' +
-                               getFormattingStyle('fontSize', currentFormatting.fontSize) + '; ' +
-                               getFormattingStyle('color', currentFormatting.color);
-        
-        // Move cursor to the new span
-        range.setStart(newSpan, 0);
-        range.setEnd(newSpan, 0);
-        
-        // Insert the new span after the current span
-        parentElement.parentNode?.insertBefore(newSpan, parentElement.nextSibling);
-        
-        // Update selection
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-    } else {
-      // If we're not in a span, create a new span with current formatting
-      const newSpan = document.createElement('span');
-      newSpan.style.cssText = getFormattingStyle('fontFamily', currentFormatting.fontFamily) + '; ' +
-                             getFormattingStyle('fontSize', currentFormatting.fontSize) + '; ' +
-                             getFormattingStyle('color', currentFormatting.color);
-      
-      // Insert the new span at cursor position
-      range.insertNode(newSpan);
-      
-      // Move cursor inside the new span
-      range.setStart(newSpan, 0);
-      range.setEnd(newSpan, 0);
-      
-      // Update selection
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  };
-
-  // Function to ensure new text gets current formatting
-  const ensureNewTextFormatting = () => {
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
-
-    const range = selection.getRangeAt(0);
-    const currentNode = range.startContainer;
-    
-    // If the current node is a text node and its parent is the editor (not a span)
-    if (currentNode.nodeType === Node.TEXT_NODE && currentNode.parentNode === editorRef.current) {
-      // Create a span with current formatting and wrap the text
-      const span = document.createElement('span');
-      span.style.cssText = getFormattingStyle('fontFamily', currentFormatting.fontFamily) + '; ' +
-                          getFormattingStyle('fontSize', currentFormatting.fontSize) + '; ' +
-                          getFormattingStyle('color', currentFormatting.color);
-      
-      // Wrap the text node
-      currentNode.parentNode?.insertBefore(span, currentNode);
-      span.appendChild(currentNode);
-      
-      // Update selection to the end of the span
-      const newRange = document.createRange();
-      newRange.setStart(span, 1);
-      newRange.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(newRange);
-    }
-  };
-
-  // Function to force clear content
-  const forceClearContent = () => {
-    if (editorRef.current) {
-      // Clear the editor
-      editorRef.current.innerHTML = '';
-      editorRef.current.textContent = '';
-      
-      // Clear selection
-      const selection = window.getSelection();
-      if (selection) {
-        selection.removeAllRanges();
-      }
-      
-      // Notify parent immediately
-      onChange('', []);
-      
-      // Force focus
-      editorRef.current.focus();
-    }
-  };
 
   const extractFormattedContent = (): FormattedContent[] => {
     if (!editorRef.current) return [];
@@ -401,11 +303,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       e.preventDefault();
       document.execCommand('insertLineBreak', false);
       handleContentChange();
-    } else if (e.key.length === 1) {
-      // For single character keys, apply current formatting
-      setTimeout(() => {
-        applyCurrentFormattingToNewText();
-      }, 0);
     }
   };
 
@@ -462,104 +359,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    console.log('Uploading file:', file.name); // Debug log
-    
-    let text = '';
-    
-    if (file.type === 'application/pdf') {
-      // PDF: use PDF.js
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        let pdfText = '';
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          pdfText += content.items.map((item: any) => item.str).join(' ') + '\n';
-        }
-        text = pdfText;
-      } catch (err) {
-        alert('PDF reading failed. Please use a .txt file or paste content manually.');
-        return;
-      }
-    } else if (file.name.endsWith('.docx')) {
-      // DOCX: use mammoth
-      try {
-        const mammoth = await import('mammoth');
-        const arrayBuffer = await file.arrayBuffer();
-        const result = await mammoth.extractRawText({ arrayBuffer });
-        text = result.value;
-      } catch (err) {
-        alert('DOCX reading failed. Please use a .txt file or paste content manually.');
-        return;
-      }
-    } else if (file.name.endsWith('.doc')) {
-      alert('DOC files are not supported. Please use DOCX, TXT, or PDF.');
-      return;
-    } else {
-      // TXT or fallback
-      text = await file.text();
-    }
-    
-    // Append the new content to existing content
-    if (editorRef.current) {
-      const currentContent = editorRef.current.innerHTML;
-      const newContent = text.replace(/\n/g, '<br>');
-      
-      // If there's existing content, add a line break before new content
-      if (currentContent && currentContent.trim() !== '') {
-        editorRef.current.innerHTML = currentContent + '<br>' + newContent;
-      } else {
-        // If no existing content, just set the new content
-        editorRef.current.innerHTML = newContent;
-      }
-      
-      handleContentChange();
-    }
-    
-    // Clear the file input to allow same file selection
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    
-    console.log('File upload completed, content appended'); // Debug log
-  };
 
-  const handleClearContent = () => {
-    console.log('Clear content button clicked'); // Debug log
-    
-    if (editorRef.current) {
-      // Method 1: Clear innerHTML
-      editorRef.current.innerHTML = '';
-      
-      // Method 2: Clear textContent
-      editorRef.current.textContent = '';
-      
-      // Method 3: Use document.execCommand to clear
-      document.execCommand('selectAll', false);
-      document.execCommand('delete', false);
-      
-      // Method 4: Clear any selection
-      const selection = window.getSelection();
-      if (selection) {
-        selection.removeAllRanges();
-      }
-      
-      // Trigger the change event to update the parent component
-      onChange('', []);
-      
-      // Ensure the editor maintains focus
-      editorRef.current.focus();
-      
-      console.log('Content cleared successfully'); // Debug log
-    } else {
-      console.log('Editor ref is null'); // Debug log
-    }
-  };
 
   return (
     <div className={`rich-text-editor ${className}`}>
@@ -614,55 +414,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <option value="Roboto">Roboto</option>
           <option value="Open Sans">Open Sans</option>
         </select>
-        
-        {/* <div className="color-picker">
-          {['#000000', '#ffffff', '#dc2626', '#6b7280'].map((color) => (
-            <button
-              key={color}
-              onClick={() => handleFormattingChange('color', color)}
-              className={`${
-                color === '#000000' ? 'bg-black' :
-                color === '#ffffff' ? 'bg-white' :
-                color === '#dc2626' ? 'bg-red-600' :
-                'bg-gray-500'
-              } ${currentFormatting.color === color ? 'border-blue-500' : 'border-gray-300'}`}
-              title={`Color: ${color}`}
-            />
-          ))}
-        </div> */}
-        
-        <div className="toolbar-divider"></div>
-        
-        {/* <input
-          type="file"
-          accept=".txt,.doc,.docx,.pdf"
-          ref={fileInputRef}
-          onChange={handleFileUpload}
-          style={{ display: 'none' }}
-          key={Date.now()} // Force re-render to allow same file selection
-        />
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-600"
-          title="Upload Content"
-        >
-          <Upload className="w-4 h-4" />
-        </button>
-        
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Clear button clicked');
-            forceClearContent();
-            console.log('Clear function executed');
-          }}
-          className="p-2 rounded hover:bg-gray-200 transition-colors text-gray-600"
-          title="Clear Content"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button> */}
       </div>
       
       {/* Editor */}
@@ -680,7 +431,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         data-placeholder={placeholder}
         style={{
           minHeight: `${rows * 1.5}rem`,
-          direction: 'rtl',
+          direction: 'ltr',
           textAlign: 'left',
           fontFamily: currentFormatting.fontFamily,
           fontSize: getFormattingStyle('fontSize', currentFormatting.fontSize).replace('font-size: ', ''),
