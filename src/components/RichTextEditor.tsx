@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Bold, Italic, Underline, Upload, Trash2 } from 'lucide-react';
+import { Bold, Italic, Underline, Upload, Trash2, List } from 'lucide-react';
 import { FormattedContent } from '../types';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -160,7 +160,71 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editorRef.current.innerHTML = html;
   };
 
+  // Function to create bulleted list
+  const createBulletedList = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
 
+    const range = selection.getRangeAt(0);
+    const selectedText = range.toString();
+    
+    if (selectedText) {
+      // If text is selected, convert each line to a bulleted list item
+      const lines = selectedText.split('\n');
+      const bulletedLines = lines.map(line => line.trim() ? `• ${line.trim()}` : line).join('\n');
+      
+      // Replace the selected text with bulleted list
+      range.deleteContents();
+      const textNode = document.createTextNode(bulletedLines);
+      range.insertNode(textNode);
+    } else {
+      // If no text is selected, insert a bullet at the current position
+      const bulletText = document.createTextNode('• ');
+      range.insertNode(bulletText);
+      range.setStartAfter(bulletText);
+      range.collapse(true);
+    }
+    
+    // Update selection
+    selection.removeAllRanges();
+    selection.addRange(range);
+    
+    // Trigger change
+    handleContentChange();
+  };
+
+  // Function to create numbered list
+  const createNumberedList = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    const selectedText = range.toString();
+    
+    if (selectedText) {
+      // If text is selected, convert each line to a numbered list item
+      const lines = selectedText.split('\n').filter(line => line.trim());
+      const numberedLines = lines.map((line, index) => `${index + 1}. ${line.trim()}`).join('\n');
+      
+      // Replace the selected text with numbered list
+      range.deleteContents();
+      const textNode = document.createTextNode(numberedLines);
+      range.insertNode(textNode);
+    } else {
+      // If no text is selected, insert a number at the current position
+      const numberText = document.createTextNode('1. ');
+      range.insertNode(numberText);
+      range.setStartAfter(numberText);
+      range.collapse(true);
+    }
+    
+    // Update selection
+    selection.removeAllRanges();
+    selection.addRange(range);
+    
+    // Trigger change
+    handleContentChange();
+  };
 
   const applyFormatting = (format: 'bold' | 'italic' | 'underline' | 'color' | 'fontSize' | 'fontFamily', value?: string) => {
     const selection = window.getSelection();
@@ -243,8 +307,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const formattedContent = extractFormattedContent();
     onChange(content, formattedContent);
   };
-
-
 
   const extractFormattedContent = (): FormattedContent[] => {
     if (!editorRef.current) return [];
@@ -359,8 +421,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   };
 
-
-
   return (
     <div className={`rich-text-editor ${className}`}>
       {/* Formatting Toolbar */}
@@ -385,6 +445,24 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           title="Underline"
         >
           <Underline className="w-4 h-4" />
+        </button>
+        
+        <div className="toolbar-divider"></div>
+        
+        {/* List Buttons */}
+        <button
+          onClick={createBulletedList}
+          className=""
+          title="Bulleted List"
+        >
+          <List className="w-4 h-4" />
+        </button>
+        <button
+          onClick={createNumberedList}
+          className=""
+          title="Numbered List"
+        >
+          <span className="text-sm font-bold">N</span>
         </button>
         
         <div className="toolbar-divider"></div>
