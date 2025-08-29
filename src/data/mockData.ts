@@ -34,17 +34,17 @@ export const textBlocks: TextBlock[] = [
     content: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting key deliverables, timeline, and expected outcomes. Our approach focuses on delivering measurable business value while ensuring seamless integration with existing systems.\n\nKey Highlights:\n• Strategic alignment with business objectives\n• Proven methodology and best practices\n• Experienced team with domain expertise\n• Risk-mitigated implementation approach\n\nProject Phases:\n1. Discovery and Requirements Analysis\n2. Solution Design and Architecture\n3. Development and Testing\n4. Deployment and Go-Live\n5. Post-Implementation Support',
     formattedContent: [
       { text: 'This executive summary provides a comprehensive overview of our proposed solution, highlighting ',         style: { fontSize: 'base', fontFamily: 'Arial' } },
-      { text: 'key deliverables', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial', color: '#dc2626' } },
+      { text: 'key deliverables', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
       { text: ', ', style: { fontSize: 'base', fontFamily: 'Arial' } },
-      { text: 'timeline', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial', color: '#6b7280' } },
+      { text: 'timeline', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
       { text: ', and ', style: { fontSize: 'base', fontFamily: 'Arial' } },
-      { text: 'expected outcomes', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial', color: '#dc2626' } },
+      { text: 'expected outcomes', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
       { text: '. Our approach focuses on delivering ', style: { fontSize: 'base', fontFamily: 'Arial' } },
       { text: 'measurable business value', style: { italic: true, underline: true, fontSize: 'base', fontFamily: 'Arial' } },
       { text: ' while ensuring seamless integration with existing systems.\n\n', style: { fontSize: 'base', fontFamily: 'Arial' } },
-      { text: 'Key Highlights:', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial', color: '#dc2626' } },
+      { text: 'Key Highlights:', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
       { text: '\n• Strategic alignment with business objectives\n• Proven methodology and best practices\n• Experienced team with domain expertise\n• Risk-mitigated implementation approach\n\n', style: { fontSize: 'base', fontFamily: 'Arial' } },
-      { text: 'Project Phases:', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial', color: '#6b7280' } },
+      { text: 'Project Phases:', style: { bold: true, fontSize: 'lg', fontFamily: 'Arial' } },
       { text: '\n1. Discovery and Requirements Analysis\n2. Solution Design and Architecture\n3. Development and Testing\n4. Deployment and Go-Live\n5. Post-Implementation Support', style: { fontSize: 'base', fontFamily: 'Arial' } }
     ],
     category: 'Executive',
@@ -55,7 +55,7 @@ export const textBlocks: TextBlock[] = [
       bold: true,
       italic: false,
       underline: false,
-      color: '#dc2626'
+       color: '#dc2626'
     },
     contentFormatting: {
       fontFamily: 'Arial',
@@ -63,6 +63,7 @@ export const textBlocks: TextBlock[] = [
       bold: false,
       italic: false,
       underline: false
+      
     }
   },
   
@@ -113,9 +114,9 @@ export const textBlocks: TextBlock[] = [
     content: 'Our project timeline is structured in phases to ensure systematic delivery and quality control. Phase 1 focuses on discovery and planning, Phase 2 on development and testing, and Phase 3 on deployment and knowledge transfer. Each phase includes milestone reviews and stakeholder sign-offs.\n\nProject Milestones:\n• Week 2: Requirements gathering completed\n• Week 4: Technical design approved\n• Week 8: Development phase initiated\n• Week 12: Testing and quality assurance\n• Week 16: User acceptance testing\n• Week 18: Production deployment\n\nPhase Deliverables:\n1. Phase 1: Project charter, requirements document, technical specifications\n2. Phase 2: Core system development, unit testing, integration testing\n3. Phase 3: System deployment, user training, documentation delivery\n4. Phase 4: Go-live support, performance monitoring, optimization',
     formattedContent: [
       { text: 'Our project timeline is structured in phases to ensure systematic delivery and quality control. ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
-      { text: 'Phase 1', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans', color: '#dc2626' } },
+      { text: 'Phase 1', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans' } },
       { text: ' focuses on discovery and planning, ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
-      { text: 'Phase 2', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans', color: '#6b7280' } },
+      { text: 'Phase 2', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans' } },
       { text: ' on development and testing, and ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },
       { text: 'Phase 3', style: { bold: true, fontSize: 'lg', fontFamily: 'Open Sans' } },
       { text: ' on deployment and knowledge transfer. Each phase includes ', style: { fontSize: 'base', fontFamily: 'Open Sans' } },

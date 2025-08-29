@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 
 export default function RichTextEditor() {
-  const editorRef = useRef(null);
+  const editorRef = useRef<HTMLDivElement>(null);
 
-  const handleBeforeInput = (e) => {
+  const handleBeforeInput = (e: any) => {
     // This fires for Enter as "insertParagraph"
     if (e.inputType === "insertParagraph") {
       e.preventDefault();
@@ -33,7 +33,7 @@ export default function RichTextEditor() {
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     // Shift+Enter = soft break, like Word
     if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();

@@ -43,8 +43,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [currentFormatting, setCurrentFormatting] = useState({
     fontFamily: 'Arial',
-    fontSize: 'base',
-    color: '#000000'
+    fontSize: 'base'
   });
   const [currentListState, setCurrentListState] = useState<{ isList: boolean; type?: 'bullet' | 'number'; level: number }>({
     isList: false,
@@ -433,8 +432,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         const style = formattedContent[0].style;
         setCurrentFormatting({
           fontFamily: style.fontFamily || 'Arial',
-          fontSize: style.fontSize || 'base',
-          color: style.color || '#000000'
+          fontSize: style.fontSize || 'base'
         });
       }
     } else {
@@ -452,7 +450,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     if (editorRef.current) {
       editorRef.current.style.fontFamily = currentFormatting.fontFamily;
       editorRef.current.style.fontSize = getFormattingStyle('fontSize', currentFormatting.fontSize).replace('font-size: ', '');
-      editorRef.current.style.color = currentFormatting.color;
     }
   }, [currentFormatting]);
 
@@ -466,7 +463,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       if (item.style?.bold) style.push('font-weight: bold');
       if (item.style?.italic) style.push('font-style: italic');
       if (item.style?.underline) style.push('text-decoration: underline');
-      if (item.style?.color) style.push(`color: ${item.style.color}`);
       if (item.style?.fontFamily) style.push(`font-family: ${item.style.fontFamily}`);
       
       // Convert fontSize to CSS
@@ -912,7 +908,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     return false;
   };
 
-  const applyFormatting = (format: 'bold' | 'italic' | 'underline' | 'color' | 'fontSize' | 'fontFamily', value?: string) => {
+  const applyFormatting = (format: 'bold' | 'italic' | 'underline' | 'fontSize' | 'fontFamily', value?: string) => {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
 
@@ -938,8 +934,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       setCurrentFormatting(prev => ({ ...prev, fontFamily: value }));
     } else if (format === 'fontSize' && value) {
       setCurrentFormatting(prev => ({ ...prev, fontSize: value }));
-    } else if (format === 'color' && value) {
-      setCurrentFormatting(prev => ({ ...prev, color: value }));
     }
     
     // Trigger change
@@ -947,7 +941,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   };
 
   // Function to handle formatting toolbar changes
-  const handleFormattingChange = (format: 'fontFamily' | 'fontSize' | 'color', value: string) => {
+  const handleFormattingChange = (format: 'fontFamily' | 'fontSize', value: string) => {
     // Update current formatting state
     setCurrentFormatting(prev => ({ ...prev, [format]: value }));
     
@@ -966,8 +960,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         return 'font-style: italic';
       case 'underline':
         return 'text-decoration: underline';
-      case 'color':
-        return `color: ${value || '#000000'}`;
       case 'fontSize':
         const fontSizeMap: Record<string, string> = {
           'xs': '0.75rem',
@@ -1034,7 +1026,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           if (style.fontWeight === 'bold') formatting.bold = true;
           if (style.fontStyle === 'italic') formatting.italic = true;
           if (style.textDecoration === 'underline') formatting.underline = true;
-          if (style.color) formatting.color = style.color;
           if (style.fontFamily) formatting.fontFamily = style.fontFamily;
           
           // Convert font size back to our format
@@ -1181,10 +1172,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         setCurrentFormatting(prev => ({ ...prev, fontSize: fontSizeKey }));
       }
       
-      // Update color
-      if (style.color) {
-        setCurrentFormatting(prev => ({ ...prev, color: style.color }));
-      }
+
     }
     
     // Update list state
@@ -1312,7 +1300,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           textAlign: 'left',
           fontFamily: currentFormatting.fontFamily,
           fontSize: getFormattingStyle('fontSize', currentFormatting.fontSize).replace('font-size: ', ''),
-          color: currentFormatting.color,
           userSelect: 'text',
           cursor: 'text'
         }}
