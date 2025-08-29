@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Rich Text Editor - Enter Key Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .editor {
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            min-height: 200px;
+            margin: 10px 0;
+            outline: none;
+        }
+        .editor:focus {
+            border-color: #007bff;
+        }
+        .test-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .expected {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Rich Text Editor - Enter Key Test</h1>
+    
+    <div class="test-info">
+        <h2>Test Instructions</h2>
+        <p>This test verifies that the Enter key creates new paragraph elements (div) instead of line breaks, matching the original requirements.</p>
+        <ul>
+            <li>Type some text in the editor below</li>
+            <li>Press Enter to create a new paragraph</li>
+            <li>Each Enter should create a new div element</li>
+            <li>Check the browser's developer tools to see the HTML structure</li>
+        </ul>
+    </div>
+
+    <div class="editor" contenteditable="true" suppressContentEditableWarning="true">
+        <div><span>Start typing here...</span></div>
+    </div>
+
+    <div class="expected">
+        <strong>Expected Result:</strong> Each Enter key press should create a new div element with a br tag inside, providing proper paragraph structure like Microsoft Word.
+    </div>
+
+    <div class="test-info">
+        <h3>HTML Structure Expected:</h3>
+        <pre><code>&lt;div contenteditable="true"&gt;
+  &lt;div&gt;First paragraph&lt;/div&gt;
+  &lt;div&gt;&lt;br&gt;&lt;/div&gt;  &lt;!-- New paragraph created by Enter --&gt;
+  &lt;div&gt;Second paragraph&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <script>
+        const editor = document.querySelector('.editor');
+        
+        editor.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+
+                // Insert a new block element (like MS Word)
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return;
+
+                const range = selection.getRangeAt(0);
+
+                // Create a new paragraph
+                const newLine = document.createElement("div");
+                newLine.innerHTML = "<br>"; // ensures cursor is visible
+                newLine.style.minHeight = "1em"; // keep space visible
+
+                // Insert after current block
+                range.collapse(false); // collapse to end
+                range.insertNode(newLine);
+
+                // Move caret into new line
+                const newRange = document.createRange();
+                newRange.setStart(newLine, 0);
+                newRange.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+            }
+        });
+        
+        // Focus the editor
+        editor.focus();
+    </script>
+</body>
+</html> 

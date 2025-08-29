@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formatting Buttons Test - Rich Text Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .test-description {
+            margin-bottom: 10px;
+            color: #666;
+        }
+        .test-result {
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 3px;
+            margin-top: 10px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <h1>Formatting Buttons Test - Rich Text Editor</h1>
+    
+    <div class="test-section">
+        <div class="test-title">Test 1: Bold Button Functionality</div>
+        <div class="test-description">
+            Test that the bold button properly applies bold formatting to selected text.
+        </div>
+        <div class="test-result info">
+            <strong>Instructions:</strong><br>
+            1. Type some text in the editor<br>
+            2. Select a portion of the text<br>
+            3. Click the bold button (B icon)<br>
+            4. Verify the selected text becomes bold<br>
+            5. Test with Ctrl+B keyboard shortcut
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test 2: Italic Button Functionality</div>
+        <div class="test-description">
+            Test that the italic button properly applies italic formatting to selected text.
+        </div>
+        <div class="test-result info">
+            <strong>Instructions:</strong><br>
+            1. Type some text in the editor<br>
+            2. Select a portion of the text<br>
+            3. Click the italic button (I icon)<br>
+            4. Verify the selected text becomes italic<br>
+            5. Test with Ctrl+I keyboard shortcut
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test 3: Underline Button Functionality</div>
+        <div class="test-description">
+            Test that the underline button properly applies underline formatting to selected text.
+        </div>
+        <div class="test-result info">
+            <strong>Instructions:</strong><br>
+            1. Type some text in the editor<br>
+            2. Select a portion of the text<br>
+            3. Click the underline button (U icon)<br>
+            4. Verify the selected text becomes underlined<br>
+            5. Test with Ctrl+U keyboard shortcut
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test 4: Multiple Formatting Combinations</div>
+        <div class="test-description">
+            Test that multiple formatting options can be applied to the same text.
+        </div>
+        <div class="test-result info">
+            <strong>Instructions:</strong><br>
+            1. Type some text in the editor<br>
+            2. Select the text<br>
+            3. Apply bold formatting<br>
+            4. Apply italic formatting<br>
+            5. Apply underline formatting<br>
+            6. Verify all three formats are applied together
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test 5: Formatting Toggle</div>
+        <div class="test-description">
+            Test that clicking a formatting button again removes the formatting.
+        </div>
+        <div class="test-result info">
+            <strong>Instructions:</strong><br>
+            1. Type some text and make it bold<br>
+            2. Click the bold button again<br>
+            3. Verify the bold formatting is removed<br>
+            4. Test with italic and underline as well
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test 6: Formatting for Future Typing</div>
+        <div class="test-description">
+            Test that formatting can be applied to the cursor position for future typing.
+        </div>
+        <div class="test-result info">
+            <strong>Instructions:</strong><br>
+            1. Place cursor at a position (no text selected)<br>
+            2. Click bold button<br>
+            3. Type new text<br>
+            4. Verify the new text is bold<br>
+            5. Test with italic and underline
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Expected Behavior Summary</div>
+        <div class="test-result success">
+            <strong>✅ Correct Behavior:</strong><br>
+            • Bold button makes selected text bold<br>
+            • Italic button makes selected text italic<br>
+            • Underline button makes selected text underlined<br>
+            • Multiple formats can be applied together<br>
+            • Clicking format button again removes the format<br>
+            • Formatting can be applied to cursor for future typing<br>
+            • Keyboard shortcuts work (Ctrl+B, Ctrl+I, Ctrl+U)<br>
+            • Formatting buttons show active state when format is applied
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">❌ Previous Bug</div>
+        <div class="test-result error">
+            <strong>Bug Fixed:</strong><br>
+            • Bold, italic, and underline buttons were not working on text<br>
+            • The applyFormatting function was using manual DOM manipulation instead of execCommand<br>
+            • Fixed by switching to document.execCommand for better browser compatibility<br>
+            • Now formatting works for both selected text and cursor position
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🔧 Technical Changes</div>
+        <div class="test-result warning">
+            <strong>Changes Made:</strong><br>
+            • Updated applyFormatting function to use document.execCommand<br>
+            • Added support for both selected text and cursor position formatting<br>
+            • Improved getCurrentFormattingAtCursor function to use execCommand states<br>
+            • Updated updateCurrentFormattingFromCursor to work with new approach<br>
+            • Maintained compatibility with existing formatting preservation on Enter
+        </div>
+    </div>
+
+    <script>
+        console.log('Formatting Buttons Test Page Loaded');
+        console.log('Test the rich text editor formatting buttons in the main application');
+    </script>
+</body>
+</html> 

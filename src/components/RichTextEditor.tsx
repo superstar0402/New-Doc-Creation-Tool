@@ -989,6 +989,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const handleContentChange = () => {
     if (!editorRef.current) return;
 
+    // Use innerHTML to preserve <br> tags, then convert to text
+    const htmlContent = editorRef.current.innerHTML;
     const content = editorRef.current.innerText;
     const formattedContent = extractFormattedContent();
     
@@ -1055,6 +1057,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         } else {
           formattedContent.push({ text });
         }
+      } else if (node.nodeType === Node.ELEMENT_NODE && node.nodeName === 'BR') {
+        // Handle <br> elements by adding a newline character
+        formattedContent.push({ text: '\n' });
       }
     }
 
@@ -1067,13 +1072,27 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       return;
     }
 
-    // Handle list-specific keys
+    // Handle Enter key
     if (e.key === 'Enter') {
-      if (handleListEnter(e)) {
-        return; // List handling took care of it
-      }
       e.preventDefault();
-      document.execCommand('insertLineBreak', false);
+
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      const range = selection.getRangeAt(0);
+
+      // Insert <br> element for a new line
+      const br = document.createElement('br');
+      range.deleteContents();
+      range.insertNode(br);
+
+      // Set caret position after <br>
+      range.setStartAfter(br);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      // Trigger update
       handleContentChange();
     } else if (e.key === 'Backspace') {
       if (handleListBackspace(e)) {

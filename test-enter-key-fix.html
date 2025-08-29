@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Key Behavior Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .editor {
+            min-height: 200px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            outline: none;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .editor:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        .instructions {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Enter Key Behavior Test - Microsoft Word Style</h1>
+    
+    <div class="test-section">
+        <h2>Test Instructions</h2>
+        <div class="instructions">
+            <p><strong>Test 1:</strong> Type some text, place cursor at the end, and press Enter. Cursor should move to a new line, not to the beginning.</p>
+            <p><strong>Test 2:</strong> Press Shift+Enter for a soft line break (no new paragraph).</p>
+            <p><strong>Test 3:</strong> Test with multiple lines and paragraphs.</p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Rich Text Editor Test</h2>
+        <div id="editor" class="editor" contenteditable="true">
+            <span>&nbsp;</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="results">
+            <p>Test the editor above and check if Enter key behavior matches Microsoft Word.</p>
+        </div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const results = document.getElementById('results');
+
+        // Handle Enter key behavior like Microsoft Word
+        const handleBeforeInput = (e) => {
+            // This fires for Enter as "insertParagraph"
+            if (e.inputType === "insertParagraph") {
+                e.preventDefault();
+                
+                const sel = window.getSelection?.();
+                if (!sel || !sel.rangeCount) return;
+
+                const range = sel.getRangeAt(0);
+                
+                // Insert <br> element
+                const br = document.createElement('br');
+                range.deleteContents();
+                range.insertNode(br);
+                
+                // Insert <span> element after <br> for proper caret positioning
+                const span = document.createElement('span');
+                span.innerHTML = '&nbsp;'; // Add non-breaking space for visible width
+                br.parentNode?.insertBefore(span, br.nextSibling);
+                
+                // Set caret at the beginning of the span
+                const newRange = document.createRange();
+                newRange.setStart(span, 0);
+                newRange.collapse(true);
+                
+                sel.removeAllRanges();
+                sel.addRange(newRange);
+                
+                updateResults('Enter key pressed - new paragraph created');
+            }
+        };
+
+        const handleKeyDown = (e) => {
+            if (e.key === "Enter" && e.shiftKey) {
+                // Shift+Enter = soft break, like Word
+                e.preventDefault();
+                document.execCommand("insertLineBreak");
+                updateResults('Shift+Enter pressed - soft line break created');
+            }
+        };
+
+        const updateResults = (message) => {
+            const timestamp = new Date().toLocaleTimeString();
+            results.innerHTML += `<p><strong>[${timestamp}]</strong> ${message}</p>`;
+        };
+
+        // Event listeners
+        editor.addEventListener('beforeinput', handleBeforeInput);
+        editor.addEventListener('keydown', handleKeyDown);
+
+        // Initialize with some test content
+        editor.innerHTML = '<span>Type here and test Enter key behavior. Place cursor at the end of this sentence and press Enter.</span>';
+
+        updateResults('Editor initialized - ready for testing');
+    </script>
+</body>
+</html> 
