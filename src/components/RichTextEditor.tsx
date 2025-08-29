@@ -15,6 +15,14 @@ interface RichTextEditorProps {
   rows?: number;
 }
 
+// List item types
+interface ListItem {
+  type: 'bullet' | 'number';
+  level: number;
+  text: string;
+  number?: number;
+}
+
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
   formattedContent,
@@ -29,6 +37,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     fontFamily: 'Arial',
     fontSize: 'base',
     color: '#000000'
+  });
+  const [currentListState, setCurrentListState] = useState<{ isList: boolean; type?: 'bullet' | 'number'; level: number }>({
+    isList: false,
+    level: 0
   });
 
   // Save caret position as character offset
@@ -160,7 +172,96 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editorRef.current.innerHTML = html;
   };
 
-  // Function to create bulleted list
+  // Get current line content and position
+  const getCurrentLineInfo = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+
+    const range = selection.getRangeAt(0);
+    const container = range.startContainer;
+    
+    // Find the current line
+    let currentNode = container;
+    while (currentNode && currentNode.nodeType !== Node.ELEMENT_NODE) {
+      currentNode = currentNode.parentNode as Element;
+    }
+    
+    if (!currentNode) return null;
+    
+    // Get the line content
+    const lineText = currentNode.textContent || '';
+    const cursorPosition = range.startOffset;
+    
+    return {
+      node: currentNode,
+      text: lineText,
+      cursorPosition,
+      range
+    };
+  };
+
+  // Check if current line is already a list item
+  const isCurrentLineListItem = (): { isList: boolean; type?: 'bullet' | 'number'; level: number } => {
+    const lineInfo = getCurrentLineInfo();
+    if (!lineInfo) return { isList: false, level: 0 };
+
+    const text = lineInfo.text;
+    
+    // Check for bullet patterns (including various bullet characters)
+    const bulletPattern = /^(\s*)([•·▪▫‣⁃◦‣⁌⁍]|\*|\-)\s/;
+    const bulletMatch = text.match(bulletPattern);
+    if (bulletMatch) {
+      const level = Math.floor(bulletMatch[1].length / 2); // Assuming 2 spaces per level
+      return { isList: true, type: 'bullet', level };
+    }
+    
+    // Check for numbered list patterns
+    const numberPattern = /^(\s*)(\d+)\.\s/;
+    const numberMatch = text.match(numberPattern);
+    if (numberMatch) {
+      const level = Math.floor(numberMatch[1].length / 2);
+      return { isList: true, type: 'number', level };
+    }
+    
+    return { isList: false, level: 0 };
+  };
+
+  // Convert selected text to list
+  const convertSelectionToList = (type: 'bullet' | 'number') => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    const selectedText = range.toString();
+    
+    if (selectedText) {
+      // Split by lines and convert each line to a list item
+      const lines = selectedText.split('\n');
+      const listItems = lines.map((line, index) => {
+        const trimmedLine = line.trim();
+        if (!trimmedLine) return line;
+        
+        if (type === 'bullet') {
+          return `• ${trimmedLine}`;
+        } else {
+          return `${index + 1}. ${trimmedLine}`;
+        }
+      }).join('\n');
+      
+      // Replace the selected text with list items
+      range.deleteContents();
+      const textNode = document.createTextNode(listItems);
+      range.insertNode(textNode);
+      
+      // Update selection
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      handleContentChange();
+    }
+  };
+
+  // Create or continue bulleted list
   const createBulletedList = () => {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
@@ -169,31 +270,51 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const selectedText = range.toString();
     
     if (selectedText) {
-      // If text is selected, convert each line to a bulleted list item
-      const lines = selectedText.split('\n');
-      const bulletedLines = lines.map(line => line.trim() ? `• ${line.trim()}` : line).join('\n');
-      
-      // Replace the selected text with bulleted list
-      range.deleteContents();
-      const textNode = document.createTextNode(bulletedLines);
-      range.insertNode(textNode);
+      // Convert selected text to bullet list
+      convertSelectionToList('bullet');
+      return;
+    }
+
+    const lineInfo = getCurrentLineInfo();
+    if (!lineInfo) return;
+
+    const { node, text, cursorPosition, range: lineRange } = lineInfo;
+    const listInfo = isCurrentLineListItem();
+    
+    if (listInfo.isList && listInfo.type === 'bullet') {
+      // Already a bullet list, increase level or continue
+      if (listInfo.level < 5) { // Max 5 levels
+        const newLevel = listInfo.level + 1;
+        const indent = '  '.repeat(newLevel);
+        const newText = text.replace(/^(\s*)([•·▪▫‣⁃◦‣⁌⁍]|\*|\-)\s/, `${indent}• `);
+        
+        if (node.textContent) {
+          node.textContent = newText;
+          lineRange.setStart(node, cursorPosition + 2); // +2 for the new indent
+          lineRange.collapse(true);
+        }
+      }
     } else {
-      // If no text is selected, insert a bullet at the current position
-      const bulletText = document.createTextNode('• ');
-      range.insertNode(bulletText);
-      range.setStartAfter(bulletText);
-      range.collapse(true);
+      // Create new bullet list
+      const bulletText = '• ';
+      const newText = text.substring(0, cursorPosition) + bulletText + text.substring(cursorPosition);
+      
+      if (node.textContent) {
+        node.textContent = newText;
+        lineRange.setStart(node, cursorPosition + bulletText.length);
+        lineRange.collapse(true);
+      }
     }
     
     // Update selection
     selection.removeAllRanges();
-    selection.addRange(range);
+    selection.addRange(lineRange);
     
     // Trigger change
     handleContentChange();
   };
 
-  // Function to create numbered list
+  // Create or continue numbered list
   const createNumberedList = () => {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
@@ -202,28 +323,271 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const selectedText = range.toString();
     
     if (selectedText) {
-      // If text is selected, convert each line to a numbered list item
-      const lines = selectedText.split('\n').filter(line => line.trim());
-      const numberedLines = lines.map((line, index) => `${index + 1}. ${line.trim()}`).join('\n');
-      
-      // Replace the selected text with numbered list
-      range.deleteContents();
-      const textNode = document.createTextNode(numberedLines);
-      range.insertNode(textNode);
+      // Convert selected text to numbered list
+      convertSelectionToList('number');
+      return;
+    }
+
+    const lineInfo = getCurrentLineInfo();
+    if (!lineInfo) return;
+
+    const { node, text, cursorPosition, range: lineRange } = lineInfo;
+    const listInfo = isCurrentLineListItem();
+    
+    if (listInfo.isList && listInfo.type === 'number') {
+      // Already a numbered list, increase level or continue
+      if (listInfo.level < 5) { // Max 5 levels
+        const newLevel = listInfo.level + 1;
+        const indent = '  '.repeat(newLevel);
+        const newText = text.replace(/^(\s*)(\d+)\.\s/, `${indent}1. `);
+        
+        if (node.textContent) {
+          node.textContent = newText;
+          lineRange.setStart(node, cursorPosition + 2); // +2 for the new indent
+          lineRange.collapse(true);
+        }
+      }
     } else {
-      // If no text is selected, insert a number at the current position
-      const numberText = document.createTextNode('1. ');
-      range.insertNode(numberText);
-      range.setStartAfter(numberText);
-      range.collapse(true);
+      // Create new numbered list
+      const numberText = '1. ';
+      const newText = text.substring(0, cursorPosition) + numberText + text.substring(cursorPosition);
+      
+      if (node.textContent) {
+        node.textContent = newText;
+        lineRange.setStart(node, cursorPosition + numberText.length);
+        lineRange.collapse(true);
+      }
     }
     
     // Update selection
     selection.removeAllRanges();
-    selection.addRange(range);
+    selection.addRange(lineRange);
     
     // Trigger change
     handleContentChange();
+  };
+
+  // Handle Enter key for list continuation
+  const handleListEnter = (e: React.KeyboardEvent) => {
+    const lineInfo = getCurrentLineInfo();
+    if (!lineInfo) return false;
+
+    const { text } = lineInfo;
+    const listInfo = isCurrentLineListItem();
+    
+    if (listInfo.isList) {
+      e.preventDefault();
+      
+      // Check if the current line is empty (just the bullet/number)
+      const listPattern = listInfo.type === 'bullet' 
+        ? /^(\s*)([•·▪▫‣⁃◦‣⁌⁍]|\*|\-)\s*$/
+        : /^(\s*)(\d+)\.\s*$/;
+      
+      const isEmptyListItem = listPattern.test(text);
+      
+      if (isEmptyListItem) {
+        // Remove the list formatting and create a new line
+        const newText = text.replace(listPattern, '');
+        const node = lineInfo.node;
+        if (node.textContent) {
+          node.textContent = newText;
+          
+          // Insert a new line
+          document.execCommand('insertHTML', false, '<br>');
+          
+          // Set cursor to the new line
+          const selection = window.getSelection();
+          if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const container = range.startContainer;
+            const parent = container.parentNode;
+            
+            if (parent && parent.textContent) {
+              const newPosition = parent.textContent.length;
+              range.setStart(parent, newPosition);
+              range.collapse(true);
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+        }
+      } else {
+        // Continue the list
+        if (listInfo.type === 'bullet') {
+          // Continue bullet list
+          const indent = '  '.repeat(listInfo.level);
+          const newLineText = `${indent}• `;
+          
+          // Insert new line
+          document.execCommand('insertHTML', false, `<br>${newLineText}`);
+          
+          // Move cursor to end of new line
+          const selection = window.getSelection();
+          if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const container = range.startContainer;
+            const parent = container.parentNode;
+            
+            if (parent && parent.textContent) {
+              const newPosition = parent.textContent.length;
+              range.setStart(parent, newPosition);
+              range.collapse(true);
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+        } else if (listInfo.type === 'number') {
+          // Continue numbered list
+          const indent = '  '.repeat(listInfo.level);
+          
+          // Find the next number in sequence
+          const currentNumberMatch = text.match(/^(\s*)(\d+)\.\s/);
+          if (currentNumberMatch) {
+            const currentNumber = parseInt(currentNumberMatch[2]);
+            const newNumber = currentNumber + 1;
+            const newLineText = `${indent}${newNumber}. `;
+            
+            // Insert new line
+            document.execCommand('insertHTML', false, `<br>${newLineText}`);
+            
+            // Move cursor to end of new line
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+              const container = range.startContainer;
+              const parent = container.parentNode;
+              
+              if (parent && parent.textContent) {
+                const newPosition = parent.textContent.length;
+                range.setStart(parent, newPosition);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+              }
+            }
+          }
+        }
+      }
+      
+      handleContentChange();
+      return true;
+    }
+    
+    return false;
+  };
+
+  // Handle Backspace key for list management
+  const handleListBackspace = (e: React.KeyboardEvent) => {
+    const lineInfo = getCurrentLineInfo();
+    if (!lineInfo) return false;
+
+    const { text, cursorPosition } = lineInfo;
+    const listInfo = isCurrentLineListItem();
+    
+    if (listInfo.isList && cursorPosition <= 2) {
+      // If cursor is at the beginning of a list item, remove the list formatting
+      e.preventDefault();
+      
+      if (listInfo.type === 'bullet') {
+        const newText = text.replace(/^(\s*)([•·▪▫‣⁃◦‣⁌⁍]|\*|\-)\s/, '');
+        const node = lineInfo.node;
+        if (node.textContent) {
+          node.textContent = newText;
+          
+          // Set cursor to beginning
+          const range = document.createRange();
+          range.setStart(node, 0);
+          range.collapse(true);
+          
+          const selection = window.getSelection();
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+      } else if (listInfo.type === 'number') {
+        const newText = text.replace(/^(\s*)(\d+)\.\s/, '');
+        const node = lineInfo.node;
+        if (node.textContent) {
+          node.textContent = newText;
+          
+          // Set cursor to beginning
+          const range = document.createRange();
+          range.setStart(node, 0);
+          range.collapse(true);
+          
+          const selection = window.getSelection();
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+      }
+      
+      handleContentChange();
+      return true;
+    }
+    
+    return false;
+  };
+
+  // Handle Tab key for list indentation
+  const handleListTab = (e: React.KeyboardEvent) => {
+    const listInfo = isCurrentLineListItem();
+    
+    if (listInfo.isList) {
+      e.preventDefault();
+      
+      if (e.shiftKey) {
+        // Shift+Tab: decrease indent
+        if (listInfo.level > 0) {
+          const lineInfo = getCurrentLineInfo();
+          if (lineInfo) {
+            const { node, text } = lineInfo;
+            const newLevel = listInfo.level - 1;
+            const indent = '  '.repeat(newLevel);
+            
+            if (listInfo.type === 'bullet') {
+              const newText = text.replace(/^(\s*)([•·▪▫‣⁃◦‣⁌⁍]|\*|\-)\s/, `${indent}• `);
+              if (node.textContent) {
+                node.textContent = newText;
+              }
+            } else if (listInfo.type === 'number') {
+              const newText = text.replace(/^(\s*)(\d+)\.\s/, `${indent}1. `);
+              if (node.textContent) {
+                node.textContent = newText;
+              }
+            }
+            
+            handleContentChange();
+          }
+        }
+      } else {
+        // Tab: increase indent
+        if (listInfo.level < 5) {
+          const lineInfo = getCurrentLineInfo();
+          if (lineInfo) {
+            const { node, text } = lineInfo;
+            const newLevel = listInfo.level + 1;
+            const indent = '  '.repeat(newLevel);
+            
+            if (listInfo.type === 'bullet') {
+              const newText = text.replace(/^(\s*)([•·▪▫‣⁃◦‣⁌⁍]|\*|\-)\s/, `${indent}• `);
+              if (node.textContent) {
+                node.textContent = newText;
+              }
+            } else if (listInfo.type === 'number') {
+              const newText = text.replace(/^(\s*)(\d+)\.\s/, `${indent}1. `);
+              if (node.textContent) {
+                node.textContent = newText;
+              }
+            }
+            
+            handleContentChange();
+          }
+        }
+      }
+      
+      return true;
+    }
+    
+    return false;
   };
 
   const applyFormatting = (format: 'bold' | 'italic' | 'underline' | 'color' | 'fontSize' | 'fontFamily', value?: string) => {
@@ -361,10 +725,22 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Handle list-specific keys first
     if (e.key === 'Enter') {
+      if (handleListEnter(e)) {
+        return; // List handling took care of it
+      }
       e.preventDefault();
       document.execCommand('insertLineBreak', false);
       handleContentChange();
+    } else if (e.key === 'Backspace') {
+      if (handleListBackspace(e)) {
+        return; // List handling took care of it
+      }
+    } else if (e.key === 'Tab') {
+      if (handleListTab(e)) {
+        return; // List handling took care of it
+      }
     }
   };
 
@@ -419,6 +795,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         setCurrentFormatting(prev => ({ ...prev, color: style.color }));
       }
     }
+    
+    // Update list state
+    const listState = isCurrentLineListItem();
+    setCurrentListState(listState);
   };
 
   return (
@@ -452,17 +832,17 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         {/* List Buttons */}
         <button
           onClick={createBulletedList}
-          className=""
+          className={`list-button ${currentListState.isList && currentListState.type === 'bullet' ? 'active' : ''}`}
           title="Bulleted List"
         >
           <List className="w-4 h-4" />
         </button>
         <button
           onClick={createNumberedList}
-          className=""
+          className={`list-button ${currentListState.isList && currentListState.type === 'number' ? 'active' : ''}`}
           title="Numbered List"
         >
-          <span className="text-sm font-bold">N</span>
+          <span className="text-sm font-bold">1.</span>
         </button>
         
         <div className="toolbar-divider"></div>

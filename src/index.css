@@ -196,3 +196,39 @@ textarea,
 .rich-text-editor .toolbar-divider {
   @apply w-px h-6 bg-gray-300 mx-2;
 }
+
+/* List styles */
+.rich-text-editor [contenteditable] {
+  @apply whitespace-pre-wrap;
+}
+
+/* List button styles */
+.rich-text-editor .list-button {
+  @apply relative;
+}
+
+.rich-text-editor .list-button.active {
+  @apply bg-blue-100 text-blue-700;
+}
+
+/* List item styles */
+.rich-text-editor [contenteditable] .list-item {
+  @apply block;
+}
+
+/* Bullet list styles */
+.rich-text-editor [contenteditable] .bullet-list {
+  @apply list-disc list-inside;
+}
+
+/* Numbered list styles */
+.rich-text-editor [contenteditable] .numbered-list {
+  @apply list-decimal list-inside;
+}
+
+/* List indentation */
+.rich-text-editor [contenteditable] .list-indent-1 { margin-left: 1.5rem; }
+.rich-text-editor [contenteditable] .list-indent-2 { margin-left: 3rem; }
+.rich-text-editor [contenteditable] .list-indent-3 { margin-left: 4.5rem; }
+.rich-text-editor [contenteditable] .list-indent-4 { margin-left: 6rem; }
+.rich-text-editor [contenteditable] .list-indent-5 { margin-left: 7.5rem; }
