@@ -232,3 +232,54 @@ textarea,
 .rich-text-editor [contenteditable] .list-indent-3 { margin-left: 4.5rem; }
 .rich-text-editor [contenteditable] .list-indent-4 { margin-left: 6rem; }
 .rich-text-editor [contenteditable] .list-indent-5 { margin-left: 7.5rem; }
+
+/* Word-like text selection */
+.rich-text-editor [contenteditable]::selection {
+  background-color: #0078d4;
+  color: white;
+}
+
+.rich-text-editor [contenteditable]::-moz-selection {
+  background-color: #0078d4;
+  color: white;
+}
+
+/* Word-like cursor */
+.rich-text-editor [contenteditable] {
+  caret-color: #000000;
+}
+
+/* Word-like text editing behavior */
+.rich-text-editor [contenteditable] {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+/* Word-like paragraph spacing */
+.rich-text-editor [contenteditable] p {
+  margin: 0 0 0.5rem 0;
+}
+
+.rich-text-editor [contenteditable] p:last-child {
+  margin-bottom: 0;
+}
+
+/* Word-like toolbar button states */
+.rich-text-editor .formatting-toolbar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rich-text-editor .formatting-toolbar button:not(:disabled):hover {
+  background-color: #e5e7eb;
+  transition: background-color 0.2s ease;
+}
+
+/* Word-like focus styles */
+.rich-text-editor [contenteditable]:focus {
+  outline: none;
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+}

@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Bold, Italic, Underline, Upload, Trash2, List } from 'lucide-react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { Bold, Italic, Underline, Upload, Trash2, List, Undo2, Redo2 } from 'lucide-react';
 import { FormattedContent } from '../types';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -23,6 +23,14 @@ interface ListItem {
   number?: number;
 }
 
+// Undo/Redo history item
+interface HistoryItem {
+  content: string;
+  formattedContent: FormattedContent[];
+  selection: { start: number; end: number; direction: 'forward' | 'backward' | 'none' } | null;
+  timestamp: number;
+}
+
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
   formattedContent,
@@ -43,6 +51,21 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     level: 0
   });
 
+  // Undo/Redo functionality
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [isUndoRedo, setIsUndoRedo] = useState(false);
+
+  // Word-style selection state
+  const [selectionState, setSelectionState] = useState<{
+    start: number;
+    end: number;
+    direction: 'forward' | 'backward' | 'none';
+  } | null>(null);
+
+  // Debounce for content changes
+  const [changeTimeout, setChangeTimeout] = useState<NodeJS.Timeout | null>(null);
+
   // Save caret position as character offset
   const saveCaretPosition = (element: HTMLElement): number | null => {
     const selection = window.getSelection();
@@ -54,6 +77,26 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     preCaretRange.setEnd(range.startContainer, range.startOffset);
 
     return preCaretRange.toString().length;
+  };
+
+  // Save selection range
+  const saveSelection = (element: HTMLElement): { start: number; end: number; direction: 'forward' | 'backward' | 'none' } | null => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+
+    const range = selection.getRangeAt(0);
+    const preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(element);
+    
+    const start = preCaretRange.toString().length;
+    preCaretRange.setEnd(range.endContainer, range.endOffset);
+    const end = preCaretRange.toString().length;
+    
+    return {
+      start: Math.min(start, end),
+      end: Math.max(start, end),
+      direction: selection.anchorNode === range.startContainer ? 'forward' : 'backward'
+    };
   };
 
   // Restore caret position from character offset
@@ -87,6 +130,285 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       const sel = window.getSelection();
       sel?.removeAllRanges();
       sel?.addRange(range);
+    }
+  };
+
+  // Restore selection range
+  const restoreSelection = (element: HTMLElement, selection: { start: number; end: number; direction: 'forward' | 'backward' | 'none' }) => {
+    const range = document.createRange();
+    const sel = window.getSelection();
+    
+    // Find start position
+    let startNode: Node | null = null;
+    let startOffset = 0;
+    let endNode: Node | null = null;
+    let endOffset = 0;
+    
+    let charIndex = 0;
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      null
+    );
+    
+    let node: Node | null;
+    while (node = walker.nextNode()) {
+      const textLength = node.textContent?.length || 0;
+      
+      if (!startNode && charIndex + textLength >= selection.start) {
+        startNode = node;
+        startOffset = selection.start - charIndex;
+      }
+      
+      if (!endNode && charIndex + textLength >= selection.end) {
+        endNode = node;
+        endOffset = selection.end - charIndex;
+        break;
+      }
+      
+      charIndex += textLength;
+    }
+    
+    if (startNode && endNode) {
+      range.setStart(startNode, startOffset);
+      range.setEnd(endNode, endOffset);
+      
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    }
+  };
+
+  // Add to history
+  const addToHistory = useCallback((content: string, formattedContent: FormattedContent[], selection: { start: number; end: number; direction: 'forward' | 'backward' | 'none' } | null = null) => {
+    if (isUndoRedo) return;
+
+    const newItem: HistoryItem = {
+      content,
+      formattedContent,
+      selection,
+      timestamp: Date.now()
+    };
+
+    setHistory(prev => {
+      const newHistory = prev.slice(0, historyIndex + 1);
+      newHistory.push(newItem);
+      // Keep only last 50 items
+      return newHistory.slice(-50);
+    });
+    setHistoryIndex(prev => Math.min(prev + 1, 49));
+  }, [historyIndex, isUndoRedo]);
+
+  // Undo functionality
+  const undo = useCallback(() => {
+    if (historyIndex > 0) {
+      setIsUndoRedo(true);
+      const prevItem = history[historyIndex - 1];
+      setHistoryIndex(prev => prev - 1);
+      
+      if (editorRef.current) {
+        editorRef.current.innerHTML = '';
+        if (prevItem.formattedContent && prevItem.formattedContent.length > 0) {
+          renderFormattedContent();
+        } else {
+          editorRef.current.textContent = prevItem.content;
+        }
+        
+        // Restore selection if available
+        if (prevItem.selection) {
+          restoreSelection(editorRef.current, { ...prevItem.selection, direction: 'none' });
+        }
+      }
+      
+      onChange(prevItem.content, prevItem.formattedContent || []);
+      setIsUndoRedo(false);
+    }
+  }, [history, historyIndex, onChange]);
+
+  // Redo functionality
+  const redo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      setIsUndoRedo(true);
+      const nextItem = history[historyIndex + 1];
+      setHistoryIndex(prev => prev + 1);
+      
+      if (editorRef.current) {
+        editorRef.current.innerHTML = '';
+        if (nextItem.formattedContent && nextItem.formattedContent.length > 0) {
+          renderFormattedContent();
+        } else {
+          editorRef.current.textContent = nextItem.content;
+        }
+        
+        // Restore selection if available
+        if (nextItem.selection) {
+          restoreSelection(editorRef.current, { ...nextItem.selection, direction: 'none' });
+        }
+      }
+      
+      onChange(nextItem.content, nextItem.formattedContent || []);
+      setIsUndoRedo(false);
+    }
+  }, [history, historyIndex, onChange]);
+
+  // Word-style keyboard shortcuts
+  const handleWordShortcuts = useCallback((e: React.KeyboardEvent) => {
+    const isCtrl = e.ctrlKey || e.metaKey;
+    
+    if (isCtrl) {
+      switch (e.key.toLowerCase()) {
+        case 'z':
+          e.preventDefault();
+          if (e.shiftKey) {
+            redo();
+          } else {
+            undo();
+          }
+          return true;
+        case 'y':
+          e.preventDefault();
+          redo();
+          return true;
+        case 'a':
+          e.preventDefault();
+          document.execCommand('selectAll', false);
+          return true;
+        case 'c':
+          // Let default copy behavior work
+          return false;
+        case 'v':
+          // Let default paste behavior work, we'll handle it in onPaste
+          return false;
+        case 'x':
+          // Let default cut behavior work
+          return false;
+        case 'b':
+          e.preventDefault();
+          applyFormatting('bold');
+          return true;
+        case 'i':
+          e.preventDefault();
+          applyFormatting('italic');
+          return true;
+        case 'u':
+          e.preventDefault();
+          applyFormatting('underline');
+          return true;
+      }
+    }
+    
+    return false;
+  }, [undo, redo]);
+
+  // Word-style paste handling
+  const handleWordPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    
+    const text = e.clipboardData.getData('text/plain');
+    const html = e.clipboardData.getData('text/html');
+    
+    if (html) {
+      // Try to preserve some formatting from Word
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      
+      // Clean up Word-specific markup
+      const cleanHtml = tempDiv.innerHTML
+        .replace(/<o:p>/g, '')
+        .replace(/<\/o:p>/g, '')
+        .replace(/<span[^>]*>/g, '')
+        .replace(/<\/span>/g, '')
+        .replace(/<p[^>]*>/g, '')
+        .replace(/<\/p>/g, '\n')
+        .replace(/<br[^>]*>/g, '\n')
+        .replace(/&nbsp;/g, ' ');
+      
+      document.execCommand('insertHTML', false, cleanHtml);
+    } else if (text) {
+      document.execCommand('insertText', false, text);
+    }
+    
+    handleContentChange();
+  };
+
+  // Word-style double-click word selection
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    const range = document.createRange();
+    const target = e.target as Node;
+    
+    if (target.nodeType === Node.TEXT_NODE) {
+      const text = target.textContent || '';
+      const clickOffset = getClickOffset(target as Text, e);
+      
+      // Find word boundaries
+      const wordStart = findWordStart(text, clickOffset);
+      const wordEnd = findWordEnd(text, clickOffset);
+      
+      range.setStart(target, wordStart);
+      range.setEnd(target, wordEnd);
+      
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  };
+
+  // Get click offset in text node
+  const getClickOffset = (textNode: Text, e: React.MouseEvent): number => {
+    const rect = textNode.parentElement?.getBoundingClientRect();
+    if (!rect) return 0;
+    
+    const x = e.clientX - rect.left;
+    const text = textNode.textContent || '';
+    
+    // Simple approximation - in a real implementation you'd use more sophisticated text measurement
+    const charWidth = rect.width / text.length;
+    return Math.min(Math.floor(x / charWidth), text.length);
+  };
+
+  // Find start of word
+  const findWordStart = (text: string, position: number): number => {
+    const wordBoundary = /[\s\.,!?;:()[\]{}"'`~@#$%^&*+=|\\/<>]/;
+    
+    for (let i = position - 1; i >= 0; i--) {
+      if (wordBoundary.test(text[i])) {
+        return i + 1;
+      }
+    }
+    return 0;
+  };
+
+  // Find end of word
+  const findWordEnd = (text: string, position: number): number => {
+    const wordBoundary = /[\s\.,!?;:()[\]{}"'`~@#$%^&*+=|\\/<>]/;
+    
+    for (let i = position; i < text.length; i++) {
+      if (wordBoundary.test(text[i])) {
+        return i;
+      }
+    }
+    return text.length;
+  };
+
+  // Word-style triple-click paragraph selection
+  const handleTripleClick = (e: React.MouseEvent) => {
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    const target = e.target as Node;
+    const range = document.createRange();
+    
+    // Find the paragraph element
+    let paragraphElement = target;
+    while (paragraphElement && paragraphElement.nodeType === Node.TEXT_NODE) {
+      paragraphElement = paragraphElement.parentNode as Element;
+    }
+    
+    if (paragraphElement && paragraphElement.nodeType === Node.ELEMENT_NODE) {
+      range.selectNodeContents(paragraphElement);
+      selection.removeAllRanges();
+      selection.addRange(range);
     }
   };
 
@@ -669,6 +991,21 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
     const content = editorRef.current.innerText;
     const formattedContent = extractFormattedContent();
+    
+    // Save current selection for history
+    const currentSelection = saveSelection(editorRef.current);
+    
+    // Add to history (debounced)
+    if (changeTimeout) {
+      clearTimeout(changeTimeout);
+    }
+    
+    const timeout = setTimeout(() => {
+      addToHistory(content, formattedContent, currentSelection);
+    }, 300);
+    
+    setChangeTimeout(timeout);
+    
     onChange(content, formattedContent);
   };
 
@@ -725,7 +1062,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Handle list-specific keys first
+    // Handle Word-style shortcuts first
+    if (handleWordShortcuts(e)) {
+      return;
+    }
+
+    // Handle list-specific keys
     if (e.key === 'Enter') {
       if (handleListEnter(e)) {
         return; // List handling took care of it
@@ -742,13 +1084,43 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         return; // List handling took care of it
       }
     }
+
+    // Word-style text selection behavior
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      // Handle word-by-word navigation with Ctrl
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        if (e.key === 'ArrowLeft') {
+          document.execCommand('moveWordLeft', false);
+        } else {
+          document.execCommand('moveWordRight', false);
+        }
+        return;
+      }
+    }
+
+    // Word-style line navigation
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        if (e.key === 'ArrowUp') {
+          document.execCommand('moveToBeginningOfDocument', false);
+        } else {
+          document.execCommand('moveToEndOfDocument', false);
+        }
+        return;
+      }
+    }
+
+    // Word-style selection with Shift
+    if (e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      // Let default selection behavior work
+      return;
+    }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const text = e.clipboardData.getData('text/plain');
-    document.execCommand('insertText', false, text);
-    handleContentChange();
+    handleWordPaste(e);
   };
 
   const isFormatActive = (format: string): boolean => {
@@ -805,24 +1177,44 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     <div className={`rich-text-editor ${className}`}>
       {/* Formatting Toolbar */}
       <div className="formatting-toolbar">
+        {/* Undo/Redo Buttons */}
+        <button
+          onClick={undo}
+          disabled={historyIndex <= 0}
+          className={`${historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'}`}
+          title="Undo (Ctrl+Z)"
+        >
+          <Undo2 className="w-4 h-4" />
+        </button>
+        <button
+          onClick={redo}
+          disabled={historyIndex >= history.length - 1}
+          className={`${historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'}`}
+          title="Redo (Ctrl+Y)"
+        >
+          <Redo2 className="w-4 h-4" />
+        </button>
+        
+        <div className="toolbar-divider"></div>
+        
         <button
           onClick={() => applyFormatting('bold')}
           className={`${isFormatActive('bold') ? 'active' : ''}`}
-          title="Bold"
+          title="Bold (Ctrl+B)"
         >
           <Bold className="w-4 h-4" />
         </button>
         <button
           onClick={() => applyFormatting('italic')}
           className={`${isFormatActive('italic') ? 'active' : ''}`}
-          title="Italic"
+          title="Italic (Ctrl+I)"
         >
           <Italic className="w-4 h-4" />
         </button>
         <button
           onClick={() => applyFormatting('underline')}
           className={`${isFormatActive('underline') ? 'active' : ''}`}
-          title="Underline"
+          title="Underline (Ctrl+U)"
         >
           <Underline className="w-4 h-4" />
         </button>
@@ -886,6 +1278,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         onPaste={handlePaste}
         onMouseUp={updateCurrentFormattingFromCursor}
         onKeyUp={updateCurrentFormattingFromCursor}
+        onDoubleClick={handleDoubleClick}
+        onMouseDown={(e) => {
+          // Handle triple-click for paragraph selection
+          if (e.detail === 3) {
+            e.preventDefault();
+            handleTripleClick(e);
+          }
+        }}
         data-placeholder={placeholder}
         style={{
           minHeight: `${rows * 1.5}rem`,
@@ -893,7 +1293,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           textAlign: 'left',
           fontFamily: currentFormatting.fontFamily,
           fontSize: getFormattingStyle('fontSize', currentFormatting.fontSize).replace('font-size: ', ''),
-          color: currentFormatting.color
+          color: currentFormatting.color,
+          userSelect: 'text',
+          cursor: 'text'
         }}
       />
     </div>
