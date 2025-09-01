@@ -192,21 +192,119 @@ const buildInlineStyleFromFormatting = (fmt?: TextFormatting): string => {
 
 function App() {
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedDocumentType, setSelectedDocumentType] = useState('');
-  const [projectInfo, setProjectInfo] = useState<ProjectInfo>({
-    customerName: '',
-    projectName: '',
-    startDate: '',
-    projectOverview: '',
-    technicalOverview: '',
-    pricingTable: [],
-    hardwareComponents: [],
-    servicesComponents: [],
-    headerText: '',
-    footerText: ''
+  // Initialize selectedDocumentType from localStorage or fall back to empty string
+  const [selectedDocumentType, setSelectedDocumentType] = useState(() => {
+    const savedDocumentType = localStorage.getItem('documentTool_selectedDocumentType');
+    return savedDocumentType || '';
   });
-  const [textBlocks, setTextBlocks] = useState<TextBlock[]>(initialTextBlocks);
+  // Initialize projectInfo from localStorage or fall back to default values
+  const [projectInfo, setProjectInfo] = useState<ProjectInfo>(() => {
+    const savedProjectInfo = localStorage.getItem('documentTool_projectInfo');
+    if (savedProjectInfo) {
+      try {
+        return JSON.parse(savedProjectInfo);
+      } catch (error) {
+        console.error('Error parsing saved project info:', error);
+        return {
+          customerName: '',
+          projectName: '',
+          startDate: '',
+          projectOverview: '',
+          technicalOverview: '',
+          pricingTable: [],
+          hardwareComponents: [],
+          servicesComponents: [],
+          headerText: '',
+          footerText: ''
+        };
+      }
+    }
+    return {
+      customerName: '',
+      projectName: '',
+      startDate: '',
+      projectOverview: '',
+      pricingTable: [],
+      hardwareComponents: [],
+      servicesComponents: [],
+      headerText: '',
+      footerText: ''
+    };
+  });
+  // Initialize textBlocks from localStorage or fall back to initial data
+  const [textBlocks, setTextBlocks] = useState<TextBlock[]>(() => {
+    const savedBlocks = localStorage.getItem('documentTool_textBlocks');
+    if (savedBlocks) {
+      try {
+        return JSON.parse(savedBlocks);
+      } catch (error) {
+        console.error('Error parsing saved text blocks:', error);
+        return initialTextBlocks;
+      }
+    }
+    return initialTextBlocks;
+  });
   const [isExporting, setIsExporting] = useState(false);
+
+  // Wrapper function to update textBlocks and save to localStorage
+  const updateTextBlocks = (newBlocks: TextBlock[]) => {
+    setTextBlocks(newBlocks);
+    try {
+      localStorage.setItem('documentTool_textBlocks', JSON.stringify(newBlocks));
+    } catch (error) {
+      console.error('Error saving text blocks to localStorage:', error);
+    }
+  };
+
+  // Wrapper function to update projectInfo and save to localStorage
+  const updateProjectInfo = (newProjectInfo: ProjectInfo) => {
+    setProjectInfo(newProjectInfo);
+    try {
+      localStorage.setItem('documentTool_projectInfo', JSON.stringify(newProjectInfo));
+    } catch (error) {
+      console.error('Error saving project info to localStorage:', error);
+    }
+  };
+
+  // Wrapper function to update selectedDocumentType and save to localStorage
+  const updateSelectedDocumentType = (newDocumentType: string) => {
+    setSelectedDocumentType(newDocumentType);
+    try {
+      localStorage.setItem('documentTool_selectedDocumentType', newDocumentType);
+    } catch (error) {
+      console.error('Error saving selected document type to localStorage:', error);
+    }
+  };
+
+  // Function to clear all saved data and reset to initial state
+  const clearAllSavedData = () => {
+    try {
+      localStorage.removeItem('documentTool_textBlocks');
+      localStorage.removeItem('documentTool_projectInfo');
+      localStorage.removeItem('documentTool_selectedDocumentType');
+      
+      // Reset all state to initial values
+      setTextBlocks(initialTextBlocks);
+      setProjectInfo({
+        customerName: '',
+        projectName: '',
+        startDate: '',
+        projectOverview: '',
+        technicalOverview: '',
+        pricingTable: [],
+        hardwareComponents: [],
+        servicesComponents: [],
+        headerText: '',
+        footerText: ''
+      });
+      setSelectedDocumentType('');
+      setCurrentStep(0);
+      
+      console.log('All saved data cleared successfully');
+    } catch (error) {
+      console.error('Error clearing saved data:', error);
+    }
+  };
 
   const selectedBlocks = textBlocks.filter(block => block.isSelected);
 
@@ -1404,21 +1502,21 @@ Generated on ${formatDate(new Date().toISOString().split('T')[0])}
           <DocumentTypeSelector
             documentTypes={documentTypes}
             selectedType={selectedDocumentType}
-            onTypeSelect={setSelectedDocumentType}
+            onTypeSelect={updateSelectedDocumentType}
           />
         );
       case 1:
         return (
           <ProjectInfoForm
             projectInfo={projectInfo}
-            onInfoChange={setProjectInfo}
+            onInfoChange={updateProjectInfo}
           />
         );
       case 2:
         return (
           <TextBlockSelector
             textBlocks={textBlocks}
-            onBlocksChange={setTextBlocks}
+            onBlocksChange={updateTextBlocks}
           />
         );
       case 3:
@@ -1465,6 +1563,13 @@ Generated on ${formatDate(new Date().toISOString().split('T')[0])}
                   style={{ width: `${((currentStep + 1) / wizardSteps.length) * 100}%` }}
                 ></div>
               </div>
+              <button
+                onClick={clearAllSavedData}
+                className="text-sm text-red-600 bg-white/60 px-3 py-2 rounded-full border border-red-200 hover:bg-red-50 hover:border-red-300 transition-all duration-200"
+                title="Clear all saved data and reset to initial state"
+              >
+                Reset All
+              </button>
               {/* <div className="text-sm text-gray-600 bg-white/60 px-4 py-2 rounded-full border border-gray-200">
                 <span className="font-medium">Contact Dmytro:</span> plyskadmytro1@gmail.com
               </div> */}
