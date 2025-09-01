@@ -285,9 +285,9 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         footerOptions: newBlock.footerOptions,
         titleFormatting: newBlock.titleFormatting,
         contentFormatting: newBlock.contentFormatting,
-        // Use formatted content if maintainFormatting is enabled (from either extracted content or existing block)
-        formattedContent: newBlock.maintainFormatting && (extractedFormattedContent || newBlock.formattedContent) ? 
-          (extractedFormattedContent || newBlock.formattedContent) : undefined
+        // Always preserve formatted content from RichTextEditor, or extracted content if maintainFormatting is enabled
+        formattedContent: newBlock.formattedContent || 
+          (newBlock.maintainFormatting && extractedFormattedContent ? extractedFormattedContent : undefined)
       };
       onBlocksChange([...textBlocks, block]);
       setNewBlock({ 
@@ -331,8 +331,8 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         block.id === editBlock.id ? { 
           ...editBlock,
           content: editBlock.content,
-          // Clear formattedContent when content is edited to ensure the new content is displayed
-          formattedContent: undefined,
+          // Preserve formattedContent to maintain formatting effects (bold, italic, underline)
+          formattedContent: editBlock.formattedContent,
           headerOptions: editBlock.headerOptions || ['', ''],
           footerOptions: editBlock.footerOptions || ['', '']
         } : block
