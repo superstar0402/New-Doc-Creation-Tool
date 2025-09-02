@@ -408,6 +408,178 @@ textarea,
   }
 }
 
+/* Overflow Controls Styles */
+.rich-text-editor .overflow-controls {
+  @apply flex items-center gap-1;
+}
+
+.rich-text-editor .toolbar-btn.overflow-btn {
+  @apply bg-blue-50 hover:bg-blue-100;
+  border: 1px solid #dbeafe;
+  color: #1d4ed8;
+}
+
+.rich-text-editor .toolbar-btn.overflow-btn:hover:not(:disabled) {
+  @apply bg-blue-100 border-blue-300;
+  transform: translateY(-1px);
+}
+
+.rich-text-editor .toolbar-btn.overflow-btn:disabled {
+  @apply bg-gray-100 text-gray-400 border-gray-200;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Overflow Indicators */
+.rich-text-editor .overflow-indicators {
+  @apply flex items-center justify-between p-2 bg-gray-50 border-t border-gray-200;
+  font-size: 0.75rem;
+}
+
+.rich-text-editor .overflow-indicator {
+  @apply flex items-center gap-2;
+}
+
+.rich-text-editor .overflow-indicator.vertical {
+  @apply flex-col;
+}
+
+.rich-text-editor .overflow-indicator.horizontal {
+  @apply flex-row;
+}
+
+.rich-text-editor .scroll-track {
+  @apply relative bg-gray-200 rounded-full;
+  width: 60px;
+  height: 4px;
+}
+
+.rich-text-editor .overflow-indicator.vertical .scroll-track {
+  width: 4px;
+  height: 60px;
+}
+
+.rich-text-editor .scroll-thumb {
+  @apply absolute bg-blue-500 rounded-full;
+  transition: all 0.2s ease;
+}
+
+.rich-text-editor .overflow-indicator.vertical .scroll-thumb {
+  width: 100%;
+  left: 0;
+}
+
+.rich-text-editor .overflow-indicator.horizontal .scroll-thumb {
+  height: 100%;
+  top: 0;
+}
+
+.rich-text-editor .scroll-info {
+  @apply text-gray-600 font-mono;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+/* Enhanced Text Overflow Handling */
+.rich-text-editor [contenteditable] {
+  @apply min-h-[6rem] p-4 border border-gray-300 rounded-b-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none;
+  @apply text-sm leading-relaxed;
+  text-align: left !important;
+  direction: ltr !important;
+  overflow: auto;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* Text overflow indicators */
+.rich-text-editor [contenteditable]::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #e5e7eb;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.rich-text-editor [contenteditable]:has(+ .overflow-indicators .overflow-indicator.vertical)::after {
+  opacity: 1;
+}
+
+/* Responsive overflow controls */
+@media (max-width: 768px) {
+  .rich-text-editor .overflow-controls {
+    @apply gap-0.5;
+  }
+  
+  .rich-text-editor .toolbar-btn.overflow-btn {
+    @apply p-2;
+    min-width: 2.25rem;
+    height: 2.25rem;
+  }
+  
+  .rich-text-editor .overflow-indicators {
+    @apply p-1.5;
+  }
+  
+  .rich-text-editor .scroll-track {
+    width: 50px;
+    height: 3px;
+  }
+  
+  .rich-text-editor .overflow-indicator.vertical .scroll-track {
+    width: 3px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 640px) {
+  .rich-text-editor .overflow-controls {
+    @apply flex-wrap justify-center;
+    gap: 0.25rem;
+  }
+  
+  .rich-text-editor .overflow-indicators {
+    @apply flex-col gap-2;
+  }
+  
+  .rich-text-editor .overflow-indicator {
+    @apply justify-center;
+  }
+}
+
+@media (max-width: 480px) {
+  .rich-text-editor .toolbar-btn.overflow-btn {
+    @apply p-1.5;
+    min-width: 2rem;
+    height: 2rem;
+  }
+  
+  .rich-text-editor .toolbar-btn.overflow-btn svg {
+    @apply w-3.5 h-3.5;
+  }
+  
+  .rich-text-editor .scroll-track {
+    width: 40px;
+    height: 2px;
+  }
+  
+  .rich-text-editor .overflow-indicator.vertical .scroll-track {
+    width: 2px;
+    height: 40px;
+  }
+  
+  .rich-text-editor .scroll-info {
+    font-size: 0.625rem;
+    min-width: 2rem;
+  }
+}
+
 /* List styles */
 .rich-text-editor [contenteditable] {
   @apply whitespace-pre-wrap;

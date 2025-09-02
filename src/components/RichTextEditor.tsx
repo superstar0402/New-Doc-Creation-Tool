@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Bold, Italic, Underline, Upload, Trash2, List, Undo2, Redo2 } from 'lucide-react';
+import { Bold, Italic, Underline, Upload, Trash2, List, Undo2, Redo2, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
 import { FormattedContent } from '../types';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -13,6 +13,8 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   rows?: number;
+  maxHeight?: string;
+  showOverflowControls?: boolean;
 }
 
 // List item types
@@ -37,7 +39,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onChange,
   placeholder = "Enter content...",
   className = "",
-  rows = 6
+  rows = 6,
+  maxHeight,
+  showOverflowControls = true
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -64,6 +68,19 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   // Debounce for content changes
   const [changeTimeout, setChangeTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  // Overflow detection state
+  const [overflowState, setOverflowState] = useState({
+    hasVerticalOverflow: false,
+    hasHorizontalOverflow: false,
+    scrollTop: 0,
+    scrollLeft: 0,
+    maxScrollTop: 0,
+    maxScrollLeft: 0
+  });
+
+  // Editor size state
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Save caret position as character offset
   const saveCaretPosition = (element: HTMLElement): number | null => {
@@ -97,6 +114,96 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       direction: selection.anchorNode === range.startContainer ? 'forward' : 'backward'
     };
   };
+
+  // Check for content overflow
+  const checkOverflow = useCallback(() => {
+    if (!editorRef.current) return;
+
+    const element = editorRef.current;
+    const hasVerticalOverflow = element.scrollHeight > element.clientHeight;
+    const hasHorizontalOverflow = element.scrollWidth > element.clientWidth;
+    
+    setOverflowState({
+      hasVerticalOverflow,
+      hasHorizontalOverflow,
+      scrollTop: element.scrollTop,
+      scrollLeft: element.scrollLeft,
+      maxScrollTop: element.scrollHeight - element.clientHeight,
+      maxScrollLeft: element.scrollWidth - element.clientWidth
+    });
+  }, []);
+
+  // Scroll control functions
+  const scrollUp = useCallback(() => {
+    if (!editorRef.current) return;
+    const element = editorRef.current;
+    element.scrollTop = Math.max(0, element.scrollTop - 50);
+    checkOverflow();
+  }, [checkOverflow]);
+
+  const scrollDown = useCallback(() => {
+    if (!editorRef.current) return;
+    const element = editorRef.current;
+    element.scrollTop = Math.min(element.scrollHeight - element.clientHeight, element.scrollTop + 50);
+    checkOverflow();
+  }, [checkOverflow]);
+
+  const scrollLeft = useCallback(() => {
+    if (!editorRef.current) return;
+    const element = editorRef.current;
+    element.scrollLeft = Math.max(0, element.scrollLeft - 50);
+    checkOverflow();
+  }, [checkOverflow]);
+
+  const scrollRight = useCallback(() => {
+    if (!editorRef.current) return;
+    const element = editorRef.current;
+    element.scrollLeft = Math.min(element.scrollWidth - element.clientWidth, element.scrollLeft + 50);
+    checkOverflow();
+  }, [checkOverflow]);
+
+  const scrollToTop = useCallback(() => {
+    if (!editorRef.current) return;
+    editorRef.current.scrollTop = 0;
+    checkOverflow();
+  }, [checkOverflow]);
+
+  const scrollToBottom = useCallback(() => {
+    if (!editorRef.current) return;
+    const element = editorRef.current;
+    element.scrollTop = element.scrollHeight - element.clientHeight;
+    checkOverflow();
+  }, [checkOverflow]);
+
+  const toggleExpand = useCallback(() => {
+    setIsExpanded(!isExpanded);
+  }, [isExpanded]);
+
+  // Check overflow on content changes and resize
+  useEffect(() => {
+    checkOverflow();
+    
+    const resizeObserver = new ResizeObserver(() => {
+      checkOverflow();
+    });
+    
+    if (editorRef.current) {
+      resizeObserver.observe(editorRef.current);
+    }
+    
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [checkOverflow, value]);
+
+  // Check overflow when content changes
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      checkOverflow();
+    }, 100);
+    
+    return () => clearTimeout(timeout);
+  }, [value, checkOverflow]);
 
   // Restore caret position from character offset
   const restoreCaretPosition = (element: HTMLElement, offset: number) => {
@@ -1282,6 +1389,80 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <option value="Open Sans">Open Sans</option>
           </select>
         </div>
+
+        {/* Overflow Controls Group */}
+        {showOverflowControls && (
+          <>
+            <div className="toolbar-divider"></div>
+            <div className="toolbar-group overflow-controls">
+              <button
+                onClick={toggleExpand}
+                className="toolbar-btn overflow-btn"
+                title={isExpanded ? "Collapse Editor" : "Expand Editor"}
+              >
+                {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </button>
+              
+              {overflowState.hasVerticalOverflow && (
+                <>
+                  <button
+                    onClick={scrollToTop}
+                    className="toolbar-btn overflow-btn"
+                    disabled={overflowState.scrollTop === 0}
+                    title="Scroll to Top"
+                  >
+                    <ChevronUp className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={scrollUp}
+                    className="toolbar-btn overflow-btn"
+                    disabled={overflowState.scrollTop === 0}
+                    title="Scroll Up"
+                  >
+                    <ChevronUp className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={scrollDown}
+                    className="toolbar-btn overflow-btn"
+                    disabled={overflowState.scrollTop >= overflowState.maxScrollTop}
+                    title="Scroll Down"
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={scrollToBottom}
+                    className="toolbar-btn overflow-btn"
+                    disabled={overflowState.scrollTop >= overflowState.maxScrollTop}
+                    title="Scroll to Bottom"
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+              
+              {overflowState.hasHorizontalOverflow && (
+                <>
+                  <button
+                    onClick={scrollLeft}
+                    className="toolbar-btn overflow-btn"
+                    disabled={overflowState.scrollLeft === 0}
+                    title="Scroll Left"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={scrollRight}
+                    className="toolbar-btn overflow-btn"
+                    disabled={overflowState.scrollLeft >= overflowState.maxScrollLeft}
+                    title="Scroll Right"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+            </div>
+          </>
+        )}
       </div>
       
       {/* Editor */}
@@ -1297,6 +1478,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         onMouseUp={updateCurrentFormattingFromCursor}
         onKeyUp={updateCurrentFormattingFromCursor}
         onDoubleClick={handleDoubleClick}
+        onScroll={checkOverflow}
         onMouseDown={(e) => {
           // Handle triple-click for paragraph selection
           if (e.detail === 3) {
@@ -1306,15 +1488,58 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         }}
         data-placeholder={placeholder}
         style={{
-          minHeight: `${rows * 1.5}rem`,
+          minHeight: isExpanded ? '20rem' : `${rows * 1.5}rem`,
+          maxHeight: maxHeight || (isExpanded ? '40rem' : `${rows * 1.5}rem`),
           direction: 'ltr',
           textAlign: 'left',
           fontFamily: currentFormatting.fontFamily,
           fontSize: getFormattingStyle('fontSize', currentFormatting.fontSize).replace('font-size: ', ''),
           userSelect: 'text',
-          cursor: 'text'
+          cursor: 'text',
+          overflow: 'auto',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap'
         }}
       />
+      
+      {/* Overflow Indicators */}
+      {/* {showOverflowControls && (
+        <div className="overflow-indicators">
+          {overflowState.hasVerticalOverflow && (
+            <div className="overflow-indicator vertical">
+              <div className="scroll-track">
+                <div 
+                  className="scroll-thumb"
+                  style={{
+                    height: `${Math.max(20, (editorRef.current?.clientHeight || 0) / (editorRef.current?.scrollHeight || 1) * 100)}%`,
+                    top: `${(overflowState.scrollTop / Math.max(1, overflowState.maxScrollTop)) * 100}%`
+                  }}
+                ></div>
+              </div>
+              <span className="scroll-info">
+                {Math.round((overflowState.scrollTop / Math.max(1, overflowState.maxScrollTop)) * 100)}%
+              </span>
+            </div>
+          )}
+          
+          {overflowState.hasHorizontalOverflow && (
+            <div className="overflow-indicator horizontal">
+              <div className="scroll-track">
+                <div 
+                  className="scroll-thumb"
+                  style={{
+                    width: `${Math.max(20, (editorRef.current?.clientWidth || 0) / (editorRef.current?.scrollWidth || 1) * 100)}%`,
+                    left: `${(overflowState.scrollLeft / Math.max(1, overflowState.maxScrollLeft)) * 100}%`
+                  }}
+                ></div>
+              </div>
+              <span className="scroll-info">
+                {Math.round((overflowState.scrollLeft / Math.max(1, overflowState.maxScrollLeft)) * 100)}%
+              </span>
+            </div>
+          )}
+        </div>
+      )} */}
     </div>
   );
 }; 
