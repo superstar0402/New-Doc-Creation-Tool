@@ -1184,93 +1184,104 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     <div className={`rich-text-editor ${className}`}>
       {/* Formatting Toolbar */}
       <div className="formatting-toolbar">
-        {/* Undo/Redo Buttons */}
-        <button
-          onClick={undo}
-          disabled={historyIndex <= 0}
-          className={`${historyIndex <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'}`}
-          title="Undo (Ctrl+Z)"
-        >
-          <Undo2 className="w-4 h-4" />
-        </button>
-        <button
-          onClick={redo}
-          disabled={historyIndex >= history.length - 1}
-          className={`${historyIndex >= history.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'}`}
-          title="Redo (Ctrl+Y)"
-        >
-          <Redo2 className="w-4 h-4" />
-        </button>
+        {/* Main Toolbar Group - Always Visible */}
+        <div className="toolbar-group main-tools">
+          {/* Undo/Redo Buttons */}
+          <button
+            onClick={undo}
+            disabled={historyIndex <= 0}
+            className={`toolbar-btn undo-redo ${historyIndex <= 0 ? 'disabled' : ''}`}
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={redo}
+            disabled={historyIndex >= history.length - 1}
+            className={`toolbar-btn undo-redo ${historyIndex >= history.length - 1 ? 'disabled' : ''}`}
+            title="Redo (Ctrl+Y)"
+          >
+            <Redo2 className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="toolbar-divider"></div>
+        
+        {/* Text Formatting Group */}
+        <div className="toolbar-group text-formatting">
+          <button
+            onClick={() => applyFormatting('bold')}
+            className={`toolbar-btn ${isFormatActive('bold') ? 'active' : ''}`}
+            title="Bold (Ctrl+B)"
+          >
+            <Bold className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => applyFormatting('italic')}
+            className={`toolbar-btn ${isFormatActive('italic') ? 'active' : ''}`}
+            title="Italic (Ctrl+I)"
+          >
+            <Italic className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => applyFormatting('underline')}
+            className={`toolbar-btn ${isFormatActive('underline') ? 'active' : ''}`}
+            title="Underline (Ctrl+U)"
+          >
+            <Underline className="w-4 h-4" />
+          </button>
+        </div>
         
         <div className="toolbar-divider"></div>
         
-        <button
-          onClick={() => applyFormatting('bold')}
-          className={`${isFormatActive('bold') ? 'active' : ''}`}
-          title="Bold (Ctrl+B)"
-        >
-          <Bold className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => applyFormatting('italic')}
-          className={`${isFormatActive('italic') ? 'active' : ''}`}
-          title="Italic (Ctrl+I)"
-        >
-          <Italic className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => applyFormatting('underline')}
-          className={`${isFormatActive('underline') ? 'active' : ''}`}
-          title="Underline (Ctrl+U)"
-        >
-          <Underline className="w-4 h-4" />
-        </button>
+        {/* List Tools Group */}
+        <div className="toolbar-group list-tools">
+          <button
+            onClick={createBulletedList}
+            className={`toolbar-btn list-button ${currentListState.isList && currentListState.type === 'bullet' ? 'active' : ''}`}
+            title="Bulleted List"
+          >
+            <List className="w-4 h-4" />
+          </button>
+          <button
+            onClick={createNumberedList}
+            className={`toolbar-btn list-button ${currentListState.isList && currentListState.type === 'number' ? 'active' : ''}`}
+            title="Numbered List"
+          >
+            <span className="text-sm font-bold">1.</span>
+          </button>
+        </div>
         
         <div className="toolbar-divider"></div>
         
-        {/* List Buttons */}
-        <button
-          onClick={createBulletedList}
-          className={`list-button ${currentListState.isList && currentListState.type === 'bullet' ? 'active' : ''}`}
-          title="Bulleted List"
-        >
-          <List className="w-4 h-4" />
-        </button>
-        <button
-          onClick={createNumberedList}
-          className={`list-button ${currentListState.isList && currentListState.type === 'number' ? 'active' : ''}`}
-          title="Numbered List"
-        >
-          <span className="text-sm font-bold">1.</span>
-        </button>
-        
-        <div className="toolbar-divider"></div>
-        
-        <select
-          value={currentFormatting.fontSize}
-          onChange={(e) => handleFormattingChange('fontSize', e.target.value)}
-          className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          title="Font Size"
-        >
-          <option value="xs">XS</option>
-          <option value="sm">SM</option>
-          <option value="base">Base</option>
-          <option value="lg">LG</option>
-          <option value="xl">XL</option>
-          <option value="2xl">2XL</option>
-          <option value="3xl">3XL</option>
-        </select>
-        
-        <select
-          value={currentFormatting.fontFamily}
-          onChange={(e) => handleFormattingChange('fontFamily', e.target.value)}
-          className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          title="Font Family"
-        >
-          <option value="Arial">Arial</option>
-          <option value="Roboto">Roboto</option>
-          <option value="Open Sans">Open Sans</option>
-        </select>
+        {/* Typography Group */}
+        <div className="toolbar-group typography">
+          <select
+            value={currentFormatting.fontSize}
+            onChange={(e) => handleFormattingChange('fontSize', e.target.value)}
+            className="toolbar-select font-size-select"
+            title="Font Size"
+          >
+            <option value="xs">XS</option>
+            <option value="sm">SM</option>
+            <option value="base">Base</option>
+            <option value="lg">LG</option>
+            <option value="xl">XL</option>
+            <option value="2xl">2XL</option>
+            <option value="3xl">3XL</option>
+          </select>
+          
+          <select
+            value={currentFormatting.fontFamily}
+            onChange={(e) => handleFormattingChange('fontFamily', e.target.value)}
+            className="toolbar-select font-family-select"
+            title="Font Family"
+          >
+            <option value="Arial">Arial</option>
+            <option value="Roboto">Roboto</option>
+            <option value="Open Sans">Open Sans</option>
+          </select>
+        </div>
       </div>
       
       {/* Editor */}
