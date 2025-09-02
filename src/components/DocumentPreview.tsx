@@ -443,32 +443,6 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                     </div>
                     
                     <div className="space-y-6 pl-11">
-                      {projectInfo.hardwareComponents.length > 0 && (
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border-l-4 border-blue-500">
-                          <h4 className="text-lg font-semibold text-blue-800 mb-3">Hardware Components</h4>
-                          <div className="text-gray-700 leading-relaxed space-y-2">
-                            {projectInfo.hardwareComponents.map((item, index) => (
-                              <div key={index} className="flex items-start">
-                                <div>{renderFormattedContent([item])}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {projectInfo.servicesComponents.length > 0 && (
-                        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-xl border-l-4 border-emerald-500">
-                          <h4 className="text-lg font-semibold text-emerald-800 mb-3">Services Components</h4>
-                          <div className="text-gray-700 leading-relaxed space-y-2">
-                            {projectInfo.servicesComponents.map((item, index) => (
-                              <div key={index} className="flex items-start">
-                                <div>{renderFormattedContent([item])}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
                       {projectInfo.pricingTable && projectInfo.pricingTable.length > 0 && (
                         <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border-l-4 border-amber-500">
                           <h4 className="text-lg font-semibold text-amber-800 mb-3">Pricing Structure</h4>
@@ -505,6 +479,32 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                                 </tr>
                               </tfoot>
                             </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {projectInfo.hardwareComponents.length > 0 && (
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border-l-4 border-blue-500">
+                          <h4 className="text-lg font-semibold text-blue-800 mb-3">Hardware Components</h4>
+                          <div className="text-gray-700 leading-relaxed space-y-2">
+                            {projectInfo.hardwareComponents.map((item, index) => (
+                              <div key={index} className="flex items-start">
+                                <div>{renderFormattedContent([item])}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {projectInfo.servicesComponents.length > 0 && (
+                        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-xl border-l-4 border-emerald-500">
+                          <h4 className="text-lg font-semibold text-emerald-800 mb-3">Services Components</h4>
+                          <div className="text-gray-700 leading-relaxed space-y-2">
+                            {projectInfo.servicesComponents.map((item, index) => (
+                              <div key={index} className="flex items-start">
+                                <div>{renderFormattedContent([item])}</div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}

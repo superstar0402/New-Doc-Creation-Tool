@@ -389,6 +389,19 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
     if (projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) {
       content += `\n## Pricing & Components\n\n`;
 
+      if (projectInfo.pricingTable.length > 0) {
+        content += `### Pricing Structure\n\n`;
+        content += `| Item | Quantity | Description | Price ($) | Extended Price ($) |\n`;
+        content += `|------|----------|-------------|-----------|-------------------|\n`;
+
+        projectInfo.pricingTable.forEach(item => {
+          content += `| ${item.item || 'N/A'} | ${item.quantity} | ${item.description || 'N/A'} | $${item.price.toFixed(2)} | $${item.extendedPrice.toFixed(2)} |\n`;
+        });
+
+        const total = projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0);
+        content += `| **Total** | | | | **$${total.toFixed(2)}** |\n\n`;
+      }
+
       if (projectInfo.hardwareComponents.length > 0) {
         content += `### Hardware Components\n\n`;
         projectInfo.hardwareComponents.forEach(item => {
@@ -403,19 +416,6 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
           content += `${convertFormattedContentToPlainText([item])}\n`;
         });
         content += `\n`;
-      }
-
-      if (projectInfo.pricingTable.length > 0) {
-        content += `### Pricing Structure\n\n`;
-        content += `| Item | Quantity | Description | Price ($) | Extended Price ($) |\n`;
-        content += `|------|----------|-------------|-----------|-------------------|\n`;
-
-        projectInfo.pricingTable.forEach(item => {
-          content += `| ${item.item || 'N/A'} | ${item.quantity} | ${item.description || 'N/A'} | $${item.price.toFixed(2)} | $${item.extendedPrice.toFixed(2)} |\n`;
-        });
-
-        const total = projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0);
-        content += `| **Total** | | | | **$${total.toFixed(2)}** |\n\n`;
       }
     }
 
@@ -520,30 +520,6 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               ${(projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) ? `
               <div style="margin-bottom: 0px;">
                 <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Pricing & Components</h2>
-                ${projectInfo.hardwareComponents.length > 0 ? `
-                <div style="margin-bottom: 15px;">
-                  <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Hardware Components</h3>
-                  <div style="margin: 5px 0;">
-                    ${projectInfo.hardwareComponents.map(item => `
-                      <div style="margin: 2px 0;">
-                        ${convertFormattedContentToHTML([item])}
-                      </div>
-                    `).join('')}
-                  </div>
-                </div>
-                ` : ''}
-                ${projectInfo.servicesComponents.length > 0 ? `
-                <div style="margin-bottom: 15px;">
-                  <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Services Components</h3>
-                  <div style="margin: 5px 0;">
-                    ${projectInfo.servicesComponents.map(item => `
-                      <div style="margin: 2px 0;">
-                        ${convertFormattedContentToHTML([item])}
-                      </div>
-                    `).join('')}
-                  </div>
-                </div>
-                ` : ''}
                 ${projectInfo.pricingTable.length > 0 ? `
                 <div style="margin-bottom: 15px;">
                   <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Pricing Structure</h3>
@@ -576,6 +552,30 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                       </tr>
                     </tbody>
                   </table>
+                </div>
+                ` : ''}
+                ${projectInfo.hardwareComponents.length > 0 ? `
+                <div style="margin-bottom: 15px;">
+                  <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Hardware Components</h3>
+                  <div style="margin: 5px 0;">
+                    ${projectInfo.hardwareComponents.map(item => `
+                      <div style="margin: 2px 0;">
+                        ${convertFormattedContentToHTML([item])}
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+                ` : ''}
+                ${projectInfo.servicesComponents.length > 0 ? `
+                <div style="margin-bottom: 15px;">
+                  <h3 style="margin: 10px 0 5px 0; font-size: 16px; font-weight: bold;">Services Components</h3>
+                  <div style="margin: 5px 0;">
+                    ${projectInfo.servicesComponents.map(item => `
+                      <div style="margin: 2px 0;">
+                        ${convertFormattedContentToHTML([item])}
+                      </div>
+                    `).join('')}
+                  </div>
                 </div>
                 ` : ''}
               </div>
@@ -858,39 +858,6 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
             });
 
             // Pricing Components
-            if (projectInfo.hardwareComponents.length > 0) {
-              paragraphs.push(new Paragraph({
-                text: "Hardware Components",
-                heading: HeadingLevel.HEADING_2,
-                spacing: {
-                  after: 200,
-                  before: 400
-                }
-              }));
-              projectInfo.hardwareComponents.forEach(item => {
-                const textRuns = convertFormattedContentToTextRuns([item]);
-                paragraphs.push(new Paragraph({
-                  children: textRuns
-                }));
-              });
-            }
-
-            if (projectInfo.servicesComponents.length > 0) {
-              paragraphs.push(new Paragraph({
-                text: "Services Components",
-                heading: HeadingLevel.HEADING_2,
-                spacing: {
-                  after: 200,
-                  before: 400
-                }
-              }));
-              projectInfo.servicesComponents.forEach(item => {
-                const textRuns = convertFormattedContentToTextRuns([item]);
-                paragraphs.push(new Paragraph({
-                  children: textRuns
-                }));
-              });
-            }
 
             if (projectInfo.pricingTable.length > 0) {
               paragraphs.push(new Paragraph({
@@ -997,6 +964,40 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               });
 
               paragraphs.push(pricingTable);
+            }
+
+            if (projectInfo.hardwareComponents.length > 0) {
+              paragraphs.push(new Paragraph({
+                text: "Hardware Components",
+                heading: HeadingLevel.HEADING_2,
+                spacing: {
+                  after: 200,
+                  before: 400
+                }
+              }));
+              projectInfo.hardwareComponents.forEach(item => {
+                const textRuns = convertFormattedContentToTextRuns([item]);
+                paragraphs.push(new Paragraph({
+                  children: textRuns
+                }));
+              });
+            }
+
+            if (projectInfo.servicesComponents.length > 0) {
+              paragraphs.push(new Paragraph({
+                text: "Services Components",
+                heading: HeadingLevel.HEADING_2,
+                spacing: {
+                  after: 200,
+                  before: 400
+                }
+              }));
+              projectInfo.servicesComponents.forEach(item => {
+                const textRuns = convertFormattedContentToTextRuns([item]);
+                paragraphs.push(new Paragraph({
+                  children: textRuns
+                }));
+              });
             }
 
             // // Footer
