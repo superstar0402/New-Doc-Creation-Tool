@@ -216,7 +216,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
               </button>
               
-              <button
+              {/* <button
                 onClick={() => onExport('gdocs')}
                 disabled={isExporting}
                 className={`w-full group relative overflow-hidden px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -230,7 +230,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                   <span className="font-medium">{isExporting ? 'Exporting...' : 'Google Docs'}</span>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              </button>
+              </button> */}
 
               <div className="pt-6 border-t border-gray-200">
                 <h4 className="text-sm font-semibold text-gray-900 mb-4">Document Summary</h4>
