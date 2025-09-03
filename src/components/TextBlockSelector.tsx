@@ -7,6 +7,17 @@ import { RichTextEditor } from './RichTextEditor';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
+/**
+ * TextBlockSelector Component
+ * 
+ * IMPORTANT: Content Preservation Behavior
+ * - When content is manually entered in text boxes, it is preserved
+ * - New uploaded content is ALWAYS appended to existing content, never replaces it
+ * - This ensures that manual work is never lost when uploading additional content
+ * - Formatted content from uploads is merged with existing formatted content
+ * - Plain text uploads are added as new formatted content items
+ */
+
 interface TextBlockSelectorProps {
   textBlocks: TextBlock[];
   onBlocksChange: (blocks: TextBlock[]) => void;
@@ -232,10 +243,9 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
         return 'Arial'; // Default fallback
       };
       
+      // Only update the contentFormatting, don't overwrite formattedContent
       setNewBlock({
         ...newBlock,
-        content: newBlock.content, // Keep existing content
-        formattedContent: formattedContent, // Store the formatted content
         contentFormatting: {
           fontFamily: firstStyle.fontFamily ? mapFontFamily(firstStyle.fontFamily) : 'Arial',
           fontSize: firstStyle.fontSize || 'base',
@@ -922,7 +932,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                   const doc = parser.parseFromString(html, 'text/html');
                                   
                                   // Extract text content with formatting
-                                  const formattedContent: FormattedContent[] = [];
+                                  const extractedFormattedContent: FormattedContent[] = [];
                                   
                                   // Function to process nodes and extract formatting
                                   const processNode = (node: Node) => {
@@ -999,12 +1009,12 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                             style.underline = true;
                                           }
                                           
-                                          formattedContent.push({
+                                          extractedFormattedContent.push({
                                             text: node.textContent,
                                             style
                                           });
                                         } else {
-                                          formattedContent.push({
+                                          extractedFormattedContent.push({
                                             text: node.textContent
                                           });
                                         }
@@ -1065,7 +1075,7 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                       // Process child nodes
                                       for (const child of Array.from(element.childNodes)) {
                                         if (child.nodeType === Node.TEXT_NODE && child.textContent) {
-                                          formattedContent.push({
+                                          extractedFormattedContent.push({
                                             text: child.textContent,
                                             style
                                           });
@@ -1089,30 +1099,55 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                                   text = doc.body.textContent || '';
                                   
                                   // Store the extracted formatted content
-                                  setExtractedFormattedContent(formattedContent);
+                                  setExtractedFormattedContent(extractedFormattedContent);
                                   
                                   // Update content formatting to match the first formatted element
-                                  if (formattedContent.length > 0 && formattedContent[0].style) {
-                                    // Smart content handling: replace if cleared, append if has content
+                                  if (extractedFormattedContent.length > 0 && extractedFormattedContent[0].style) {
+                                    // Smart content handling: always append to existing content
                                     const existingContent = newBlock.content || '';
-                                    const shouldReplace = !existingContent || existingContent.trim() === '';
-                                    const separator = !shouldReplace && existingContent && text ? '\n\n' : '';
-                                    setNewBlock({
-                                      ...newBlock,
-                                      content: shouldReplace ? text : existingContent + separator + text,
-                                      formattedContent: formattedContent // Store in newBlock state
+                                    const separator = existingContent && text ? '\n\n' : '';
+                                    const newContent = existingContent + separator + text;
+                                    
+                                    // Merge existing formatted content with new uploaded content
+                                    const existingFormattedContent = newBlock.formattedContent || [];
+                                    const mergedFormattedContent = [
+                                      ...existingFormattedContent,
+                                      ...extractedFormattedContent
+                                    ];
+                                    
+                                    console.log('DOCX Upload: Merging formatted content', {
+                                      existingContent: existingContent.length,
+                                      newContent: text.length,
+                                      mergedContent: newContent.length,
+                                      existingFormattedContent: existingFormattedContent.length,
+                                      extractedFormattedContent: extractedFormattedContent.length,
+                                      mergedFormattedContent: mergedFormattedContent.length
                                     });
-                                    // Apply the extracted formatting
-                                    applyExtractedFormatting(formattedContent);
-                                  } else {
-                                    // If no formatting found, just update the content - smart handling
-                                    const existingContent = newBlock.content || '';
-                                    const shouldReplace = !existingContent || existingContent.trim() === '';
-                                    const separator = !shouldReplace && existingContent && text ? '\n\n' : '';
+                                    
                                     setNewBlock({
                                       ...newBlock,
-                                      content: shouldReplace ? text : existingContent + separator + text,
-                                      formattedContent: formattedContent
+                                      content: newContent,
+                                      formattedContent: mergedFormattedContent
+                                    });
+                                    
+                                    // Apply the extracted formatting
+                                    applyExtractedFormatting(extractedFormattedContent);
+                                  } else {
+                                    // If no formatting found, just update the content - always append
+                                    const existingContent = newBlock.content || '';
+                                    const separator = existingContent && text ? '\n\n' : '';
+                                    const newContent = existingContent + separator + text;
+                                    
+                                    console.log('DOCX Upload: Merging plain content', {
+                                      existingContent: existingContent.length,
+                                      newContent: text.length,
+                                      mergedContent: newContent.length
+                                    });
+                                    
+                                    setNewBlock({
+                                      ...newBlock,
+                                      content: newContent,
+                                      formattedContent: newBlock.formattedContent // Preserve existing formatting
                                     });
                                   }
                                 } else {
@@ -1131,16 +1166,32 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               text = await file.text();
                             }
                             
-                            // Only update if we haven't already updated the state above
-                            // Smart content handling: replace if cleared, append if has content
+                            // Handle content merging for all file types
+                            // Always append new content to existing content, never replace
                             if (!newBlock.maintainFormatting || !formattedContent || formattedContent.length === 0) {
                               const existingContent = newBlock.content || '';
-                              const shouldReplace = !existingContent || existingContent.trim() === '';
-                              const separator = !shouldReplace && existingContent && text ? '\n\n' : '';
+                              const separator = existingContent && text ? '\n\n' : '';
+                              const newContent = existingContent + separator + text;
+                              
+                              // Preserve existing formatted content and append new plain text
+                              const existingFormattedContent = newBlock.formattedContent || [];
+                              const newFormattedContent = [
+                                ...existingFormattedContent,
+                                { text: separator + text } // Add new content as plain text
+                              ];
+                              
+                              console.log('Upload: Merging content', {
+                                existingContent: existingContent.length,
+                                newContent: text.length,
+                                mergedContent: newContent.length,
+                                existingFormattedContent: existingFormattedContent.length,
+                                newFormattedContent: newFormattedContent.length
+                              });
+                              
                               setNewBlock({ 
                                 ...newBlock, 
-                                content: shouldReplace ? text : existingContent + separator + text,
-                                formattedContent: shouldReplace ? undefined : newBlock.formattedContent
+                                content: newContent,
+                                formattedContent: newFormattedContent
                               });
                             }
                           }}
@@ -1333,14 +1384,31 @@ export const TextBlockSelector: React.FC<TextBlockSelectorProps> = ({
                               // TXT or fallback
                               text = await file.text();
                             }
-                            // Smart content handling: replace if cleared, append if has content
+                            
+                            // Always append new content to existing content, never replace
                             const existingContent = editBlock.content || '';
-                            const shouldReplace = !existingContent || existingContent.trim() === '';
-                            const separator = !shouldReplace && existingContent && text ? '\n\n' : '';
+                            const separator = existingContent && text ? '\n\n' : '';
+                            const newContent = existingContent + separator + text;
+                            
+                            // Preserve existing formatted content and append new plain text
+                            const existingFormattedContent = editBlock.formattedContent || [];
+                            const newFormattedContent = [
+                              ...existingFormattedContent,
+                              { text: separator + text } // Add new content as plain text
+                            ];
+                            
+                            console.log('Edit Block Upload: Merging content', {
+                              existingContent: existingContent.length,
+                              newContent: text.length,
+                              mergedContent: newContent.length,
+                              existingFormattedContent: existingFormattedContent.length,
+                              newFormattedContent: newFormattedContent.length
+                            });
+                            
                             setEditBlock({ 
                               ...editBlock, 
-                              content: shouldReplace ? text : existingContent + separator + text,
-                              formattedContent: shouldReplace ? undefined : editBlock.formattedContent
+                              content: newContent,
+                              formattedContent: newFormattedContent
                             });
                           }}
                         />
