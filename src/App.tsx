@@ -367,6 +367,28 @@ ${projectInfo.startDate ? `**Start Date:** ${formatDate(projectInfo.startDate)}`
 ## Project Overview
 ${projectInfo.projectOverview || 'No project overview provided.'}
 
+## Pricing & Components
+${projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0 ? `
+${projectInfo.pricingTable.length > 0 ? `
+### Pricing Structure
+
+| Item | Quantity | Description | Price ($) | Extended Price ($) |
+|------|----------|-------------|-----------|-------------------|
+${projectInfo.pricingTable.map(item => `| ${item.item || 'N/A'} | ${item.quantity} | ${item.description || 'N/A'} | $${item.price.toFixed(2)} | $${item.extendedPrice.toFixed(2)} |`).join('\n')}
+| **Total** | | | | **$${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}** |
+` : ''}
+${projectInfo.hardwareComponents.length > 0 ? `
+### Hardware Components
+
+${projectInfo.hardwareComponents.map(item => `${convertFormattedContentToPlainText([item])}`).join('\n\n')}
+` : ''}
+${projectInfo.servicesComponents.length > 0 ? `
+### Services Components
+
+${projectInfo.servicesComponents.map(item => `${convertFormattedContentToPlainText([item])}`).join('\n\n')}
+` : ''}
+` : 'No pricing or components information provided.'}
+
 ## Technical Overview
 ${projectInfo.technicalOverview || 'No technical overview provided.'}
 
@@ -386,38 +408,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
       });
     });
 
-    if (projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) {
-      content += `\n## Pricing & Components\n\n`;
 
-      if (projectInfo.pricingTable.length > 0) {
-        content += `### Pricing Structure\n\n`;
-        content += `| Item | Quantity | Description | Price ($) | Extended Price ($) |\n`;
-        content += `|------|----------|-------------|-----------|-------------------|\n`;
-
-        projectInfo.pricingTable.forEach(item => {
-          content += `| ${item.item || 'N/A'} | ${item.quantity} | ${item.description || 'N/A'} | $${item.price.toFixed(2)} | $${item.extendedPrice.toFixed(2)} |\n`;
-        });
-
-        const total = projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0);
-        content += `| **Total** | | | | **$${total.toFixed(2)}** |\n\n`;
-      }
-
-      if (projectInfo.hardwareComponents.length > 0) {
-        content += `### Hardware Components\n\n`;
-        projectInfo.hardwareComponents.forEach(item => {
-          content += `${convertFormattedContentToPlainText([item])}\n`;
-        });
-        content += `\n`;
-      }
-
-      if (projectInfo.servicesComponents.length > 0) {
-        content += `### Services Components\n\n`;
-        projectInfo.servicesComponents.forEach(item => {
-          content += `${convertFormattedContentToPlainText([item])}\n`;
-        });
-        content += `\n`;
-      }
-    }
 
     content += `\n---\n\n*Generated on ${formatDate(new Date().toISOString().split('T')[0])}*`;
 
@@ -495,28 +486,6 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                 <p style="margin: 5px 0;">${projectInfo.projectOverview || 'No project overview provided.'}</p>
               </div>
 
-              <div style="margin-bottom: 0px;">
-                <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Technical Overview</h2>
-                <p style="margin: 5px 0;">${projectInfo.technicalOverview || 'No technical overview provided.'}</p>
-              </div>
-
-              ${selectedBlocks.map((block, index) => {
-                const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
-                const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
-                const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<p style="margin: 5px 0; font-style: italic; color: #6b7280; font-size: 12px;">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</p>` : '';
-                const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<p style="margin: 5px 0; font-style: italic; color: #6b7280; font-size: 12px;">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</p>` : '';
-                const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
-                  ? convertFormattedContentToHTML(block.formattedContent)
-                  : block.content.replace(/\n/g, '<br>');
-                return `
-                <div style="margin-bottom: 0px;">
-                  <p style="margin: 5px 0;"><span style="${titleStyle}">${block.title}</span></p>
-                  ${headerHTML}
-                  <p style="margin: 5px 0; ${contentStyle}">${contentHTML}</p>
-                  ${footerHTML}
-                </div>`;
-              }).join('')}
-
               ${(projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) ? `
               <div style="margin-bottom: 0px;">
                 <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Pricing & Components</h2>
@@ -580,6 +549,28 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
                 ` : ''}
               </div>
               ` : ''}
+
+              <div style="margin-bottom: 0px;">
+                <h2 style="color: #1e40af; margin: 20px 0 10px 0; font-size: 18px; font-weight: bold;">Technical Overview</h2>
+                <p style="margin: 5px 0;">${projectInfo.technicalOverview || 'No technical overview provided.'}</p>
+              </div>
+
+              ${selectedBlocks.map((block, index) => {
+                const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
+                const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
+                const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<p style="margin: 5px 0; font-style: italic; color: #6b7280; font-size: 12px;">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</p>` : '';
+                const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<p style="margin: 5px 0; font-style: italic; color: #6b7280; font-size: 12px;">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</p>` : '';
+                const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
+                  ? convertFormattedContentToHTML(block.formattedContent)
+                  : block.content.replace(/\n/g, '<br>');
+                return `
+                <div style="margin-bottom: 0px;">
+                  <p style="margin: 5px 0;"><span style="${titleStyle}">${block.title}</span></p>
+                  ${headerHTML}
+                  <p style="margin: 5px 0; ${contentStyle}">${contentHTML}</p>
+                  ${footerHTML}
+                </div>`;
+              }).join('')}
 
               <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 12px;">
                 <p style="margin-bottom: 20px;"><em>Generated on ${formatDate(new Date().toISOString().split('T')[0])}</em></p>
@@ -774,6 +765,162 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               children: [new TextRun({ text: projectInfo.projectOverview || 'No project overview provided.' })]
             }));
 
+            // Pricing & Components - H2 Heading
+            if (projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) {
+              paragraphs.push(new Paragraph({
+                text: "Pricing & Components",
+                heading: HeadingLevel.HEADING_2,
+                spacing: {
+                  after: 200,
+                  before: 400
+                }
+              }));
+
+              // Pricing Structure
+              if (projectInfo.pricingTable.length > 0) {
+                paragraphs.push(new Paragraph({
+                  text: "Pricing Structure",
+                  heading: HeadingLevel.HEADING_3,
+                  spacing: {
+                    after: 200,
+                    before: 300
+                  }
+                }));
+
+                // Get font family from first selected block
+                const getTableFontFamily = () => {
+                  if (selectedBlocks.length > 0) {
+                    const firstBlock = selectedBlocks[0];
+                    // Try to get font family from content formatting first, then title formatting
+                    return firstBlock.contentFormatting?.fontFamily ||
+                      firstBlock.titleFormatting?.fontFamily ||
+                      'Arial';
+                  }
+                  return 'Arial';
+                };
+
+                const tableFontFamily = getTableFontFamily();
+
+                // Create pricing table
+                const tableRows = [];
+
+                // Header row
+                const headerRow = new TableRow({
+                  children: [
+                    new TableCell({
+                      children: [new Paragraph({ children: [new TextRun({ text: "Item", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                      shading: { fill: "DC2626" }
+                    }),
+                    new TableCell({
+                      children: [new Paragraph({ children: [new TextRun({ text: "Quantity", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                      shading: { fill: "DC2626" }
+                    }),
+                    new TableCell({
+                      children: [new Paragraph({ children: [new TextRun({ text: "Description", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                      shading: { fill: "DC2626" }
+                    }),
+                    new TableCell({
+                      children: [new Paragraph({ children: [new TextRun({ text: "Price ($)", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                      shading: { fill: "DC2626" }
+                    }),
+                    new TableCell({
+                      children: [new Paragraph({ children: [new TextRun({ text: "Extended Price ($)", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                      shading: { fill: "DC2626" }
+                    })
+                  ]
+                });
+                tableRows.push(headerRow);
+
+                // Data rows
+                projectInfo.pricingTable.forEach(item => {
+                  const dataRow = new TableRow({
+                    children: [
+                      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.item || 'N/A', font: tableFontFamily })] })] }),
+                      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.quantity.toString(), font: tableFontFamily })] })] }),
+                      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.description || 'N/A', font: tableFontFamily })] })] }),
+                      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${item.price.toFixed(2)}`, font: tableFontFamily })] })] }),
+                      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${item.extendedPrice.toFixed(2)}`, font: tableFontFamily })] })] })
+                    ]
+                  });
+                  tableRows.push(dataRow);
+                });
+
+                // Total row
+                const total = projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0);
+                const totalRow = new TableRow({
+                  children: [
+                    new TableCell({
+                      children: [new Paragraph({ children: [new TextRun({ text: "Total", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                      shading: { fill: "DC2626" }
+                    }),
+                    new TableCell({
+                      children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily, color: "FFFFFF" })] })],
+                      shading: { fill: "DC2626" }
+                    }),
+                    new TableCell({
+                      children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily, color: "FFFFFF" })] })],
+                      shading: { fill: "DC2626" }
+                    }),
+                    new TableCell({
+                      children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily, color: "FFFFFF" })] })],
+                      shading: { fill: "DC2626" }
+                    }),
+                    new TableCell({
+                      children: [new Paragraph({ children: [new TextRun({ text: `$${total.toFixed(2)}`, bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
+                      shading: { fill: "DC2626" }
+                    })
+                  ]
+                });
+                tableRows.push(totalRow);
+
+                const pricingTable = new Table({
+                  rows: tableRows,
+                  width: {
+                    size: 100,
+                    type: WidthType.PERCENTAGE,
+                  },
+                });
+
+                paragraphs.push(pricingTable);
+              }
+
+              // Hardware Components
+              if (projectInfo.hardwareComponents.length > 0) {
+                paragraphs.push(new Paragraph({
+                  text: "Hardware Components",
+                  heading: HeadingLevel.HEADING_3,
+                  spacing: {
+                    after: 200,
+                    before: 300
+                  }
+                }));
+                projectInfo.hardwareComponents.forEach(item => {
+                  const textRuns = convertFormattedContentToTextRuns([item]);
+                  paragraphs.push(new Paragraph({
+                    children: textRuns
+                  }));
+                });
+              }
+
+              // Services Components
+              if (projectInfo.servicesComponents.length > 0) {
+                paragraphs.push(new Paragraph({
+                  text: "Services Components",
+                  heading: HeadingLevel.HEADING_3,
+                  spacing: {
+                    after: 200,
+                    before: 300
+                  }
+                }));
+                projectInfo.servicesComponents.forEach(item => {
+                  const textRuns = convertFormattedContentToTextRuns([item]);
+                  paragraphs.push(new Paragraph({
+                    children: textRuns
+                  }));
+                });
+              }
+            }
+
             // Technical Overview - H2 Heading
             paragraphs.push(new Paragraph({
               text: "Technical Overview",
@@ -857,148 +1004,7 @@ ${projectInfo.technicalOverview || 'No technical overview provided.'}
               }
             });
 
-            // Pricing Components
 
-            if (projectInfo.pricingTable.length > 0) {
-              paragraphs.push(new Paragraph({
-                text: "Pricing Structure",
-                heading: HeadingLevel.HEADING_2,
-                spacing: {
-                  after: 200,
-                  before: 400
-                }
-              }));
-
-              // Get font family from first selected block
-              const getTableFontFamily = () => {
-                if (selectedBlocks.length > 0) {
-                  const firstBlock = selectedBlocks[0];
-                  // Try to get font family from content formatting first, then title formatting
-                  return firstBlock.contentFormatting?.fontFamily ||
-                    firstBlock.titleFormatting?.fontFamily ||
-                    'Arial';
-                }
-                return 'Arial';
-              };
-
-              const tableFontFamily = getTableFontFamily();
-
-              // Create pricing table
-              const tableRows = [];
-
-              // Header row
-              const headerRow = new TableRow({
-                children: [
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: "Item", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
-                    shading: { fill: "DC2626" }
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: "Quantity", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
-                    shading: { fill: "DC2626" }
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: "Description", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
-                    shading: { fill: "DC2626" }
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: "Price ($)", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
-                    shading: { fill: "DC2626" }
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: "Extended Price ($)", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
-                    shading: { fill: "DC2626" }
-                  })
-                ]
-              });
-              tableRows.push(headerRow);
-
-              // Data rows
-              projectInfo.pricingTable.forEach(item => {
-                const dataRow = new TableRow({
-                  children: [
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.item || 'N/A', font: tableFontFamily })] })] }),
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.quantity.toString(), font: tableFontFamily })] })] }),
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: item.description || 'N/A', font: tableFontFamily })] })] }),
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${item.price.toFixed(2)}`, font: tableFontFamily })] })] }),
-                    new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `$${item.extendedPrice.toFixed(2)}`, font: tableFontFamily })] })] })
-                  ]
-                });
-                tableRows.push(dataRow);
-              });
-
-              // Total row
-              const total = projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0);
-              const totalRow = new TableRow({
-                children: [
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: "Total", bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
-                    shading: { fill: "DC2626" }
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily, color: "FFFFFF" })] })],
-                    shading: { fill: "DC2626" }
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily, color: "FFFFFF" })] })],
-                    shading: { fill: "DC2626" }
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: "", font: tableFontFamily, color: "FFFFFF" })] })],
-                    shading: { fill: "DC2626" }
-                  }),
-                  new TableCell({
-                    children: [new Paragraph({ children: [new TextRun({ text: `$${total.toFixed(2)}`, bold: true, font: tableFontFamily, color: "FFFFFF" })] })],
-                    shading: { fill: "DC2626" }
-                  })
-                ]
-              });
-              tableRows.push(totalRow);
-
-              const pricingTable = new Table({
-                rows: tableRows,
-                width: {
-                  size: 100,
-                  type: WidthType.PERCENTAGE,
-                },
-              });
-
-              paragraphs.push(pricingTable);
-            }
-
-            if (projectInfo.hardwareComponents.length > 0) {
-              paragraphs.push(new Paragraph({
-                text: "Hardware Components",
-                heading: HeadingLevel.HEADING_2,
-                spacing: {
-                  after: 200,
-                  before: 400
-                }
-              }));
-              projectInfo.hardwareComponents.forEach(item => {
-                const textRuns = convertFormattedContentToTextRuns([item]);
-                paragraphs.push(new Paragraph({
-                  children: textRuns
-                }));
-              });
-            }
-
-            if (projectInfo.servicesComponents.length > 0) {
-              paragraphs.push(new Paragraph({
-                text: "Services Components",
-                heading: HeadingLevel.HEADING_2,
-                spacing: {
-                  after: 200,
-                  before: 400
-                }
-              }));
-              projectInfo.servicesComponents.forEach(item => {
-                const textRuns = convertFormattedContentToTextRuns([item]);
-                paragraphs.push(new Paragraph({
-                  children: textRuns
-                }));
-              });
-            }
 
             // // Footer
             // paragraphs.push(new Paragraph({
@@ -1113,6 +1119,23 @@ Project: ${projectInfo.projectName || 'N/A'}
 
 PROJECT OVERVIEW
 ${projectInfo.projectOverview || 'No project overview provided.'}
+
+PRICING & COMPONENTS
+${projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0 ? `
+${projectInfo.pricingTable.length > 0 ? `
+Pricing Structure
+${projectInfo.pricingTable.map(item => `${item.item || 'N/A'} | ${item.quantity} | ${item.description || 'N/A'} | $${item.price.toFixed(2)} | $${item.extendedPrice.toFixed(2)}`).join('\n')}
+Total: $${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}
+` : ''}
+${projectInfo.hardwareComponents.length > 0 ? `
+Hardware Components
+${projectInfo.hardwareComponents.map(item => item.text).join('\n')}
+` : ''}
+${projectInfo.servicesComponents.length > 0 ? `
+Services Components
+${projectInfo.servicesComponents.map(item => item.text).join('\n')}
+` : ''}
+` : 'No pricing or components information provided.'}
 
 TECHNICAL OVERVIEW
 ${projectInfo.technicalOverview || 'No technical overview provided.'}
@@ -1361,51 +1384,9 @@ Generated on ${formatDate(new Date().toISOString().split('T')[0])}
     <p>${projectInfo.projectOverview || 'No project overview provided.'}</p>
   </div>
 
-  <div class="section">
-    <h2>Technical Overview</h2>
-    <p>${projectInfo.technicalOverview || 'No technical overview provided.'}</p>
-  </div>
-
-  ${selectedBlocks.map((block, index) => {
-              const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
-              const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
-              const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<p class="header-option">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</p>` : '';
-              const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<p class="footer-option">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</p>` : '';
-              const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
-                ? convertFormattedContentToHTML(block.formattedContent)
-                : block.content.replace(/\n/g, '<br>');
-              return `
-    <div class="content-block">
-      <p><span style="${titleStyle}"><strong>${block.title}</strong></span></p>
-      ${headerHTML}
-      <p style="${contentStyle}">${contentHTML}</p>
-      ${footerHTML}
-    </div>`;
-            }).join('')}
-
   ${(projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) ? `
   <div class="section">
     <h2>Pricing & Components</h2>
-    ${projectInfo.hardwareComponents.length > 0 ? `
-    <div class="content-block">
-      <h3>Hardware Components</h3>
-      <div>
-        ${projectInfo.hardwareComponents.map(item => `
-          <p>${convertFormattedContentToHTML([item])}</p>
-        `).join('')}
-      </div>
-    </div>
-    ` : ''}
-    ${projectInfo.servicesComponents.length > 0 ? `
-    <div class="content-block">
-      <h3>Services Components</h3>
-      <div>
-        ${projectInfo.servicesComponents.map(item => `
-          <p>${convertFormattedContentToHTML([item])}</p>
-        `).join('')}
-      </div>
-    </div>
-    ` : ''}
     ${projectInfo.pricingTable.length > 0 ? `
     <div class="content-block">
       <h3>Pricing Structure</h3>
@@ -1437,8 +1418,52 @@ Generated on ${formatDate(new Date().toISOString().split('T')[0])}
       </table>
     </div>
     ` : ''}
+    ${projectInfo.hardwareComponents.length > 0 ? `
+    <div class="content-block">
+      <h3>Hardware Components</h3>
+      <div>
+        ${projectInfo.hardwareComponents.map(item => `
+          <p>${convertFormattedContentToHTML([item])}</p>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+    ${projectInfo.servicesComponents.length > 0 ? `
+    <div class="content-block">
+      <h3>Services Components</h3>
+      <div>
+        ${projectInfo.servicesComponents.map(item => `
+          <p>${convertFormattedContentToHTML([item])}</p>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
   </div>
   ` : ''}
+
+  <div class="section">
+    <h2>Technical Overview</h2>
+    <p>${projectInfo.technicalOverview || 'No technical overview provided.'}</p>
+  </div>
+
+  ${selectedBlocks.map((block, index) => {
+              const titleStyle = buildInlineStyleFromFormatting(block.titleFormatting);
+              const contentStyle = buildInlineStyleFromFormatting(block.contentFormatting);
+              const headerHTML = (block.headerOptions && block.headerOptions.some(opt => opt)) ? `<p class="header-option">Header: ${block.headerOptions.filter(Boolean).join(' | ')}</p>` : '';
+              const footerHTML = (block.footerOptions && block.footerOptions.some(opt => opt)) ? `<p class="footer-option">Footer: ${block.footerOptions.filter(Boolean).join(' | ')}</p>` : '';
+              const contentHTML = (block.formattedContent && block.formattedContent.length > 0)
+                ? convertFormattedContentToHTML(block.formattedContent)
+                : block.content.replace(/\n/g, '<br>');
+              return `
+    <div class="content-block">
+      <p><span style="${titleStyle}"><strong>${block.title}</strong></span></p>
+      ${headerHTML}
+      <p style="${contentStyle}">${contentHTML}</p>
+      ${footerHTML}
+    </div>`;
+            }).join('')}
+
+
 
   <div class="footer">
     <p><em>Generated on ${formatDate(new Date().toISOString().split('T')[0])}</em></p>

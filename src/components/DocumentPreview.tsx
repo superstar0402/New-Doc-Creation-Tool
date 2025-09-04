@@ -339,12 +339,91 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                   </div>
                 )}
 
+                {/* Pricing and Components */}
+                {(projectInfo.hardwareComponents.length > 0 || projectInfo.servicesComponents.length > 0 || projectInfo.pricingTable.length > 0) && (
+                  <div className="mb-10">
+                    <div className="flex items-center mb-6">
+                      <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-white font-bold text-sm">2</span>
+                      </div>
+                      <h3 className="text-2xl font-bold text-gray-900">Pricing & Components</h3>
+                    </div>
+                    
+                    <div className="space-y-6 pl-11">
+                      {projectInfo.pricingTable && projectInfo.pricingTable.length > 0 && (
+                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border-l-4 border-amber-500">
+                          <h4 className="text-lg font-semibold text-amber-800 mb-3">Pricing Structure</h4>
+                          <div className="overflow-x-auto">
+                            <table className="w-full border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                              <thead>
+                                <tr className="bg-red-600 text-white">
+                                  <th className="px-3 py-2 text-left text-sm font-medium">Item</th>
+                                  <th className="px-3 py-2 text-left text-sm font-medium">Quantity</th>
+                                  <th className="px-3 py-2 text-left text-sm font-medium">Description</th>
+                                  <th className="px-3 py-2 text-right text-sm font-medium">Price ($)</th>
+                                  <th className="px-3 py-2 text-right text-sm font-medium">Extended Price ($)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {projectInfo.pricingTable.map((item, index) => (
+                                  <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
+                                    <td className="px-3 py-2 text-sm">{item.item || 'N/A'}</td>
+                                    <td className="px-3 py-2 text-sm">{item.quantity}</td>
+                                    <td className="px-3 py-2 text-sm">{item.description || 'N/A'}</td>
+                                    <td className="px-3 py-2 text-sm text-right">${item.price.toFixed(2)}</td>
+                                    <td className="px-3 py-2 text-sm text-right">${item.extendedPrice.toFixed(2)}</td>
+                                  </tr>
+                                ))}
+                                <tr className="bg-red-600 text-white font-semibold">
+                                  <td className="px-3 py-2 text-sm">Total:</td>
+                                  <td className="px-3 py-2 text-sm"></td>
+                                  <td className="px-3 py-2 text-sm"></td>
+                                  <td className="px-3 py-2 text-sm text-right"></td>
+                                  <td className="px-3 py-2 text-sm text-right">
+                                    ${projectInfo.pricingTable.reduce((sum, item) => sum + item.extendedPrice, 0).toFixed(2)}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {projectInfo.hardwareComponents && projectInfo.hardwareComponents.length > 0 && (
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border-l-4 border-blue-500">
+                          <h4 className="text-lg font-semibold text-blue-800 mb-3">Hardware Components</h4>
+                          <div className="space-y-2">
+                            {projectInfo.hardwareComponents.map((item, index) => (
+                              <div key={index} className="text-gray-700">
+                                {renderFormattedContent([item])}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {projectInfo.servicesComponents && projectInfo.servicesComponents.length > 0 && (
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border-l-4 border-green-500">
+                          <h4 className="text-lg font-semibold text-green-800 mb-3">Services Components</h4>
+                          <div className="space-y-2">
+                            {projectInfo.servicesComponents.map((item, index) => (
+                              <div key={index} className="text-gray-700">
+                                {renderFormattedContent([item])}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Technical Overview */}
                 {projectInfo.technicalOverview && (
                   <div className="mb-10">
                     <div className="flex items-center mb-6">
                       <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-white font-bold text-sm">2</span>
+                        <span className="text-white font-bold text-sm">3</span>
                       </div>
                       <h3 className="text-2xl font-bold text-gray-900">Technical Overview</h3>
                     </div>
@@ -361,7 +440,7 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                   <div key={category} className="mb-10">
                     <div className="flex items-center mb-6">
                       <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-white font-bold text-sm">{categoryIndex + 3}</span>
+                        <span className="text-white font-bold text-sm">{categoryIndex + 4}</span>
                       </div>
                       <h3 className="text-2xl font-bold text-gray-900">{category}</h3>
                     </div>
