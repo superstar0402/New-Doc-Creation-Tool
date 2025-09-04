@@ -1,4 +1,0 @@
-This is test content for the first upload.
-It should be appended to any existing content.
-
-The upload functionality should now append new content to the end of existing content instead of replacing it. 

@@ -1,3 +1,0 @@
-This is new content that should replace the cleared content.
-
-When you clear the existing content and then upload this file, it should completely replace the old content instead of appending to it. 
